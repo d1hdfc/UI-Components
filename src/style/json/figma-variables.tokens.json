@@ -1608,7 +1608,7 @@
       "VariableCollectionId:93bf434af1104d787a9bf87ff40300e836f23d7c/71766:832": {
         "defaultModeId": "70894:1",
         "id": "VariableCollectionId:93bf434af1104d787a9bf87ff40300e836f23d7c/71766:832",
-        "name": "Blade Theme Tokens",
+        "name": "UI Theme Tokens",
         "remote": true,
         "modes": [
           {

@@ -1,6 +1,6 @@
-# Blade Components — Blade-like Design System Starter
+# UI Components — UI-like Design System Starter
 
-This repo is a starter UI component library inspired by Razorpay Blade, with a simple MCP configuration to map Figma tokens & components to TypeScript.
+This repo is a starter UI component library inspired by Razorpay UI, with a simple MCP configuration to map Figma tokens & components to TypeScript.
 
 Quick start
 

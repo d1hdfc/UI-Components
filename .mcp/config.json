@@ -1,6 +1,6 @@
 {
  "mcpVersion": "1.0.0",
-  "name": "figma-blade-mcp-server",
+  "name": "figma-UI-mcp-server",
   "connection": {
     "type": "figma",
     "apiEndpoint": "https://api.figma.com/v1",
@@ -10,7 +10,7 @@
     "defaultNodeId": "3972:31252"
   },
   "mappingRules": {
-    "componentPrefix": "Blade",
+    "componentPrefix": "UI",
     "tokenPath": "src/tokens",
     "componentsPath": "src/components",
     "autoLayoutToFlex": true,
@@ -34,25 +34,25 @@
   "components": [
     {
       "figmaComponentName": "Button",
-      "codeComponentName": "BladeButton",
+      "codeComponentName": "UIButton",
       "filePath": "src/components/Button/Button.tsx",
       "typesPath": "src/components/Button/Button.types.ts"
     },
     {
       "figmaComponentName": "Tooltip",
-      "codeComponentName": "BladeTooltip",
+      "codeComponentName": "UITooltip",
       "filePath": "src/components/Tooltip/Tooltip.tsx",
       "typesPath": "src/components/Tooltip/Tooltip.types.ts"
     },
     {
       "figmaComponentName": "Switcher",
-      "codeComponentName": "BladeSwitcher",
+      "codeComponentName": "UISwitcher",
       "filePath": "src/components/Switcher/Switcher.tsx",
       "typesPath": "src/components/Switcher/Switcher.types.ts"
     },
     {
       "figmaComponentName": "TextBox",
-      "codeComponentName": "BladeTextBox",
+      "codeComponentName": "UITextBox",
       "filePath": "src/components/TextBox/TextBox.tsx",
       "typesPath": "src/components/TextBox/TextBox.types.ts"
     }
