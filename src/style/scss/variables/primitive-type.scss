@@ -1,3 +1,4 @@
+@use 'sass:meta';
 $primitive-type-tokens: (
   "family": (
     "inter": "Inter"
@@ -68,7 +69,7 @@ $primitive-type-tokens: (
   @each $key, $value in $map {
     $full-key: if($prefix == '', $key, '#{$prefix}-#{$key}');
     
-    @if type-of($value) == 'map' {
+    @if meta.type-of($value) == "map" {
       @include render-nested-vars($value, $full-key);
     } @else {
       --#{$full-key}: #{$value};

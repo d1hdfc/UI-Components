@@ -1,8 +1,8 @@
-@use './style/scss/adaptive.scss';
-@use './style/scss/alias.scss';
+@use './style/scss/variables/adaptive.scss';
+@use './style/scss/variables/alias.scss';
 @use './style/scss/figma-variables.scss';
-@use './style/scss/layout.scss';
-@use './style/scss/platform.scss';
-@use './style/scss/primitive-type.scss';
-@use './style/scss/primitives.scss';
-@use './style/scss/semantics.scss';
+@use './style/scss/variables/layout.scss';
+@use './style/scss/variables/platform.scss';
+@use './style/scss/variables/primitive-type.scss';
+@use './style/scss/variables/primitives.scss';
+@use './style/scss/variables/semantics.scss';
