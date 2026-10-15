@@ -20,56 +20,265 @@ $columns: (
   "gutter": (8, 16, 20, 20)
 );
 
-$screen-index: (mobile: 1, tablet: 2, desktop: 3, large-desktop: 4);
+$screen-index: (
+  "mobile": 1,
+  "tablet": 2,
+  "desktop": 3,
+  "large-desktop": 4
+);
 
 $adaptive-viewport-tokens: (
-  mobile: (
-    "breakpoints": 360,
+  "mobile": (
     "number": 0,
-    "font-size": ("h1": 36px, "h2": 32px, "h3": 28px, "h4": 24px, "h5": 20px, "p1": 18px, "p2": 16px, "p3": 14px, "p4": 12px),
-    "font-lineheight": ("h1": 44px, "h2": 40px, "h3": 36px, "h4": 32px, "h5": 28px, "p1": 24px, "p2": 20px, "p3": 18px, "p4": 16px),
-    "radius": ("2xs": 4px, "xs": 8px, "sm": 12px, "md": 16px, "lg": 20px, "xl": 24px, "full": 1440px, "bottomsheet": 0px),
-    "spacing": ("2xs": 2px, "xs": 4px, "sm": 8px, "md": 12px, "lg": 16px, "xl": 20px, "2xl": 24px, "3xl": 28px, "4xl": 32px, "5xl": 40px, "negative-overlap": -32px, "bottomsheet-top": 8px),
-    "visibility": ("d0-t0-m1": 1, "d1-t1-m0": 0),
-    "popup": ("small": 360, "medium": 360),
-    "margin": ("horizontal": 16px, "vertical": 20px),
+    "font-size": (
+      "h1": var(--font-size-heading-h1),
+      "h2": var(--font-size-heading-h2),
+      "h3": var(--font-size-heading-h3),
+      "h4": var(--font-size-heading-h4),
+      "h5": var(--font-size-heading-h5),
+      "p1": var(--font-size-paragraph-lg),
+      "p2": var(--font-size-paragraph-md),
+      "p3": var(--font-size-paragraph-sm),
+      "p4": var(--font-size-paragraph-xsm)
+    ),
+    "font-lineheight": (
+      "h1": var(--font-line-height-heading-h1),
+      "h2": var(--font-line-height-heading-h2),
+      "h3": var(--font-line-height-heading-h3),
+      "h4": var(--font-line-height-heading-h4),
+      "h5": var(--font-line-height-heading-h5),
+      "p1": var(--font-line-height-paragraph-lg),
+      "p2": var(--font-line-height-paragraph-md),
+      "p3": var(--font-line-height-paragraph-sm),
+      "p4": var(--font-line-height-paragraph-xsm)
+    ),
+    "radius": (
+      "2xs": var(--layout-radius-2xs),
+      "xs": var(--layout-radius-sm),
+      "sm": var(--layout-radius-md),
+      "md": var(--layout-radius-lg),
+      "lg": var(--layout-radius-xl),
+      "xl": var(--layout-radius-2xl),
+      "full": var(--layout-radius-full),
+      "bottomsheet": var(--layout-radius-3xs)
+    ),
+    "spacing": (
+      "2xs": var(--layout-spacing-2xs),
+      "xs": var(--layout-spacing-xs),
+      "sm": var(--layout-spacing-sm),
+      "md": var(--layout-spacing-md),
+      "lg": var(--layout-spacing-lg),
+      "xl": var(--layout-spacing-xl),
+      "2xl": var(--layout-spacing-2xl),
+      "3xl": var(--layout-spacing-3xl),
+      "4xl": var(--layout-spacing-4xl),
+      "5xl": var(--layout-spacing-5xl),
+      "negative-overlap": -32px,
+      "bottomsheet-top": var(--layout-spacing-sm)
+    ),
+    "visibility": (
+      "d0-t0-m1": 1,
+      "d1-t1-m0": 0
+    ),
+    "popup": (
+      "small": 360,
+      "medium": 360
+    ),
+    "margin": (
+      "horizontal": var(--global-scale-200),
+      "vertical": var(--global-scale-250)
+    ),
+    "breakpoints": 360,
     "button-size": "medium"
   ),
-  tablet: (
+  "tablet": (
+    "number": 0,
+    "font-size": (
+      "h1": var(--font-size-display-sm),
+      "h2": var(--font-size-heading-h1),
+      "h3": var(--font-size-heading-h2),
+      "h4": var(--font-size-heading-h3),
+      "h5": var(--font-size-heading-h4),
+      "p1": var(--font-size-heading-h5),
+      "p2": var(--font-size-paragraph-lg),
+      "p3": var(--font-size-paragraph-md),
+      "p4": var(--font-size-paragraph-sm)
+    ),
+    "font-lineheight": (
+      "h1": var(--font-line-height-display-sm),
+      "h2": var(--font-line-height-heading-h1),
+      "h3": var(--font-line-height-heading-h2),
+      "h4": var(--font-line-height-heading-h3),
+      "h5": var(--font-line-height-heading-h4),
+      "p1": var(--font-line-height-heading-h5),
+      "p2": var(--font-line-height-paragraph-lg),
+      "p3": var(--font-line-height-paragraph-md),
+      "p4": var(--font-line-height-paragraph-sm)
+    ),
+    "radius": (
+      "2xs": var(--layout-radius-2xs),
+      "xs": var(--layout-radius-sm),
+      "sm": var(--layout-radius-md),
+      "md": var(--layout-radius-lg),
+      "lg": var(--layout-radius-xl),
+      "xl": var(--layout-radius-2xl),
+      "full": var(--layout-radius-full),
+      "bottomsheet": var(--layout-radius-xl)
+    ),
+    "spacing": (
+      "2xs": var(--layout-spacing-2xs),
+      "xs": var(--layout-spacing-xs),
+      "sm": var(--layout-spacing-sm),
+      "md": var(--layout-spacing-md),
+      "lg": var(--layout-spacing-lg),
+      "xl": var(--layout-spacing-2xl),
+      "2xl": var(--layout-spacing-3xl),
+      "3xl": var(--layout-spacing-4xl),
+      "4xl": var(--layout-spacing-5xl),
+      "5xl": var(--layout-spacing-6xl),
+      "negative-overlap": -32px,
+      "bottomsheet-top": var(--layout-spacing-2xl)
+    ),
+    "visibility": (
+      "d0-t0-m1": 0,
+      "d1-t1-m0": 1
+    ),
+    "popup": (
+      "small": 480,
+      "medium": 688
+    ),
+    "margin": (
+      "horizontal": var(--global-scale-400),
+      "vertical": var(--global-scale-450)
+    ),
     "breakpoints": 768,
-    "number": 0,
-    "font-size": ("h1": 40px, "h2": 36px, "h3": 32px, "h4": 28px, "h5": 24px, "p1": 20px, "p2": 18px, "p3": 16px, "p4": 14px),
-    "font-lineheight": ("h1": 48px, "h2": 44px, "h3": 40px, "h4": 36px, "h5": 32px, "p1": 28px, "p2": 24px, "p3": 20px, "p4": 18px),
-    "radius": ("2xs": 4px, "xs": 8px, "sm": 12px, "md": 16px, "lg": 20px, "xl": 24px, "full": 1440px, "bottomsheet": 20px),
-    "spacing": ("2xs": 2px, "xs": 4px, "sm": 8px, "md": 12px, "lg": 16px, "xl": 24px, "2xl": 28px, "3xl": 32px, "4xl": 40px, "5xl": 48px, "negative-overlap": -32px, "bottomsheet-top": 24px),
-    "visibility": ("d0-t0-m1": 0, "d1-t1-m0": 1),
-    "popup": ("small": 480, "medium": 688),
-    "margin": ("horizontal": 32px, "vertical": 36px),
     "button-size": "large"
   ),
-  desktop: (
+  "desktop": (
+    "number": 0,
+    "font-size": (
+      "h1": var(--font-size-display-md),
+      "h2": var(--font-size-display-sm),
+      "h3": var(--font-size-heading-h1),
+      "h4": var(--font-size-heading-h2),
+      "h5": var(--font-size-heading-h3),
+      "p1": var(--font-size-heading-h4),
+      "p2": var(--font-size-heading-h5),
+      "p3": var(--font-size-paragraph-lg),
+      "p4": var(--font-size-paragraph-md)
+    ),
+    "font-lineheight": (
+      "h1": var(--font-line-height-display-md),
+      "h2": var(--font-line-height-display-sm),
+      "h3": var(--font-line-height-heading-h1),
+      "h4": var(--font-line-height-heading-h2),
+      "h5": var(--font-line-height-heading-h3),
+      "p1": var(--font-line-height-heading-h4),
+      "p2": var(--font-line-height-heading-h5),
+      "p3": var(--font-line-height-paragraph-lg),
+      "p4": var(--font-line-height-paragraph-md)
+    ),
+    "radius": (
+      "2xs": var(--layout-radius-sm),
+      "xs": var(--layout-radius-sm),
+      "sm": var(--layout-radius-lg),
+      "md": var(--layout-radius-xl),
+      "lg": var(--layout-radius-2xl),
+      "xl": var(--layout-radius-2xl),
+      "full": var(--layout-radius-full),
+      "bottomsheet": var(--layout-radius-2xl)
+    ),
+    "spacing": (
+      "2xs": var(--layout-spacing-xs),
+      "xs": var(--layout-spacing-sm),
+      "sm": var(--layout-spacing-md),
+      "md": var(--layout-spacing-lg),
+      "lg": var(--layout-spacing-xl),
+      "xl": var(--layout-spacing-3xl),
+      "2xl": var(--layout-spacing-4xl),
+      "3xl": var(--layout-spacing-5xl),
+      "4xl": var(--layout-spacing-6xl),
+      "5xl": var(--layout-spacing-7xl),
+      "negative-overlap": -32px,
+      "bottomsheet-top": var(--layout-spacing-4xl)
+    ),
+    "visibility": (
+      "d0-t0-m1": 0,
+      "d1-t1-m0": 1
+    ),
+    "popup": (
+      "small": 550,
+      "medium": 740
+    ),
+    "margin": (
+      "horizontal": var(--global-scale-700),
+      "vertical": var(--global-scale-500)
+    ),
     "breakpoints": 1280,
-    "number": 0,
-    "font-size": ("h1": 44px, "h2": 40px, "h3": 36px, "h4": 32px, "h5": 28px, "p1": 24px, "p2": 20px, "p3": 18px, "p4": 16px),
-    "font-lineheight": ("h1": 52px, "h2": 48px, "h3": 44px, "h4": 40px, "h5": 36px, "p1": 32px, "p2": 28px, "p3": 24px, "p4": 20px),
-    "radius": ("2xs": 8px, "xs": 8px, "sm": 16px, "md": 20px, "lg": 24px, "xl": 24px, "full": 1440px, "bottomsheet": 24px),
-    "spacing": ("2xs": 4px, "xs": 8px, "sm": 12px, "md": 16px, "lg": 20px, "xl": 28px, "2xl": 32px, "3xl": 40px, "4xl": 48px, "5xl": 64px, "negative-overlap": -32px, "bottomsheet-top": 32px),
-    "visibility": ("d0-t0-m1": 0, "d1-t1-m0": 1),
-    "popup": ("small": 550, "medium": 740),
-    "margin": ("horizontal": 56px, "vertical": 40px),
     "button-size": "large"
   ),
-  large-desktop: (
-    "breakpoints": 1440,
+  "large-desktop": (
     "number": 0,
-    "font-size": ("h1": 48px, "h2": 44px, "h3": 40px, "h4": 36px, "h5": 32px, "p1": 28px, "p2": 24px, "p3": 20px, "p4": 18px),
-    "font-lineheight": ("h1": 56px, "h2": 52px, "h3": 48px, "h4": 44px, "h5": 40px, "p1": 36px, "p2": 32px, "p3": 28px, "p4": 24px),
-    "radius": ("2xs": 8px, "xs": 12px, "sm": 16px, "md": 24px, "lg": 24px, "xl": 24px, "full": 1440px, "bottomsheet": 24px),
-    "spacing": ("2xs": 4px, "xs": 8px, "sm": 12px, "md": 20px, "lg": 24px, "xl": 32px, "2xl": 40px, "3xl": 48px, "4xl": 64px, "5xl": 80px, "negative-overlap": -60px, "bottomsheet-top": 32px),
-    "visibility": ("d0-t0-m1": 0, "d1-t1-m0": 1),
-    "popup": ("small": 0, "medium": 0),
-    "margin": ("horizontal": 56px, "vertical": 40px),
-    "button-size": "large"
+    "font-size": (
+      "h1": var(--font-size-display-lg),
+      "h2": var(--font-size-display-md),
+      "h3": var(--font-size-display-sm),
+      "h4": var(--font-size-heading-h1),
+      "h5": var(--font-size-heading-h2),
+      "p1": var(--font-size-heading-h3),
+      "p2": var(--font-size-heading-h4),
+      "p3": var(--font-size-heading-h5),
+      "p4": var(--font-size-paragraph-lg)
+    ),
+    "font-lineheight": (
+      "h1": var(--font-line-height-display-lg),
+      "h2": var(--font-line-height-display-md),
+      "h3": var(--font-line-height-display-sm),
+      "h4": var(--font-line-height-heading-h1),
+      "h5": var(--font-line-height-heading-h2),
+      "p1": var(--font-line-height-heading-h3),
+      "p2": var(--font-line-height-heading-h4),
+      "p3": var(--font-line-height-heading-h5),
+      "p4": var(--font-line-height-paragraph-lg)
+    ),
+    "radius": (
+      "2xs": var(--layout-radius-sm),
+      "xs": var(--layout-radius-md),
+      "sm": var(--layout-radius-lg),
+      "md": var(--layout-radius-2xl),
+      "lg": var(--layout-radius-2xl),
+      "xl": var(--layout-radius-2xl),
+      "full": var(--layout-radius-full),
+      "bottomsheet": var(--layout-radius-2xl)
+    ),
+    "spacing": (
+      "2xs": var(--layout-spacing-xs),
+      "xs": var(--layout-spacing-sm),
+      "sm": var(--layout-spacing-md),
+      "md": var(--layout-spacing-xl),
+      "lg": var(--layout-spacing-2xl),
+      "xl": var(--layout-spacing-4xl),
+      "2xl": var(--layout-spacing-5xl),
+      "3xl": var(--layout-spacing-6xl),
+      "4xl": var(--layout-spacing-7xl),
+      "5xl": var(--layout-spacing-8xl),
+      "negative-overlap": -60px,
+      "bottomsheet-top": var(--layout-spacing-4xl)
+    ),
+    "visibility": (
+      "d0-t0-m1": 0,
+      "d1-t1-m0": 1
+    ),
+    "popup": (
+      "small": 0,
+      "medium": 0
+    ),
+    "margin": (
+      "horizontal": var(--global-scale-700),
+      "vertical": var(--global-scale-500)
+    ),
+    "breakpoints": 1440,
+    "button-size": "String value"
   )
 );
 
