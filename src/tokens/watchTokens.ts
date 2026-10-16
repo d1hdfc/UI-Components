@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { exec } from 'child_process';
 
-const jsonDir = path.join(process.cwd(), 'src', 'style', 'json');
+const jsonDir = path.join(process.cwd(), 'src', 'tokens');
 
 console.log('👀 Token watch mode is ACTIVATED! Listening for changes or manual triggers...');
 

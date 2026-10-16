@@ -6,8 +6,8 @@ const token = process.env.FIGMA_PERSONAL_ACCESS_TOKEN?.trim();
 const fileKey = process.env.FIGMA_FILE_KEY || process.env.FIGMA_DESIGN_FILE_KEY || 'CXxUbHl3oMzt9Bzv3SKv75';
 const syncIntervalMs = 60_000;
 
-const jsonDir = path.join(process.cwd(), 'src', 'style', 'json');
-const scssDir = path.join(process.cwd(), 'src', 'style', 'scss');
+const jsonDir = path.join(process.cwd(), 'src', 'tokens');
+const scssDir = path.join(process.cwd(), 'src', 'tokens', 'build');
 
 type FigmaVariable = {
   name?: string;
@@ -59,14 +59,14 @@ async function fetchFigmaVariables() {
   }
 
   const data = await response.json();
-  const savePath = path.join(jsonDir, 'figma-variables.tokens.json');
+  const savePath = path.join(jsonDir, 'tokens.json');
 
   fs.writeFileSync(savePath, JSON.stringify(data, null, 2), 'utf-8');
   console.log(`📥 Downloaded Figma variables to: ${savePath}`);
 }
 
 function processFigmaVariables() {
-  const jsonPath = path.join(jsonDir, 'figma-variables.tokens.json');
+  const jsonPath = path.join(jsonDir, 'tokens.json');
   if (!fs.existsSync(jsonPath)) {
     throw new Error(`Figma variables JSON file not found: ${jsonPath}`);
   }

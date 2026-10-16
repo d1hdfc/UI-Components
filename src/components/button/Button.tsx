@@ -1,5 +1,5 @@
 import React from 'react';
-import { ButtonProps } from './Button.types';
+import type { ButtonProps } from './Button.types';
 import './Button.scss';
 
 const cx = (...parts: Array<string | false | undefined>) => parts.filter(Boolean).join(' ');

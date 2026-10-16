@@ -1,11 +1,11 @@
-@use './style/scss/figma-variables';
-@use './style/scss/variables/adaptive.scss';
-@use './style/scss/variables/alias.scss';
-@use './style/scss/variables/layout.scss';
-@use './style/scss/variables/platform.scss';
-@use './style/scss/variables/primitive-type.scss';
-@use './style/scss/variables/primitives.scss';
-@use './style/scss/variables/semantics';
+@use '../tokens/build/figma-variables';
+@use '../tokens/build/variables/adaptive.scss';
+@use '../tokens/build/variables/alias.scss';
+@use '../tokens/build/variables/layout.scss';
+@use '../tokens/build/variables/platform.scss';
+@use '../tokens/build/variables/primitive-type.scss';
+@use '../tokens/build/variables/primitives.scss';
+@use '../tokens/build/variables/semantics';
 
 * {
   box-sizing: border-box;

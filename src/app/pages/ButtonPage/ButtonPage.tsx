@@ -1,14 +1,14 @@
 import { useState } from 'react';
-import { Button as ButtonComponent } from '../../../components/Button';
-import buttonStyles from '../../../components/Button/Button.scss?raw';
-import buttonComponent from '../../../components/Button/Button.tsx?raw';
+import { Button as ButtonComponent } from '../../../components';
+import buttonStyles from '../../../components/button/Button.scss?raw';
+import buttonComponent from '../../../components/button/Button.tsx?raw';
 import './ButtonPage.scss';
 
 const sizes = ['large', 'medium', 'small', 'xsmall'] as const;
 const variants = ['primary', 'secondary', 'tertiary', 'link'] as const;
 const states = ['default', 'hover', 'selected', 'disabled'] as const;
 
-const buttonSourceUrl = 'https://github.com/d1hdfc/UI-Components/tree/main/src/components/Button';
+const buttonSourceUrl = 'https://github.com/d1hdfc/UI-Components/tree/main/src/components/button';
 const codeTabs = [
   { label: 'Button.tsx', code: buttonComponent },
   { label: 'Button.scss', code: buttonStyles }

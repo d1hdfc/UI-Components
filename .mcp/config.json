@@ -35,8 +35,8 @@
     {
       "figmaComponentName": "Button",
       "codeComponentName": "UIButton",
-      "filePath": "src/components/Button/Button.tsx",
-      "typesPath": "src/components/Button/Button.types.ts"
+      "filePath": "src/components/button/Button.tsx",
+      "typesPath": "src/components/button/Button.types.ts"
     },
     {
       "figmaComponentName": "Tooltip",

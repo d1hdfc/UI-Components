@@ -26,10 +26,11 @@ npm run dev
 Project structure
 
 - `.mcp/` — MCP mapping configuration for Figma
-- `src/tokens/` — design tokens
-- `src/components/` — Button, Tooltip, Switcher, TextBox
-- `src/context/ThemeProvider.tsx` — injects tokens as CSS variables
-- `src/App.tsx` — interactive showcase
+- `src/app/` — Vite app shell, docs pages, and docs-only components
+- `src/components/` — reusable UI components, grouped by component
+- `src/tokens/tokens.json` — synced Figma token source
+- `src/tokens/build/` — generated SCSS variables consumed by the app
+- `src/main.tsx` — Vite application entry point
 
 MCP integration
 

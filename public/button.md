@@ -6,7 +6,7 @@ Use the variant that reflects the importance of the action.
 ## Import
 
 ```tsx
-import { Button } from './components/Button';
+import { Button } from '../src/components';
 ```
 
 ## Example

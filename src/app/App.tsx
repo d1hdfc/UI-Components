@@ -1,6 +1,6 @@
-import { ButtonPage } from './Docs/pages/ButtonPage';
-import { DocsHeader } from './Docs/components/DocsHeader';
-import { DocsSidebar } from './Docs/components/DocsSidebar';
+import { ButtonPage } from './pages/ButtonPage';
+import { DocsHeader } from './components/DocsHeader';
+import { DocsSidebar } from './components/DocsSidebar';
 
 export default function App() {
   return (
