@@ -4,6 +4,16 @@ import './Button.scss';
 
 const cx = (...parts: Array<string | false | undefined>) => parts.filter(Boolean).join(' ');
 
+const renderIcon = (icon: boolean | React.ReactNode, fallback: string) => {
+  if (!icon) return null;
+
+  return (
+    <span className="btn-icon" aria-hidden="true">
+      {icon === true ? fallback : icon}
+    </span>
+  );
+};
+
 export const Button: React.FC<ButtonProps> = ({
   children = 'Button',
   size = 'medium',
@@ -12,6 +22,7 @@ export const Button: React.FC<ButtonProps> = ({
   rightIcon = false,
   loading = false,
   disabled = false,
+  selected = false,
   fullWidth = false,
   className,
   ...rest
@@ -22,22 +33,24 @@ export const Button: React.FC<ButtonProps> = ({
     'btn',
     `btn-${size}`,
     `btn-${variant}`,
+    selected && 'btn--selected',
     fullWidth && 'btn--full-width',
     isDisabled && 'btn--disabled',
     className
   );
 
   return (
-    <button className={combinedClasses} disabled={isDisabled} {...rest}>
-      {loading ? (
-        <span className="spinner" aria-hidden="true">Loading...</span>
-      ) : (
-        <>
-          {leftIcon && <span className="btn-icon">&lt;</span>}
-          <span className="btn-label">{children}</span>
-          {rightIcon && <span className="btn-icon">&gt;</span>}
-        </>
-      )}
+    <button
+      {...rest}
+      className={combinedClasses}
+      disabled={isDisabled}
+      aria-busy={loading || undefined}
+      aria-pressed={selected || undefined}
+    >
+      {renderIcon(leftIcon, '‹')}
+      <span className="btn-label">{children}</span>
+      {loading && <span className="spinner" aria-hidden="true" />}
+      {!loading && renderIcon(rightIcon, '›')}
     </button>
   );
 };

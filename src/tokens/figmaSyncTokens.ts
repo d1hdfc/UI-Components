@@ -116,40 +116,8 @@ function processFigmaVariables() {
     targetCollectionNames.map((name) => [name, findCollection(name, collections, variables)])
   );
   const updates = new Map<string, string>();
-  const variableScss = new Map<string, string>();
-  let skippedGeneratedVariables = 0;
 
-  for (const variable of Object.values(variables)) {
-    if (!variable?.name || !variable.valuesByMode) continue;
-    const collection = variableCollections[variable.variableCollectionId ?? ''];
-    const modeId = collection?.defaultModeId;
-    const availableModes = Object.keys(variable.valuesByMode);
-    const selectedMode = modeId && Object.prototype.hasOwnProperty.call(variable.valuesByMode, modeId)
-      ? modeId
-      : availableModes[0];
-    if (!selectedMode) continue;
-    let value: string;
-    try {
-      value = toScssLiteral(variable.valuesByMode[selectedMode], normalizeScssVariableName(variable.name), idToNameMap);
-    } catch (error) {
-      if (!(error instanceof Error) || !error.message.startsWith('Unresolved Figma variable alias')) throw error;
-      skippedGeneratedVariables++;
-      continue;
-    }
-    const group = normalizeScssVariableName(variable.name.split('/')[0] || 'misc');
-    const groupValues = variableScss.get(group) ?? '';
-    const normalizedName = normalizeScssVariableName(variable.name);
-    const scssName = /^[0-9]/.test(normalizedName) ? `token-${normalizedName}` : normalizedName;
-    variableScss.set(group, `${groupValues}$${scssName}: ${value};\n`);
-  }
-  if (skippedGeneratedVariables > 0) {
-    console.warn(`⚠️ Skipped ${skippedGeneratedVariables} generated variables with aliases outside the Figma response.`);
-  }
-
-  const generatedVariables = [
-    '// Auto-generated SCSS variables from Figma API',
-    ...[...variableScss.entries()].flatMap(([group, content]) => [``, `// ${group} tokens`, content.trimEnd()])
-  ].join('\n') + '\n';
+  const generatedVariables = generateFigmaVariableScss(variables, variableCollections, idToNameMap);
   updates.set(path.join(scssDir, 'figma-variables.scss'), generatedVariables);
 
   const primitivePath = path.join(scssDir, 'variables', 'primitives.scss');
@@ -215,6 +183,71 @@ function processFigmaVariables() {
     fs.writeFileSync(filePath, content, 'utf-8');
     console.log(`✅ Updated token file: ${filePath}`);
   }
+}
+
+function generateFigmaVariableScss(
+  variables: Record<string, FigmaVariable>,
+  collections: Record<string, FigmaVariableCollection>,
+  idToNameMap: Map<string, string>
+): string {
+  const tokens = new Map<string, string>();
+  let skipped = 0;
+
+  for (const variable of Object.values(variables)) {
+    if (!variable?.name || !variable.valuesByMode) continue;
+    const collection = collections[variable.variableCollectionId ?? ''];
+    const mode = collection?.defaultModeId;
+    const valueByMode = variable.valuesByMode;
+    const selectedMode = mode && Object.prototype.hasOwnProperty.call(valueByMode, mode)
+      ? mode
+      : Object.keys(valueByMode)[0];
+    if (!selectedMode) continue;
+
+    try {
+      const value = toScssLiteral(valueByMode[selectedMode], normalizeScssVariableName(variable.name), idToNameMap);
+      const name = normalizeScssVariableName(variable.name);
+      tokens.set(/^[0-9]/.test(name) ? `token-${name}` : name, value);
+    } catch (error) {
+      if (!(error instanceof Error) || !error.message.startsWith('Unresolved Figma variable alias')) throw error;
+      skipped++;
+    }
+  }
+
+  if (skipped > 0) {
+    console.warn(`⚠️ Skipped ${skipped} generated variables with aliases outside the Figma response.`);
+  }
+
+  const lines: string[] = [];
+  let line = '  ';
+  for (const [name, value] of tokens) {
+    const entry = `"${name}": ${value}`;
+    const separator = line === '  ' ? '' : ', ';
+    if (line.length + separator.length + entry.length > 112) {
+      lines.push(`${line},`);
+      line = `  ${entry}`;
+    } else {
+      line += `${separator}${entry}`;
+    }
+  }
+  if (line.trim()) lines.push(line);
+
+  return [
+    '// Auto-generated SCSS variables from Figma API',
+    '$figma-tokens: (',
+    ...lines,
+    ');',
+    '',
+    '@mixin render-figma-tokens($tokens: $figma-tokens) {',
+    '  @each $name, $value in $tokens {',
+    '    --#{$name}: #{$value};',
+    '  }',
+    '}',
+    '',
+    ':root {',
+    '  @include render-figma-tokens();',
+    '}',
+    ''
+  ].join('\n');
 }
 
 type ScssTree = Map<string, string | ScssTree>;

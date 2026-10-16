@@ -1,101 +1,188 @@
+@use 'sass:map';
+
+$button-sizes: (
+  xsmall: (
+    height: var(--button-size-xsmall-height),
+    padding: var(--button-size-xsmall-padding-x),
+    radius: var(--button-size-xsmall-radius),
+    gap: var(--button-size-xsmall-gap),
+    font-size: 12px
+  ),
+  small: (
+    height: var(--button-size-small-height),
+    padding: var(--button-size-small-padding-x),
+    radius: var(--button-size-small-radius),
+    gap: var(--button-size-small-gap),
+    font-size: 14px
+  ),
+  medium: (
+    height: var(--button-size-medium-height),
+    padding: var(--button-size-medium-padding-x),
+    radius: var(--button-size-medium-radius),
+    gap: var(--button-size-medium-gap),
+    font-size: 15px
+  ),
+  large: (
+    height: var(--button-size-large-height),
+    padding: var(--button-size-large-padding-x),
+    radius: var(--button-size-large-radius),
+    gap: var(--button-size-large-gap),
+    font-size: 16px
+  )
+);
+
+$button-variants: (
+  primary: (
+    background: var(--button-primary-background-color-default),
+    foreground: var(--button-primary-foreground-color-static),
+    border: transparent,
+    hover-background: var(--button-primary-background-color-hover),
+    hover-foreground: var(--button-primary-foreground-color-static),
+    hover-border: transparent,
+    active-background: var(--button-primary-background-color-pressed),
+    active-foreground: var(--button-primary-foreground-color-static),
+    active-border: transparent,
+    disabled-background: var(--button-primary-background-color-disabled),
+    disabled-foreground: var(--button-primary-foreground-color-disabled),
+    disabled-border: transparent
+  ),
+  secondary: (
+    background: var(--button-secondary-background-color-default),
+    foreground: var(--button-secondary-foreground-color-default),
+    border: var(--button-secondary-border-color-default),
+    hover-background: var(--button-secondary-background-color-hover),
+    hover-foreground: var(--button-secondary-foreground-color-hover),
+    hover-border: var(--button-secondary-border-color-hover),
+    active-background: var(--button-secondary-background-color-pressed),
+    active-foreground: var(--button-secondary-foreground-color-pressed),
+    active-border: var(--button-secondary-border-color-pressed),
+    disabled-background: var(--button-secondary-background-color-disabled),
+    disabled-foreground: var(--button-secondary-foreground-color-disabled),
+    disabled-border: var(--button-secondary-border-color-disabled)
+  ),
+  tertiary: (
+    background: var(--button-tertiary-background-color-default),
+    foreground: var(--button-tertiary-foreground-color-default),
+    border: transparent,
+    hover-background: var(--button-tertiary-background-color-hover),
+    hover-foreground: var(--button-tertiary-foreground-color-hover),
+    hover-border: transparent,
+    active-background: var(--button-tertiary-background-color-pressed),
+    active-foreground: var(--button-tertiary-foreground-color-pressed),
+    active-border: transparent,
+    disabled-background: var(--button-tertiary-background-color-disabled),
+    disabled-foreground: var(--button-tertiary-foreground-color-disabled),
+    disabled-border: transparent
+  ),
+  link: (
+    background: transparent,
+    foreground: var(--button-link-foreground-color-default),
+    border: transparent,
+    hover-background: transparent,
+    hover-foreground: var(--button-link-foreground-color-hover),
+    hover-border: transparent,
+    active-background: transparent,
+    active-foreground: var(--button-link-foreground-color-pressed),
+    active-border: transparent,
+    disabled-background: transparent,
+    disabled-foreground: var(--button-link-foreground-color-disabled),
+    disabled-border: transparent
+  )
+);
+
 .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: max-content;
+  border: var(--button-size-border-width) solid var(--btn-border);
+  border-radius: var(--button-radius);
+  padding: 0 var(--button-padding);
+  gap: var(--button-gap);
+  background-color: var(--btn-background);
+  color: var(--btn-foreground);
+  font-family: var(--font-family-inter);
+  font-size: var(--button-font-size);
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+
+  &:hover:not(:disabled),
+  &--show-hover:not(:disabled) {
+    background-color: var(--btn-hover-background);
+    border-color: var(--btn-hover-border);
+    color: var(--btn-hover-foreground);
+  }
+
+  &:active:not(:disabled),
+  &--selected:not(:disabled) {
+    background-color: var(--btn-active-background);
+    border-color: var(--btn-active-border);
+    color: var(--btn-active-foreground);
+  }
+
+  &:focus-visible {
+    outline: var(--button-focus-border-width) solid var(--button-focus-brand);
+    outline-offset: 2px;
+  }
+
+  &:disabled,
+  &--disabled {
+    background-color: var(--btn-disabled-background);
+    border-color: var(--btn-disabled-border);
+    color: var(--btn-disabled-foreground);
+    cursor: not-allowed;
+  }
+
+  &--full-width {
+    width: 100%;
+  }
+
+  &-label {
+    white-space: nowrap;
+  }
+
+  &-icon {
     display: inline-flex;
+    flex: 0 0 auto;
     align-items: center;
     justify-content: center;
-    gap: var(--global-scale-100);
-    min-width: max-content;
-    border: var(--button-size-border-width) solid transparent;
-    font-family: var(--font-family-inter);
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease-in-out;
-    outline: none;
+    font-size: 1.1em;
+  }
+}
 
-    // Disabled State
-    &:disabled,
-    &-disabled {
-        cursor: not-allowed;
-        opacity: 0.6;
-        pointer-events: none;
+@each $size, $tokens in $button-sizes {
+  .btn-#{$size} {
+    --button-height: #{map.get($tokens, height)};
+    --button-padding: #{map.get($tokens, padding)};
+    --button-radius: #{map.get($tokens, radius)};
+    --button-gap: #{map.get($tokens, gap)};
+    --button-font-size: #{map.get($tokens, font-size)};
+
+    height: var(--button-height);
+  }
+}
+
+@each $variant, $tokens in $button-variants {
+  .btn-#{$variant} {
+    @each $property, $token in $tokens {
+      --btn-#{$property}: #{$token};
     }
+  }
+}
 
-    &-xsmall {
-        height: var(--button-size-xsmall-height);
-        padding: 0 var(--button-size-xsmall-padding-x);
-        border-radius: var(--button-size-xsmall-radius);
-        gap: var(--button-size-xsmall-gap);
-        font-size: 12px;
-    }
+.spinner {
+  width: 1em;
+  height: 1em;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: button-spin 0.7s linear infinite;
+}
 
-    &-small {
-        height: var(--button-size-small-height);
-        padding: 0 var(--button-size-small-padding-x);
-        border-radius: var(--button-size-small-radius);
-        gap: var(--button-size-small-gap);
-        font-size: 14px;
-    }
-
-    &-medium {
-        height: var(--button-size-medium-height);
-        padding: 0 var(--button-size-medium-padding-x);
-        border-radius: var(--button-size-medium-radius);
-        gap: var(--button-size-medium-gap);
-        font-size: 15px;
-    }
-
-    &-large {
-        height: var(--button-size-large-height);
-        padding: 0 var(--button-size-large-padding-x);
-        border-radius: var(--button-size-large-radius);
-        gap: var(--button-size-large-gap);
-        font-size: 16px;
-    }
-
-    &-primary {
-        background-color: var(--button-primary-background-color-default);
-        color: var(--button-primary-foreground-color-static);
-
-        &:hover:not(:disabled) {
-            background-color: var(--button-primary-background-color-hover);
-        }
-
-        &:active:not(:disabled) {
-            background-color: var(--button-primary-background-color-pressed);
-        }
-    }
-
-    &-secondary {
-        border: var(--button-size-border-width) solid var(--button-secondary-foreground-color-default);
-        background-color: var(--button-secondary-background-color-default);
-        color: var(--button-secondary-foreground-color-default);
-
-        &:hover:not(:disabled) {
-            background-color: var(--button-secondary-background-color-hover);
-            color: var(--button-secondary-foreground-color-hover);
-            border-color: var(--button-secondary-border-color-hover);
-        }
-    }
-
-    &-tertiary {
-        background-color: var(--button-tertiary-background-color-default);
-        color: var(--button-tertiary-foreground-color-default);
-
-        &:hover:not(:disabled) {
-            background-color: var(--button-tertiary-background-color-hover);
-        }
-    }
-
-    &-white {
-        background-color: var(--button-white-primary-background-color-default);
-        color: var(--button-white-primary-foreground-color-default);
-
-        &:hover:not(:disabled) {
-            background-color: var(--button-white-primary-background-color-hover);
-        }
-    }
-
-    // Full Width
-    &-full-width {
-        width: 100%;
-    }
+@keyframes button-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }

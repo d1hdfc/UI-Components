@@ -1,13 +1,14 @@
 // Maps / Token Definitions
 $web-tokens: (
-  "web-only": 1,
-  "status-bar-bg-color": var(--global-colors-shades-00),
-  "status-bar-on-color": var(--global-colors-grey-900)
+  "platform": "web",
+  "only-web": 1,
+  "only-app": 0
 );
 
 $app-tokens: (
-  "web-only": 0,
-  "status-bar-bg-color": rgba(255, 255, 255, 0)
+  "platform": "app",
+  "only-web": 0,
+  "only-app": 1
 );
 
 // Reusable Mixin

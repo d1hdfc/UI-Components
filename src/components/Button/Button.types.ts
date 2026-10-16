@@ -2,7 +2,7 @@ import React from 'react';
 
 export type ButtonSize = 'xsmall' | 'small' | 'medium' | 'large';
 
-export type ButtonVariant = 'primary' | 'secondary' | 'tertiary' | 'white';
+export type ButtonVariant = 'primary' | 'secondary' | 'tertiary' | 'link';
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children?: React.ReactNode;
@@ -12,5 +12,6 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
   rightIcon?: boolean | React.ReactNode;
   loading?: boolean;
   disabled?: boolean;
+  selected?: boolean;
   fullWidth?: boolean;
 }
