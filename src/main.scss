@@ -1,0 +1,46 @@
+@use './style/scss/figma-variables';
+@use './style/scss/variables/adaptive.scss';
+@use './style/scss/variables/alias.scss';
+@use './style/scss/variables/layout.scss';
+@use './style/scss/variables/platform.scss';
+@use './style/scss/variables/primitive-type.scss';
+@use './style/scss/variables/primitives.scss';
+@use './style/scss/variables/semantics';
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  color: #202b45;
+  background: #fff;
+  font-family: Inter, Arial, sans-serif;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+.docs-shell {
+  min-height: 100vh;
+}
+
+.docs-layout {
+  display: grid;
+  grid-template-columns: 250px minmax(0, 1fr);
+  min-height: calc(100vh - 64px);
+}
+
+@media (max-width: 900px) {
+  .docs-layout {
+    grid-template-columns: 205px minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .docs-layout {
+    display: block;
+  }
+}

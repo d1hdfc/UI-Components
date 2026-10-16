@@ -1,0 +1,74 @@
+.docs-topbar {
+  position: sticky;
+  z-index: 2;
+  top: 0;
+  display: flex;
+  height: 64px;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #e7eaf0;
+  padding: 0 32px;
+  background: #fff;
+}
+
+.docs-brand,
+.docs-topbar-actions {
+  display: flex;
+  align-items: center;
+}
+
+.docs-brand {
+  gap: 11px;
+  color: #17264e;
+  font-size: 14px;
+  text-decoration: none;
+
+  strong {
+    font-weight: 700;
+  }
+}
+
+.docs-brand-mark {
+  display: grid;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border-radius: 8px;
+  background: #1c3fca;
+  color: #fff;
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.docs-topbar-actions {
+  gap: 22px;
+  color: #69758d;
+  font-size: 13px;
+}
+
+.docs-version {
+  border-radius: 16px;
+  padding: 5px 11px;
+  background: #f2f5fb;
+  color: #394761;
+}
+
+.docs-topbar-link {
+  color: #304cc0;
+  text-decoration: none;
+}
+
+@media (max-width: 640px) {
+  .docs-topbar {
+    height: 56px;
+    padding: 0 16px;
+  }
+
+  .docs-topbar-actions {
+    gap: 11px;
+  }
+
+  .docs-topbar-link {
+    display: none;
+  }
+}
