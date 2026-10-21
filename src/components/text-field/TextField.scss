@@ -1,0 +1,193 @@
+@use 'sass:map';
+
+$text-field-sizes: (
+  small: (
+    height: 36px,
+    padding: 12px,
+    font-size: 13px,
+    label-size: 12px
+  ),
+  medium: (
+    height: 44px,
+    padding: 16px,
+    font-size: 14px,
+    label-size: 13px
+  )
+);
+
+@mixin text-field-status($border, $focus) {
+  border-color: var(--text-field-border-#{$border});
+
+  &:focus-within {
+    border-color: var(--text-field-border-#{$focus});
+    box-shadow: 0 0 0 2px var(--text-field-focus-ring);
+  }
+}
+
+.text-field {
+  --text-field-border-default: var(--forms-border-color-default, #b3b9c4);
+  --text-field-border-focus: var(--border-primary-default, #1c3fca);
+  --text-field-border-error: var(--surface-error-base, #d61c53);
+  --text-field-border-success: var(--surface-success-base, #00815a);
+  --text-field-focus-ring: rgb(28 63 202 / 18%);
+  --text-field-background: var(--forms-background-color-default, #fff);
+  --text-field-foreground: var(--text-strong, #172b4d);
+  --text-field-placeholder: var(--surface-neutral-dark, #626f86);
+  --text-field-helper-color: var(--text-subtle, #626f86);
+  --text-field-disabled-background: var(--control-background-color-disabled, #f4f5f7);
+  --text-field-disabled-foreground: var(--forms-text-color-disabled, #8590a2);
+
+  display: grid;
+  min-width: 0;
+  gap: 6px;
+  color: var(--text-field-foreground);
+
+  &-label {
+    color: inherit;
+    font-size: var(--text-field-label-size);
+    font-weight: 500;
+    line-height: 1.4;
+  }
+
+  &-control {
+    display: flex;
+    min-width: 0;
+    height: var(--text-field-height);
+    align-items: center;
+    gap: 8px;
+    border: 1px solid var(--text-field-border-default);
+    border-radius: 6px;
+    padding: 0 var(--text-field-padding);
+    background: var(--text-field-background);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+    @include text-field-status(default, focus);
+  }
+
+  &-input {
+    width: 100%;
+    min-width: 0;
+    height: 100%;
+    border: 0;
+    outline: 0;
+    padding: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    font-size: var(--text-field-font-size);
+    line-height: 1.4;
+
+    &::placeholder {
+      color: var(--text-field-placeholder);
+      opacity: 1;
+    }
+  }
+
+  &-leading-icon,
+  &-trailing {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-field-helper-color);
+    font-size: 13px;
+
+    svg {
+      width: 16px;
+      height: 16px;
+      stroke: currentColor;
+      stroke-width: 1.5;
+    }
+  }
+
+  &-meta {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    color: var(--text-field-helper-color);
+    font-size: 12px;
+    line-height: 1.4;
+  }
+
+  &-helper {
+    min-width: 0;
+  }
+
+  &-counter {
+    flex: 0 0 auto;
+    text-align: right;
+  }
+
+  &--error {
+    --text-field-helper-color: var(--surface-error-base, #d61c53);
+
+    .text-field-control {
+      border-color: var(--text-field-border-error);
+    }
+
+    .text-field-control:focus-within {
+      box-shadow: 0 0 0 2px rgb(214 28 83 / 16%);
+    }
+  }
+
+  &--success {
+    --text-field-helper-color: var(--surface-success-base, #00815a);
+
+    .text-field-control {
+      border-color: var(--text-field-border-success);
+    }
+
+    .text-field-control:focus-within {
+      box-shadow: 0 0 0 2px rgb(0 129 90 / 16%);
+    }
+  }
+
+  &--disabled {
+    color: var(--text-field-disabled-foreground);
+
+    .text-field-control {
+      border-color: var(--text-field-border-default);
+      background: var(--text-field-disabled-background);
+      cursor: not-allowed;
+    }
+  }
+
+  &--read-only .text-field-control {
+    background: var(--text-field-disabled-background);
+  }
+
+  &--subtle .text-field-control {
+    border-color: transparent;
+    background: transparent;
+  }
+
+  &--subtle .text-field-control:focus-within,
+  &--subtle.text-field--error .text-field-control,
+  &--subtle.text-field--success .text-field-control {
+    border-color: var(--text-field-border-default);
+    background: var(--text-field-background);
+  }
+}
+
+@each $size, $tokens in $text-field-sizes {
+  .text-field--#{$size} {
+    --text-field-height: #{map.get($tokens, height)};
+    --text-field-padding: #{map.get($tokens, padding)};
+    --text-field-font-size: #{map.get($tokens, font-size)};
+    --text-field-label-size: #{map.get($tokens, label-size)};
+  }
+}
+
+.text-field-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: text-field-spin 0.7s linear infinite;
+}
+
+@keyframes text-field-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

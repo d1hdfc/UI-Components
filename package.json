@@ -1,7 +1,29 @@
 {
-  "name": "UI-components",
+  "name": "@d1hdfc/ui-components",
   "version": "0.1.0",
-  "private": true,
+  "private": false,
+  "description": "HDFC UI component library",
+  "repository": "https://github.com/d1hdfc/UI-Components",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "files": [
+    "lib"
+  ],
+  "main": "./lib/index.cjs",
+  "module": "./lib/index.js",
+  "types": "./lib/types/library.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/types/library.d.ts",
+      "import": "./lib/index.js",
+      "require": "./lib/index.cjs"
+    },
+    "./style.css": "./lib/style.css"
+  },
+  "sideEffects": [
+    "**/*.css"
+  ],
   "scripts": {
     "tokens:build": "npx tsx src/tokens/figmaSyncTokens.ts --generate",
     "generate-tokens": "npx tsx src/tokens/figmaSyncTokens.ts --generate",
@@ -9,6 +31,7 @@
     "tokens:watch": "npx tsx src/tokens/figmaSyncTokens.ts --watch",
     "dev": "concurrently -k \"npm run tokens:watch\" \"vite\"",
     "build": "tsc && vite build",
+    "build:library": "vite build --config vite.library.config.ts && tsc -p tsconfig.library.json",
     "preview": "vite preview",
     "mcp:watch": "node .mcp/watch.js",
     "dev:mcp": "concurrently \"npm run dev\" \"npm run mcp:watch\"",

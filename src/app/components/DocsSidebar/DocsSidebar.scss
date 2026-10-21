@@ -1,23 +1,24 @@
 .docs-sidebar {
   position: sticky;
-  top: 64px;
+  top: 60px;
   display: flex;
-  height: calc(100vh - 64px);
+  height: calc(100vh - 60px);
+  min-height: 380px;
   flex-direction: column;
-  border-right: 1px solid #e7eaf0;
-  padding: 24px 16px 16px;
-  background: #fcfcfd;
+  border-right: 1px solid #dfe1e6;
+  padding: 22px 13px 14px;
+  background: #fff;
 }
 
 .docs-search {
   display: flex;
-  height: 38px;
+  height: 36px;
   align-items: center;
   gap: 8px;
-  border: 1px solid #e1e5ed;
-  border-radius: 6px;
+  border: 1px solid #dfe1e6;
+  border-radius: 4px;
   padding: 0 9px;
-  color: #77829a;
+  color: #626f86;
   font-size: 16px;
 
   input {
@@ -26,60 +27,89 @@
     border: 0;
     outline: 0;
     background: transparent;
-    color: #26334d;
+    color: #172b4d;
     font-size: 12px;
   }
 
   input::placeholder {
-    color: #8a94a7;
+    color: #8590a2;
   }
 
   kbd {
-    border: 1px solid #e1e5ed;
+    flex: 0 0 auto;
+    border: 1px solid #dfe1e6;
     border-radius: 3px;
-    padding: 1px 5px;
-    color: #7b8599;
-    font: 11px Arial, sans-serif;
+    padding: 2px 4px;
+    color: #626f86;
+    font: 9px Arial, sans-serif;
   }
 }
 
 .docs-sidebar nav {
   display: grid;
   gap: 4px;
-  margin-top: 30px;
+  margin-top: 25px;
 }
 
 .docs-nav-heading {
-  margin: 18px 8px 7px;
-  color: #8791a3;
-  font-size: 11px;
+  margin: 16px 9px 6px;
+  color: #626f86;
+  font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.08em;
 }
 
 .docs-sidebar nav a {
   border-radius: 5px;
-  padding: 8px;
-  color: #4e5b74;
+  padding: 8px 10px;
+  color: #44546f;
   font-size: 13px;
   text-decoration: none;
 }
 
 .docs-sidebar nav .docs-nav-active {
-  background: #eef2ff;
-  color: #1c3fca;
+  background: #e9f2ff;
+  color: #0c66e4;
   font-weight: 600;
 }
 
-.docs-sidebar nav .docs-nav-muted {
-  color: #939bad;
+.docs-sidebar-footer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: auto;
+  border-top: 1px solid #dfe1e6;
+  padding: 15px 5px 0;
+  color: #44546f;
+  font-size: 11px;
+
+  strong,
+  small {
+    display: block;
+  }
+
+  strong {
+    font-size: 11px;
+    font-weight: 600;
+  }
+
+  small {
+    margin-top: 4px;
+    color: #626f86;
+    font-size: 10px;
+  }
 }
 
-.docs-sidebar-footer {
-  margin-top: auto;
-  padding: 12px 8px 0;
-  color: #8a94a7;
-  font-size: 11px;
+.docs-sidebar-footer-mark {
+  display: grid;
+  width: 27px;
+  height: 27px;
+  place-items: center;
+  border-radius: 5px;
+  background: #0c66e4;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
 }
 
 @media (max-width: 640px) {

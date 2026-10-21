@@ -1,11 +1,4 @@
-@use '../tokens/build/figma-variables';
-@use '../tokens/build/variables/adaptive.scss';
-@use '../tokens/build/variables/alias.scss';
-@use '../tokens/build/variables/layout.scss';
-@use '../tokens/build/variables/platform.scss';
-@use '../tokens/build/variables/primitive-type.scss';
-@use '../tokens/build/variables/primitives.scss';
-@use '../tokens/build/variables/semantics';
+@use '../components/library';
 
 * {
   box-sizing: border-box;
@@ -13,9 +6,9 @@
 
 body {
   margin: 0;
-  color: #202b45;
+  color: #172b4d;
   background: #fff;
-  font-family: Inter, Arial, sans-serif;
+  font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
 }
 
 button,
@@ -29,13 +22,58 @@ input {
 
 .docs-layout {
   display: grid;
-  grid-template-columns: 250px minmax(0, 1fr);
-  min-height: calc(100vh - 64px);
+  grid-template-columns: 248px minmax(0, 1fr) 190px;
+  align-items: start;
+  min-height: calc(100vh - 60px);
+}
+
+.docs-toc {
+  position: sticky;
+  top: 82px;
+  max-height: calc(100vh - 96px);
+  overflow-y: auto;
+  margin-top: 38px;
+  padding: 0 20px 20px 0;
+
+  h2 {
+    margin: 0 0 12px;
+    color: #172b4d;
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  nav {
+    display: grid;
+    gap: 3px;
+    border-left: 1px solid #dfe1e6;
+  }
+
+  a {
+    border-left: 2px solid transparent;
+    margin-left: -1px;
+    padding: 6px 0 6px 12px;
+    color: #626f86;
+    font-size: 12px;
+    line-height: 1.4;
+    text-decoration: none;
+  }
+
+  a:hover {
+    color: #0c66e4;
+  }
+
+  .docs-toc-nested {
+    padding-left: 22px;
+  }
 }
 
 @media (max-width: 900px) {
   .docs-layout {
-    grid-template-columns: 205px minmax(0, 1fr);
+    grid-template-columns: 220px minmax(0, 1fr);
+  }
+
+  .docs-toc {
+    display: none;
   }
 }
 

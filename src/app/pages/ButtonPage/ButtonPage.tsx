@@ -1,158 +1,263 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { Button as ButtonComponent } from '../../../components';
-import buttonStyles from '../../../components/button/Button.scss?raw';
-import buttonComponent from '../../../components/button/Button.tsx?raw';
+import type { ButtonSize, ButtonVariant } from '../../../components/button/Button.types';
 import './ButtonPage.scss';
 
-const sizes = ['large', 'medium', 'small', 'xsmall'] as const;
-const variants = ['primary', 'secondary', 'tertiary', 'link'] as const;
-const states = ['default', 'hover', 'selected', 'disabled'] as const;
-
 const buttonSourceUrl = 'https://github.com/d1hdfc/UI-Components/tree/main/src/components/button';
-const codeTabs = [
-  { label: 'Button.tsx', code: buttonComponent },
-  { label: 'Button.scss', code: buttonStyles }
-];
+const installCode = `npm install @d1hdfc/ui-components@main`;
+const importCode = `import { Button } from '@d1hdfc/ui-components';
+import '@d1hdfc/ui-components/style.css';`;
 
-export function ButtonPage() {
-  const [activeTab, setActiveTab] = useState(0);
-  const [copyStatus, setCopyStatus] = useState('');
-  const selectedTab = codeTabs[activeTab];
+function CodeExample({
+  id,
+  title,
+  description,
+  code,
+  children
+}: {
+  id?: string;
+  title: string;
+  description: string;
+  code: string;
+  children: ReactNode;
+}) {
+  const [showCode, setShowCode] = useState(false);
+  const [copyStatus, setCopyStatus] = useState('Copy');
 
   const copyCode = async () => {
     try {
-      await navigator.clipboard.writeText(selectedTab.code);
+      await navigator.clipboard.writeText(code);
       setCopyStatus('Copied');
-      window.setTimeout(() => setCopyStatus(''), 1800);
+      window.setTimeout(() => setCopyStatus('Copy'), 1800);
     } catch {
       setCopyStatus('Copy failed');
     }
   };
 
   return (
-    <main className="docs-content" id="button">
-      <div className="docs-breadcrumbs"><span>Components</span><span>/</span><strong>Button</strong></div>
-      <div className="docs-heading">
+    <article className="example-card" id={id}>
+      <div className="example-card-heading">
         <div>
-          <p className="docs-eyebrow">COMPONENTS</p>
-          <h1>Button</h1>
-          <p className="docs-intro">
-            Buttons help people take an action, such as submitting a form or moving to the next step.
-            Choose a variant that reflects the importance of the action.
-          </p>
-          <div className="docs-heading-links">
-            <a href="/button.md" target="_blank" rel="noopener noreferrer">
-              <span aria-hidden="true">▤</span> View as Markdown
-            </a>
-            <a href={buttonSourceUrl} target="_blank" rel="noopener noreferrer">
-              <svg aria-hidden="true" viewBox="0 0 16 16">
-                <path d="M8 .7a7.3 7.3 0 0 0-2.31 14.23c.36.07.5-.16.5-.35v-1.26c-2.03.44-2.46-.86-2.46-.86-.33-.85-.81-1.08-.81-1.08-.66-.45.05-.44.05-.44.73.05 1.12.75 1.12.75.65 1.12 1.7.8 2.11.61.07-.47.26-.8.46-.98-1.62-.18-3.32-.81-3.32-3.61 0-.8.28-1.45.75-1.96-.08-.18-.33-.93.07-1.94 0 0 .61-.2 2.01.75a6.98 6.98 0 0 1 3.66 0c1.4-.95 2-.75 2-.75.4 1.01.15 1.76.08 1.94.47.51.75 1.16.75 1.96 0 2.81-1.7 3.42-3.33 3.6.26.22.49.67.49 1.35v2c0 .2.13.42.5.35A7.3 7.3 0 0 0 8 .7Z" />
-              </svg>
-              View source
-            </a>
-          </div>
+          <h3>{title}</h3>
+          <p>{description}</p>
         </div>
-        <span className="docs-status"><i /> Stable</span>
+        <button
+          className="example-code-toggle"
+          type="button"
+          aria-expanded={showCode}
+          onClick={() => setShowCode((visible) => !visible)}
+        >
+          {showCode ? 'Hide code' : 'View code'}
+        </button>
+      </div>
+      <div className="example-preview">{children}</div>
+      {showCode && (
+        <div className="example-code">
+          <div className="example-code-toolbar">
+            <span>React · TypeScript</span>
+            <button type="button" onClick={copyCode} aria-live="polite">{copyStatus}</button>
+          </div>
+          <pre><code>{code}</code></pre>
+        </div>
+      )}
+    </article>
+  );
+}
+
+export function ButtonPage() {
+  const [playgroundVariant, setPlaygroundVariant] = useState<ButtonVariant>('primary');
+  const [playgroundSize, setPlaygroundSize] = useState<ButtonSize>('medium');
+  const [playgroundCopyStatus, setPlaygroundCopyStatus] = useState('Copy');
+  const playgroundCode = `<Button variant="${playgroundVariant}" size="${playgroundSize}">
+  Continue
+</Button>`;
+
+  const copyPlaygroundCode = async () => {
+    try {
+      await navigator.clipboard.writeText(playgroundCode);
+      setPlaygroundCopyStatus('Copied');
+      window.setTimeout(() => setPlaygroundCopyStatus('Copy'), 1800);
+    } catch {
+      setPlaygroundCopyStatus('Copy failed');
+    }
+  };
+
+  return (
+    <main className="docs-content" id="button">
+      <div className="docs-breadcrumbs">
+        <a href="#components">Components</a><span>/</span><strong>Button</strong>
       </div>
 
-      <section className="docs-section" id="overview">
+      <header className="docs-heading">
+        <div>
+          <p className="docs-eyebrow">COMPONENTS</p>
+          <div className="docs-title-row">
+            <h1>Button</h1>
+            <span className="docs-status"><i /> Stable</span>
+          </div>
+          <p className="docs-intro">
+            Buttons help people take action. Use a clear label and choose a style that reflects
+            the importance of that action.
+          </p>
+          <div className="docs-heading-links">
+            <a href={buttonSourceUrl} target="_blank" rel="noopener noreferrer">
+              <span aria-hidden="true">↗</span> View source
+            </a>
+            <a href="#installation">Installation</a>
+          </div>
+        </div>
+      </header>
+
+      <section className="docs-section" id="installation">
         <div className="docs-section-heading">
           <div>
-            <h2>Variants, sizes and states</h2>
-            <p>Compare every button size across its default, hover, selected and disabled states.</p>
+            <h2>Installation</h2>
+            <p>Install the shared package and import the component styles.</p>
           </div>
-          <span className="docs-count">4 variants · 4 sizes · 4 states</span>
         </div>
-        <div className="button-showcase">
-          {variants.map((variant) => (
-            <section className="variant-state-card" key={variant} aria-labelledby={`variant-${variant}`}>
-              <header className="variant-state-heading">
-                <h3 id={`variant-${variant}`}>{variant}</h3>
-                <span>Button · {variant}</span>
-              </header>
-              <div className="state-matrix">
-                <div className="state-matrix-head">
-                  <span>STATE</span>
-                  {sizes.map((size) => <span key={size}>{size.toUpperCase()}</span>)}
-                </div>
-                {states.map((state) => (
-                  <div className="state-matrix-row" key={state}>
-                    <span className={`state-name state-name--${state}`}>{state}</span>
-                    {sizes.map((size) => (
-                      <div className="state-matrix-cell" key={size}>
-                        <ButtonComponent
-                          variant={variant}
-                          size={size}
-                          leftIcon
-                          rightIcon
-                          type="button"
-                          className={state === 'hover' ? 'btn--show-hover' : undefined}
-                          selected={state === 'selected'}
-                          disabled={state === 'disabled'}
-                        >
-                          Button
-                        </ButtonComponent>
-                      </div>
-                    ))}
-                  </div>
-                ))}
-              </div>
-            </section>
-          ))}
+        <div className="install-steps">
+          <CodeExample title="1. Install the package" description="Authenticate with GitHub Packages, then add the library." code={installCode}>
+            <code className="install-command">{installCode}</code>
+          </CodeExample>
+          <CodeExample title="2. Import Button and styles" description="Add the stylesheet once in your app entry point." code={importCode}>
+            <pre className="install-command">{importCode}</pre>
+          </CodeExample>
         </div>
       </section>
 
-      <section className="docs-section" id="usage">
+      <section className="docs-section" id="examples">
         <div className="docs-section-heading">
           <div>
             <h2>Examples</h2>
-            <p>Preview the Button component and inspect its implementation by file.</p>
+            <p>Explore the available Button styles and copy the usage code for your project.</p>
           </div>
         </div>
-        <div className="button-code-example">
-          <div className="button-code-preview">
-            <ButtonComponent type="button">Submit</ButtonComponent>
-          </div>
-          <div className="button-code-toolbar">
-            <div className="button-code-tabs" role="tablist" aria-label="Button source files">
-              {codeTabs.map((tab, index) => (
-                <button
-                  key={tab.label}
-                  id={`button-code-tab-${index}`}
-                  className="button-code-tab"
-                  type="button"
-                  role="tab"
-                  aria-selected={activeTab === index}
-                  aria-controls="button-code-panel"
-                  onClick={() => {
-                    setActiveTab(index);
-                    setCopyStatus('');
-                  }}
-                >
-                  {tab.label}
-                </button>
+        <div className="examples-grid">
+          <CodeExample
+            id="variant-examples"
+            title="Variants"
+            description="Match the button emphasis to the importance of the action."
+            code={`<Button variant="primary">Save changes</Button>
+<Button variant="secondary">Cancel</Button>
+<Button variant="tertiary">More options</Button>
+<Button variant="link">Learn more</Button>`}
+          >
+            <div className="example-button-row">
+              <ButtonComponent>Save changes</ButtonComponent>
+              <ButtonComponent variant="secondary">Cancel</ButtonComponent>
+              <ButtonComponent variant="tertiary">More options</ButtonComponent>
+              <ButtonComponent variant="link">Learn more</ButtonComponent>
+            </div>
+          </CodeExample>
+
+          <CodeExample
+            id="size-examples"
+            title="Sizes"
+            description="Choose a size that fits the density and hierarchy of the interface."
+            code={`<Button size="large">Continue</Button>
+<Button size="medium">Continue</Button>
+<Button size="small">Continue</Button>
+<Button size="xsmall">Continue</Button>`}
+          >
+            <div className="example-button-row example-button-row--sizes">
+              {(['large', 'medium', 'small', 'xsmall'] as const).map((size) => (
+                <ButtonComponent key={size} size={size}>{size}</ButtonComponent>
               ))}
             </div>
-            <div className="button-code-actions">
-              <span>{selectedTab.label.endsWith('.scss') ? 'SCSS' : 'React · TypeScript'}</span>
-              <button
-                className="button-code-copy"
-                type="button"
-                aria-label="Copy source code"
-                title={copyStatus || 'Copy source code'}
-                onClick={copyCode}
-              >
-                {copyStatus || 'Copy'}
-              </button>
-            </div>
-          </div>
-          <div
-            className="button-code-panel"
-            id="button-code-panel"
-            role="tabpanel"
-            aria-labelledby={`button-code-tab-${activeTab}`}
+          </CodeExample>
+
+          <CodeExample
+            id="icon-examples"
+            title="With icons"
+            description="Use leading or trailing icons to add useful visual context."
+            code={`<Button leftIcon>Back</Button>
+<Button rightIcon>Continue</Button>
+<Button leftIcon rightIcon>Move</Button>`}
           >
-            <pre><code>{selectedTab.code}</code></pre>
+            <div className="example-button-row">
+              <ButtonComponent leftIcon>Back</ButtonComponent>
+              <ButtonComponent rightIcon>Continue</ButtonComponent>
+              <ButtonComponent leftIcon rightIcon>Move</ButtonComponent>
+            </div>
+          </CodeExample>
+
+          <CodeExample
+            id="state-examples"
+            title="Loading and disabled"
+            description="Show progress during work and disable actions that are unavailable."
+            code={`<Button loading>Saving</Button>
+<Button disabled>Unavailable</Button>
+<Button variant="secondary" disabled>Cancel</Button>`}
+          >
+            <div className="example-button-row">
+              <ButtonComponent loading>Saving</ButtonComponent>
+              <ButtonComponent disabled>Unavailable</ButtonComponent>
+              <ButtonComponent variant="secondary" disabled>Cancel</ButtonComponent>
+            </div>
+          </CodeExample>
+
+          <CodeExample
+            id="selected-examples"
+            title="Selected"
+            description="Use selected for a button that represents an active, pressed state."
+            code={`<Button selected aria-pressed="true">Notifications on</Button>`}
+          >
+            <div className="example-button-row">
+              <ButtonComponent selected aria-pressed="true">Notifications on</ButtonComponent>
+            </div>
+          </CodeExample>
+
+          <CodeExample
+            id="full-width-examples"
+            title="Full width"
+            description="Expand the button to fill the width of its parent container."
+            code={`<Button fullWidth>Continue</Button>`}
+          >
+            <div className="example-full-width">
+              <ButtonComponent fullWidth>Continue</ButtonComponent>
+            </div>
+          </CodeExample>
+        </div>
+      </section>
+
+      <section className="docs-section" id="playground">
+        <div className="docs-section-heading">
+          <div>
+            <h2>Try it out</h2>
+            <p>Change the options to preview the Button and generate its JSX.</p>
+          </div>
+        </div>
+        <div className="button-playground">
+          <div className="playground-controls">
+            <label>
+              Variant
+              <select value={playgroundVariant} onChange={(event) => setPlaygroundVariant(event.target.value as ButtonVariant)}>
+                <option value="primary">Primary</option>
+                <option value="secondary">Secondary</option>
+                <option value="tertiary">Tertiary</option>
+                <option value="link">Link</option>
+              </select>
+            </label>
+            <label>
+              Size
+              <select value={playgroundSize} onChange={(event) => setPlaygroundSize(event.target.value as ButtonSize)}>
+                <option value="large">Large</option>
+                <option value="medium">Medium</option>
+                <option value="small">Small</option>
+                <option value="xsmall">Xsmall</option>
+              </select>
+            </label>
+          </div>
+          <div className="playground-output">
+            <div className="playground-preview">
+              <ButtonComponent variant={playgroundVariant} size={playgroundSize}>Continue</ButtonComponent>
+            </div>
+            <div className="playground-code">
+              <button type="button" onClick={copyPlaygroundCode} aria-live="polite">
+                {playgroundCopyStatus}
+              </button>
+              <pre><code>{playgroundCode}</code></pre>
+            </div>
           </div>
         </div>
       </section>
@@ -161,14 +266,14 @@ export function ButtonPage() {
         <div className="docs-section-heading">
           <div>
             <h2>Usage guidelines</h2>
-            <p>Use a clear label that describes the action and select the variant that matches its importance.</p>
+            <p>Make actions easy to understand and consistent across your product.</p>
           </div>
         </div>
-        <p className="docs-guideline-copy">
-          Use primary buttons for the main action, secondary or tertiary buttons for supporting actions,
-          and link buttons for low-emphasis navigation. Use the disabled state only when the action is
-          unavailable.
-        </p>
+        <div className="guideline-grid">
+          <article><h3>Do</h3><p>Use a concise label that clearly describes the result of the action.</p></article>
+          <article><h3>Do</h3><p>Use one primary action when a page or section has a clear main task.</p></article>
+          <article><h3>Avoid</h3><p>Do not use a disabled button without explaining why the action is unavailable.</p></article>
+        </div>
       </section>
 
       <section className="docs-section" id="api">
@@ -186,6 +291,7 @@ export function ButtonPage() {
               <tr><td><code>size</code></td><td><code>xsmall | small | medium | large</code></td><td><code>medium</code></td><td>Button height, spacing and typography.</td></tr>
               <tr><td><code>leftIcon</code>, <code>rightIcon</code></td><td><code>boolean | ReactNode</code></td><td><code>false</code></td><td>Optional leading or trailing icon.</td></tr>
               <tr><td><code>loading</code></td><td><code>boolean</code></td><td><code>false</code></td><td>Shows a spinner and disables interaction.</td></tr>
+              <tr><td><code>disabled</code></td><td><code>boolean</code></td><td><code>false</code></td><td>Prevents interaction with the button.</td></tr>
               <tr><td><code>selected</code></td><td><code>boolean</code></td><td><code>false</code></td><td>Shows the selected state and sets <code>aria-pressed</code>.</td></tr>
               <tr><td><code>fullWidth</code></td><td><code>boolean</code></td><td><code>false</code></td><td>Expands the button to its container width.</td></tr>
             </tbody>

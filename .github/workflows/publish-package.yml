@@ -1,0 +1,60 @@
+name: Publish UI component package
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - package.json
+      - package-lock.json
+      - src/components/**
+      - src/tokens/**
+      - src/library.ts
+      - src/library.bundle.ts
+      - tsconfig.library.json
+      - vite.library.config.ts
+      - .github/workflows/publish-package.yml
+  release:
+    types:
+      - published
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://npm.pkg.github.com
+          scope: '@d1hdfc'
+      - run: npm ci
+      - run: npm run build:library
+      - name: Set package version
+        shell: bash
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs');
+          const baseVersion = require('./package.json').version;
+          const isMainBuild = process.env.GITHUB_EVENT_NAME === 'push';
+          const version = isMainBuild
+            ? `${baseVersion}-main.${process.env.GITHUB_RUN_NUMBER}.${process.env.GITHUB_RUN_ATTEMPT}`
+            : baseVersion;
+
+          if (!isMainBuild && process.env.GITHUB_REF_NAME !== `v${baseVersion}`) {
+            throw new Error(`Release tag must be v${baseVersion}.`);
+          }
+
+          fs.appendFileSync(process.env.GITHUB_ENV, `PACKAGE_VERSION=${version}\n`);
+          NODE
+      - name: Set build version
+        if: github.event_name == 'push'
+        run: npm version "$PACKAGE_VERSION" --no-git-tag-version
+      - name: Publish to GitHub Packages
+        run: npm publish --tag "${{ github.event_name == 'push' && 'main' || 'latest' }}"
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
