@@ -7,3 +7,5 @@ export type {
   TextFieldSize,
   TextFieldStatus
 } from './components';
+export { TextArea } from './components';
+export type { TextAreaProps, TextAreaSize, TextAreaStatus } from './components';

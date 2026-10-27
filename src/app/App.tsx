@@ -1,17 +1,28 @@
 import { useEffect, useState } from 'react';
 import { ButtonPage } from './pages/ButtonPage';
 import { TextFieldPage } from './pages/TextFieldPage';
+import { TextAreaPage } from './pages/TextAreaPage';
 import { DocsHeader } from './components/DocsHeader';
 import { DocsSidebar } from './components/DocsSidebar';
 
 export default function App() {
-  const [currentPage, setCurrentPage] = useState<'button' | 'textfield'>(() =>
-    window.location.hash.startsWith('#textfield') ? 'textfield' : 'button'
+  const [currentPage, setCurrentPage] = useState<'button' | 'textfield' | 'textarea'>(() =>
+    window.location.hash.startsWith('#textarea')
+      ? 'textarea'
+      : window.location.hash.startsWith('#textfield')
+        ? 'textfield'
+        : 'button'
   );
 
   useEffect(() => {
     const updatePage = () => {
-      setCurrentPage(window.location.hash.startsWith('#textfield') ? 'textfield' : 'button');
+      setCurrentPage(
+        window.location.hash.startsWith('#textarea')
+          ? 'textarea'
+          : window.location.hash.startsWith('#textfield')
+            ? 'textfield'
+            : 'button'
+      );
     };
 
     window.addEventListener('hashchange', updatePage);
@@ -19,16 +30,25 @@ export default function App() {
   }, []);
 
   const isTextFieldPage = currentPage === 'textfield';
+  const isTextAreaPage = currentPage === 'textarea';
 
   return (
     <div className="docs-shell">
       <DocsHeader />
       <div className="docs-layout" id="top">
         <DocsSidebar currentPage={currentPage} />
-        {isTextFieldPage ? <TextFieldPage /> : <ButtonPage />}
+        {isTextAreaPage ? <TextAreaPage /> : isTextFieldPage ? <TextFieldPage /> : <ButtonPage />}
         <aside className="docs-toc" aria-label="On this page">
           <h2>On this page</h2>
-          {isTextFieldPage ? (
+          {isTextAreaPage ? (
+            <nav>
+              <a href="#textarea-installation">Installation</a>
+              <a href="#textarea-examples">States and sizes</a>
+              <a className="docs-toc-nested" href="#textarea-playground">Try it out</a>
+              <a href="#textarea-guidelines">Usage guidelines</a>
+              <a href="#textarea-api">API reference</a>
+            </nav>
+          ) : isTextFieldPage ? (
             <nav>
               <a href="#textfield-installation">Installation</a>
               <a href="#textfield-examples">Examples</a>

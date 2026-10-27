@@ -7,3 +7,5 @@ export type {
   TextFieldSize,
   TextFieldStatus
 } from './text-field/TextField.types'
+export { TextArea } from './text-area/TextArea'
+export type { TextAreaProps, TextAreaSize, TextAreaStatus } from './text-area/TextArea.types'

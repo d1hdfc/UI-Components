@@ -25,17 +25,17 @@ $text-field-sizes: (
 }
 
 .text-field {
-  --text-field-border-default: var(--forms-border-color-default, #b3b9c4);
-  --text-field-border-focus: var(--border-primary-default, #1c3fca);
-  --text-field-border-error: var(--surface-error-base, #d61c53);
-  --text-field-border-success: var(--surface-success-base, #00815a);
+  --text-field-border-default: var(--forms-border-color-default);
+  --text-field-border-focus: var(--border-primary-default);
+  --text-field-border-error: var(--surface-error-base);
+  --text-field-border-success: var(--surface-success-base);
   --text-field-focus-ring: rgb(28 63 202 / 18%);
-  --text-field-background: var(--forms-background-color-default, #fff);
-  --text-field-foreground: var(--text-strong, #172b4d);
-  --text-field-placeholder: var(--surface-neutral-dark, #626f86);
-  --text-field-helper-color: var(--text-subtle, #626f86);
-  --text-field-disabled-background: var(--control-background-color-disabled, #f4f5f7);
-  --text-field-disabled-foreground: var(--forms-text-color-disabled, #8590a2);
+  --text-field-background: var(--forms-background-color-default);
+  --text-field-foreground: var(--text-strong);
+  --text-field-placeholder: var(--surface-neutral-dark);
+  --text-field-helper-color: var(--text-subtle);
+  --text-field-disabled-background: var(--control-background-color-disabled);
+  --text-field-disabled-foreground: var(--forms-text-color-disabled);
 
   display: grid;
   min-width: 0;

@@ -1,0 +1,162 @@
+.text-area {
+  --text-area-border-default: var(--forms-border-color-default);
+  --text-area-border-focus: var(--border-primary-default);
+  --text-area-border-error: var(--surface-error-base);
+  --text-area-border-success: var(--surface-success-base);
+  --text-area-focus-ring: rgb(28 63 202 / 18%);
+  --text-area-background: var(--forms-background-color-default);
+  --text-area-foreground: var(--text-strong);
+  --text-area-placeholder: var(--surface-neutral-dark);
+  --text-area-helper-color: var(--text-subtle);
+  --text-area-disabled-background: var(--control-background-color-disabled);
+  --text-area-disabled-foreground: var(--forms-text-color-disabled);
+
+  display: grid;
+  min-width: 0;
+  gap: 6px;
+  color: var(--text-area-foreground);
+
+  &-label {
+    color: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.4;
+  }
+
+  &-control {
+    position: relative;
+    display: flex;
+    min-width: 0;
+    min-height: var(--text-area-height);
+    border: 1px solid var(--text-area-border-default);
+    border-radius: var(--text-area-radius, 6px);
+    background: var(--text-area-background);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+
+    &:focus-within,
+    .text-area--focus-preview & {
+      border-color: var(--text-area-border-focus);
+      box-shadow: 0 0 0 2px var(--text-area-focus-ring);
+    }
+  }
+
+  &-input {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    min-height: inherit;
+    border: 0;
+    outline: 0;
+    resize: vertical;
+    border-radius: inherit;
+    padding: var(--text-area-padding);
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    font-size: 13px;
+    line-height: 1.5;
+
+    &::placeholder {
+      color: var(--text-area-placeholder);
+      opacity: 1;
+    }
+
+    &:disabled {
+      resize: none;
+      cursor: not-allowed;
+    }
+  }
+
+  &-trailing {
+    position: absolute;
+    right: 12px;
+    bottom: 12px;
+    display: inline-flex;
+    color: var(--text-area-helper-color);
+  }
+
+  &-meta {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    color: var(--text-area-helper-color);
+    font-size: 12px;
+    line-height: 1.4;
+  }
+
+  &-helper {
+    min-width: 0;
+  }
+
+  &-counter {
+    flex: 0 0 auto;
+    text-align: right;
+  }
+
+  &--small {
+    --text-area-height: var(--forms-text-area-size-small-height, 150px);
+    --text-area-padding: var(--forms-text-area-size-small-padding, 16px);
+    --text-area-radius: var(--forms-text-area-size-small-radius, 6px);
+  }
+
+  &--medium {
+    --text-area-height: var(--forms-text-area-size-medium-height, 200px);
+    --text-area-padding: var(--forms-text-area-size-medium-padding, 20px);
+    --text-area-radius: var(--forms-text-area-size-medium-radius, 6px);
+  }
+
+  &--error {
+    --text-area-helper-color: var(--surface-error-base);
+
+    .text-area-control {
+      border-color: var(--text-area-border-error);
+    }
+
+    .text-area-control:focus-within,
+    &.text-area--focus-preview .text-area-control {
+      box-shadow: 0 0 0 2px rgb(214 28 83 / 16%);
+    }
+  }
+
+  &--success {
+    --text-area-helper-color: var(--surface-success-base);
+
+    .text-area-control {
+      border-color: var(--text-area-border-success);
+    }
+
+    .text-area-control:focus-within,
+    &.text-area--focus-preview .text-area-control {
+      box-shadow: 0 0 0 2px rgb(0 129 90 / 16%);
+    }
+  }
+
+  &--disabled {
+    color: var(--text-area-disabled-foreground);
+
+    .text-area-control {
+      border-color: var(--text-area-border-default);
+      background: var(--text-area-disabled-background);
+      cursor: not-allowed;
+    }
+  }
+
+  &--read-only .text-area-control {
+    background: var(--text-area-disabled-background);
+  }
+}
+
+.text-area-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: text-area-spin 0.7s linear infinite;
+}
+
+@keyframes text-area-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
