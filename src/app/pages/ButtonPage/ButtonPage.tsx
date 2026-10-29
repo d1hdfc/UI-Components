@@ -103,6 +103,9 @@ export function ButtonPage() {
             <a href={buttonSourceUrl} target="_blank" rel="noopener noreferrer">
               <span aria-hidden="true">↗</span> View source
             </a>
+            <a href="https://www.figma.com/design/CXxUbHl3oMzt9Bzv3SKv75/Foundations--Copy?node-id=2617-4609" target="_blank" rel="noopener noreferrer">
+              View in Figma <span aria-hidden="true">↗</span>
+            </a>
             <a href="#installation">Installation</a>
           </div>
         </div>

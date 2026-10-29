@@ -87,6 +87,30 @@ tracked in Git and included in the next package build. `npm run tokens:build`
 regenerates SCSS from the checked-in `src/tokens/tokens.json` without making a
 Figma API request.
 
+## Figma component gallery
+
+Set `FIGMA_PERSONAL_ACCESS_TOKEN` and optionally `FIGMA_FILE_KEY` (or
+`FIGMA_DESIGN_FILE_KEY`) in `.env`. The configured Figma file key in
+`.mcp/config.json` is used when neither file-key variable is set. `npm run dev`
+syncs component page names, descriptions, and preview images into
+`src/figma/components.json` on startup and every 60 seconds. The Components
+page and its sidebar links refresh from that manifest, so Figma additions and
+deletions appear in the local UI without restarting Vite. Preview images are
+cached locally under the ignored `public/figma/components/` directory; signed
+Figma image URLs are not written into the source manifest.
+
+The gallery is a Figma preview/catalog, not generated React source. Figma
+changes do not create or delete files under `src/components`; update and review
+those implementation files separately. Run `npm run figma:components:sync` for
+a one-time version check, or `npm run figma:components:sync -- --force` to
+refresh the catalog and previews regardless of the current file version.
+
+The docs sidebar also provides a dedicated page for each exported React
+component, with a live render from `src/components` beside its matching Figma
+design and a usage snippet. The Button, Text field, and Text area pages retain
+their detailed examples and include the same Figma/live-code comparison. Vite
+hot reload updates these previews as component source or styles change.
+
 ## MCP integration
 
 Edit `.mcp/config.json` and replace `<FIGMA_FILE_ID>` and `<FIGMA_PERSONAL_ACCESS_TOKEN>` with your values. Configure your MCP server to consume this file and map Figma variants/tokens to the TypeScript props.

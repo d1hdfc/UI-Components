@@ -3,6 +3,7 @@ dist/
 lib/
 .vite/
 *.log
+/public/figma/components/
 .env
 .env.*
 !.env.example

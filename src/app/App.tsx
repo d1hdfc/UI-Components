@@ -2,41 +2,36 @@ import { useEffect, useState } from 'react';
 import { ButtonPage } from './pages/ButtonPage';
 import { TextFieldPage } from './pages/TextFieldPage';
 import { TextAreaPage } from './pages/TextAreaPage';
-import { DocsHeader } from './components/DocsHeader';
-import { DocsSidebar } from './components/DocsSidebar';
+import { HeaderPage } from './pages/HeaderPage';
+import { SidebarPage } from './pages/SidebarPage';
 
 export default function App() {
-  const [currentPage, setCurrentPage] = useState<'button' | 'textfield' | 'textarea'>(() =>
-    window.location.hash.startsWith('#textarea')
-      ? 'textarea'
-      : window.location.hash.startsWith('#textfield')
-        ? 'textfield'
-        : 'button'
-  );
+  const getCurrentPage = (): 'button' | 'text-field' | 'text-area' => {
+    const hash = window.location.hash.slice(1);
+    if (hash.startsWith('textarea') || hash.startsWith('text-area')) return 'text-area';
+    if (hash.startsWith('textfield') || hash.startsWith('text-field')) return 'text-field';
+    return 'button';
+  };
+  const [currentPage, setCurrentPage] = useState(getCurrentPage);
 
   useEffect(() => {
     const updatePage = () => {
-      setCurrentPage(
-        window.location.hash.startsWith('#textarea')
-          ? 'textarea'
-          : window.location.hash.startsWith('#textfield')
-            ? 'textfield'
-            : 'button'
-      );
+      setCurrentPage(getCurrentPage());
     };
 
     window.addEventListener('hashchange', updatePage);
     return () => window.removeEventListener('hashchange', updatePage);
   }, []);
 
-  const isTextFieldPage = currentPage === 'textfield';
-  const isTextAreaPage = currentPage === 'textarea';
+  const isTextFieldPage = currentPage === 'text-field';
+  const isTextAreaPage = currentPage === 'text-area';
+  const tocPageSlug = isTextFieldPage ? 'textfield' : isTextAreaPage ? 'textarea' : currentPage;
 
   return (
     <div className="docs-shell">
-      <DocsHeader />
+      <HeaderPage />
       <div className="docs-layout" id="top">
-        <DocsSidebar currentPage={currentPage} />
+        <SidebarPage currentPage={currentPage} />
         {isTextAreaPage ? <TextAreaPage /> : isTextFieldPage ? <TextFieldPage /> : <ButtonPage />}
         <aside className="docs-toc" aria-label="On this page">
           <h2>On this page</h2>

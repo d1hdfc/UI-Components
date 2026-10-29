@@ -1,14 +1,20 @@
 import { useEffect, useRef, useState } from 'react';
-import './DocsSidebar.scss';
+import './SidebarPage.scss';
 
-export function DocsSidebar({ currentPage }: { currentPage: 'button' | 'textfield' | 'textarea' }) {
+const componentLinks = [
+  { slug: 'button', name: 'Button' },
+  { slug: 'textfield', name: 'Text field' },
+  { slug: 'textarea', name: 'Text area' }
+];
+
+export function SidebarPage({ currentPage }: { currentPage: string }) {
   const [searchQuery, setSearchQuery] = useState('');
   const searchRef = useRef<HTMLInputElement>(null);
   const query = searchQuery.trim().toLowerCase();
   const showInstallation = 'installation'.includes(query);
-  const showButton = 'button'.includes(query);
-  const showTextField = 'text field'.includes(query) || 'textfield'.includes(query);
-  const showTextArea = 'text area'.includes(query) || 'textarea'.includes(query);
+  const visibleComponents = componentLinks.filter((component) =>
+    component.name.toLowerCase().includes(query)
+  );
 
   useEffect(() => {
     const focusSearch = (event: KeyboardEvent) => {
@@ -40,10 +46,17 @@ export function DocsSidebar({ currentPage }: { currentPage: 'button' | 'textfiel
         <p className="docs-nav-heading">GET STARTED</p>
         {showInstallation && <a href="#installation">Installation</a>}
         <p className="docs-nav-heading">COMPONENTS</p>
-        {showButton && <a className={currentPage === 'button' ? 'docs-nav-active' : undefined} href="#button" aria-current={currentPage === 'button' ? 'page' : undefined}>Button</a>}
-        {showTextField && <a className={currentPage === 'textfield' ? 'docs-nav-active' : undefined} href="#textfield" aria-current={currentPage === 'textfield' ? 'page' : undefined}>Text field</a>}
-        {showTextArea && <a className={currentPage === 'textarea' ? 'docs-nav-active' : undefined} href="#textarea" aria-current={currentPage === 'textarea' ? 'page' : undefined}>Text area</a>}
-        {searchQuery && !showInstallation && !showButton && !showTextField && !showTextArea && (
+        {visibleComponents.map((component) => (
+          <a
+            key={component.slug}
+            className={currentPage === component.slug ? 'docs-nav-active' : undefined}
+            href={`#${component.slug}`}
+            aria-current={currentPage === component.slug ? 'page' : undefined}
+          >
+            {component.name}
+          </a>
+        ))}
+        {searchQuery && !showInstallation && visibleComponents.length === 0 && (
           <p className="docs-search-empty">No matching docs</p>
         )}
       </nav>

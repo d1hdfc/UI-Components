@@ -1,6 +1,6 @@
-import './DocsHeader.scss';
+import './HeaderPage.scss';
 
-export function DocsHeader() {
+export function HeaderPage() {
   return (
     <header className="docs-topbar">
       <a className="docs-brand" href="#top" aria-label="HDFC design system home">

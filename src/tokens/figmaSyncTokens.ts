@@ -42,7 +42,7 @@ async function fetchFigmaVariables() {
     throw new Error('FIGMA_PERSONAL_ACCESS_TOKEN is missing. Add it to the local .env file or shell environment.');
   }
 
-  console.log('🚀 Fetching variables from Figma API...');
+  console.log('🚀 Fetching code from Figma API...');
   
   if (!fs.existsSync(jsonDir)) {
     fs.mkdirSync(jsonDir, { recursive: true });

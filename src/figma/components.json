@@ -1,0 +1,216 @@
+{
+  "fileKey": "CXxUbHl3oMzt9Bzv3SKv75",
+  "version": "2415684904297372300",
+  "components": [
+    {
+      "key": "3663:112469",
+      "name": "Variables",
+      "description": "6 components · 0 component sets",
+      "nodeId": "3663:112469",
+      "thumbnailUrl": "/figma/components/3663-112469.png"
+    },
+    {
+      "key": "1860:5196",
+      "name": "Logo",
+      "description": "31 components · 7 component sets",
+      "nodeId": "1860:5196",
+      "thumbnailUrl": "/figma/components/1860-5196.png"
+    },
+    {
+      "key": "1887:3794",
+      "name": "Gradient",
+      "description": "5 components · 0 component sets",
+      "nodeId": "1887:3794",
+      "thumbnailUrl": "/figma/components/1887-3794.png"
+    },
+    {
+      "key": "2617:4609",
+      "name": "Button",
+      "description": "240 components · 1 component sets",
+      "nodeId": "2617:4609",
+      "thumbnailUrl": "/figma/components/2617-4609.png"
+    },
+    {
+      "key": "2617:4611",
+      "name": "Text-input",
+      "description": "123 components · 10 component sets",
+      "nodeId": "2617:4611",
+      "thumbnailUrl": "/figma/components/2617-4611.png"
+    },
+    {
+      "key": "4285:36878",
+      "name": "Input-Area",
+      "description": "17 components · 1 component sets",
+      "nodeId": "4285:36878",
+      "thumbnailUrl": "/figma/components/4285-36878.png"
+    },
+    {
+      "key": "4285:37102",
+      "name": "MPIN-input",
+      "description": "16 components · 2 component sets",
+      "nodeId": "4285:37102",
+      "thumbnailUrl": "/figma/components/4285-37102.png"
+    },
+    {
+      "key": "3557:23745",
+      "name": "Search bar",
+      "description": "13 components · 2 component sets",
+      "nodeId": "3557:23745",
+      "thumbnailUrl": "/figma/components/3557-23745.png"
+    },
+    {
+      "key": "2617:4612",
+      "name": "Chips",
+      "description": "252 components · 1 component sets",
+      "nodeId": "2617:4612",
+      "thumbnailUrl": "/figma/components/2617-4612.png"
+    },
+    {
+      "key": "4514:81323",
+      "name": "Focus ring",
+      "description": "1 components · 0 component sets",
+      "nodeId": "4514:81323",
+      "thumbnailUrl": "/figma/components/4514-81323.png"
+    },
+    {
+      "key": "3557:23709",
+      "name": "Badge",
+      "description": "46 components · 3 component sets",
+      "nodeId": "3557:23709",
+      "thumbnailUrl": "/figma/components/3557-23709.png"
+    },
+    {
+      "key": "3032:9762",
+      "name": "Avatar",
+      "description": "53 components · 8 component sets",
+      "nodeId": "3032:9762",
+      "thumbnailUrl": "/figma/components/3032-9762.png"
+    },
+    {
+      "key": "3980:27171",
+      "name": "tag",
+      "description": "8 components · 2 component sets",
+      "nodeId": "3980:27171",
+      "thumbnailUrl": "/figma/components/3980-27171.png"
+    },
+    {
+      "key": "2999:10001",
+      "name": "Controls",
+      "description": "87 components · 11 component sets",
+      "nodeId": "2999:10001",
+      "thumbnailUrl": "/figma/components/2999-10001.png"
+    },
+    {
+      "key": "4097:2814",
+      "name": "Rating",
+      "description": "13 components · 2 component sets",
+      "nodeId": "4097:2814",
+      "thumbnailUrl": "/figma/components/4097-2814.png"
+    },
+    {
+      "key": "3557:23126",
+      "name": "Progress bar",
+      "description": "18 components · 2 component sets",
+      "nodeId": "3557:23126",
+      "thumbnailUrl": "/figma/components/3557-23126.png"
+    },
+    {
+      "key": "3557:23183",
+      "name": "Pagination",
+      "description": "49 components · 9 component sets",
+      "nodeId": "3557:23183",
+      "thumbnailUrl": "/figma/components/3557-23183.png"
+    },
+    {
+      "key": "3612:11171",
+      "name": "Tabs",
+      "description": "8 components · 1 component sets",
+      "nodeId": "3612:11171",
+      "thumbnailUrl": "/figma/components/3612-11171.png"
+    },
+    {
+      "key": "3159:10382",
+      "name": "seperator",
+      "description": "6 components · 1 component sets",
+      "nodeId": "3159:10382",
+      "thumbnailUrl": "/figma/components/3159-10382.png"
+    },
+    {
+      "key": "3855:102718",
+      "name": "Toast",
+      "description": "12 components · 1 component sets",
+      "nodeId": "3855:102718",
+      "thumbnailUrl": "/figma/components/3855-102718.png"
+    },
+    {
+      "key": "3234:13174",
+      "name": "bottomsheet",
+      "description": "13 components · 3 component sets",
+      "nodeId": "3234:13174",
+      "thumbnailUrl": "/figma/components/3234-13174.png"
+    },
+    {
+      "key": "3235:16438",
+      "name": "status bar / browser",
+      "description": "6 components · 2 component sets",
+      "nodeId": "3235:16438",
+      "thumbnailUrl": "/figma/components/3235-16438.png"
+    },
+    {
+      "key": "3612:11317",
+      "name": "Carousel hook",
+      "description": "6 components · 2 component sets",
+      "nodeId": "3612:11317",
+      "thumbnailUrl": "/figma/components/3612-11317.png"
+    },
+    {
+      "key": "3612:11444",
+      "name": "Card",
+      "description": "9 components · 1 component sets",
+      "nodeId": "3612:11444",
+      "thumbnailUrl": "/figma/components/3612-11444.png"
+    },
+    {
+      "key": "4239:28194",
+      "name": "Tooltip",
+      "description": "13 components · 1 component sets",
+      "nodeId": "4239:28194",
+      "thumbnailUrl": "/figma/components/4239-28194.png"
+    },
+    {
+      "key": "3612:11359",
+      "name": "Snackbar",
+      "description": "3 components · 1 component sets",
+      "nodeId": "3612:11359",
+      "thumbnailUrl": "/figma/components/3612-11359.png"
+    },
+    {
+      "key": "3826:70573",
+      "name": "Testing",
+      "description": "656 components · 41 component sets",
+      "nodeId": "3826:70573",
+      "thumbnailUrl": "/figma/components/3826-70573.png"
+    },
+    {
+      "key": "2011:26502",
+      "name": "Components",
+      "description": "31 components · 1 component sets",
+      "nodeId": "2011:26502",
+      "thumbnailUrl": "/figma/components/2011-26502.png"
+    },
+    {
+      "key": "0:1",
+      "name": "global_token_architecture",
+      "description": "64 components · 1 component sets",
+      "nodeId": "0:1",
+      "thumbnailUrl": "/figma/components/0-1.png"
+    },
+    {
+      "key": "2568:2572",
+      "name": "derpicated items",
+      "description": "21 components · 2 component sets",
+      "nodeId": "2568:2572",
+      "thumbnailUrl": "/figma/components/2568-2572.png"
+    }
+  ]
+}
