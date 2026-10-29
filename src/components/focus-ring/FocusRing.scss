@@ -1,0 +1,13 @@
+.focus-ring {
+  display: inline-flex;
+  outline: 1.5px solid transparent;
+  outline-offset: 2px;
+  border-radius: inherit;
+
+  &:focus-within,
+  &:focus-visible,
+  &--visible {
+    outline-color: var(--border-primary-default, #1c3fca);
+    box-shadow: 0 0 0 4px rgb(28 63 202 / 12%);
+  }
+}

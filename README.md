@@ -65,6 +65,12 @@ export function Example() {
 }
 ```
 
+The package also exports the complete reusable set: `TextField`, `TextArea`,
+`SearchBar`, `MPinInput`, `Chips`, `Badge`, `FocusRing`, `Avatar`, `Tag`,
+`Checkbox`, `Radio`, `Switch`, `Rating`, `ProgressBar`, `Pagination`, `Tabs`,
+`Separator`, `Toast`, `Snackbar`, `BottomSheet`, `Popover`, `Tooltip`, `Card`,
+`StatusBar`, `BrowserBar`, and `Carousel` (plus its `useCarousel` hook).
+
 Every push to `main` that changes library components or design tokens builds
 and publishes a new `main` package version. To publish a stable version, update
 the root `version` in `package.json`, push a matching `vX.Y.Z` tag, and publish a

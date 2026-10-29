@@ -1,0 +1,89 @@
+@use 'sass:list';
+
+$badge-tones: (
+  'primary': (#1c3fca, #fff, #e8edff, #1735ad),
+  'neutral': (#50555d, #fff, #f1f2f4, #50555d),
+  'warning': (#f8b600, #222, #fff4d6, #986c00),
+  'success': (#00815a, #fff, #e3f5ef, #006b4b),
+  'destructive': (#d61c53, #fff, #fde7ee, #b31443),
+  'info': (#0878bd, #fff, #e4f4ff, #08649e)
+);
+
+.badge {
+  --badge-height: var(--badge-size-medium-height, 28px);
+  --badge-gap: var(--badge-size-medium-gap, 4px);
+  --badge-padding-x: var(--badge-size-medium-horizontal-padding, 8px);
+  --badge-padding-y: var(--badge-size-medium-vertical-padding, 4px);
+  --badge-radius: var(--badge-size-medium-radius, 8px);
+  --badge-fill: #1c3fca;
+  --badge-fill-text: #fff;
+  --badge-accent: #e8edff;
+  --badge-accent-text: #1735ad;
+
+  display: inline-flex;
+  min-width: 0;
+  height: var(--badge-height);
+  align-items: center;
+  justify-content: center;
+  gap: var(--badge-gap);
+  border: 1px solid transparent;
+  border-radius: var(--badge-radius);
+  padding: var(--badge-padding-y) var(--badge-padding-x);
+  background: var(--badge-fill);
+  color: var(--badge-fill-text);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+
+  @each $tone, $colors in $badge-tones {
+    &--#{$tone} {
+      --badge-fill: #{list.nth($colors, 1)};
+      --badge-fill-text: #{list.nth($colors, 2)};
+      --badge-accent: #{list.nth($colors, 3)};
+      --badge-accent-text: #{list.nth($colors, 4)};
+    }
+  }
+
+  &--small {
+    --badge-height: var(--badge-size-small-height, 24px);
+    --badge-gap: var(--badge-size-small-gap, 4px);
+    --badge-padding-x: var(--badge-size-small-horizontal-padding, 8px);
+    --badge-padding-y: var(--badge-size-small-vertical-padding, 4px);
+    --badge-radius: var(--badge-size-small-radius, 8px);
+    font-size: 11px;
+  }
+
+  &--large {
+    --badge-height: var(--badge-size-large-height, 36px);
+    --badge-gap: var(--badge-size-large-gap, 4px);
+    --badge-padding-x: var(--badge-size-large-horizontal-padding, 12px);
+    --badge-padding-y: var(--badge-size-large-vertical-padding, 8px);
+    --badge-radius: var(--badge-size-large-radius, 12px);
+    font-size: 14px;
+  }
+
+  &--accent {
+    background: var(--badge-accent);
+    color: var(--badge-accent-text);
+  }
+
+  &--outline {
+    border-color: currentColor;
+    background: transparent;
+    color: var(--badge-fill);
+  }
+
+  &-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &-icon {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+  }
+}

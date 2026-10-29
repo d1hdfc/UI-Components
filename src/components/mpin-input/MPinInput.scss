@@ -1,0 +1,112 @@
+.mpin-input {
+  --mpin-height: var(--forms-mpin-size-medium-height, 64px);
+  --mpin-radius: var(--forms-mpin-size-medium-radius, 8px);
+  --mpin-border: var(--forms-border-color-default);
+  --mpin-text: var(--text-strong);
+
+  display: grid;
+  min-width: 0;
+  gap: 6px;
+  color: var(--mpin-text);
+
+  &--small {
+    --mpin-height: var(--forms-mpin-size-small-height, 52px);
+    --mpin-radius: var(--forms-mpin-size-small-radius, 8px);
+  }
+
+  &-label {
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.4;
+  }
+
+  &-control {
+    position: relative;
+    height: var(--mpin-height);
+    overflow: hidden;
+    border: 1px solid var(--mpin-border);
+    border-radius: var(--mpin-radius);
+    background: var(--forms-background-color-default);
+
+    &:focus-within {
+      border-color: var(--border-primary-default);
+      box-shadow: 0 0 0 2px rgb(28 63 202 / 18%);
+    }
+  }
+
+  &-field,
+  &-digits {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  &-field {
+    z-index: 1;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: transparent;
+    caret-color: var(--text-strong);
+    font-size: 24px;
+    letter-spacing: 1em;
+    opacity: 0;
+  }
+
+  &-digits {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    pointer-events: none;
+  }
+
+  &-digit {
+    display: grid;
+    place-items: center;
+    border-right: 1px solid var(--mpin-border);
+
+    &:last-child {
+      border-right: 0;
+    }
+  }
+
+  &-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  &-helper {
+    color: var(--text-subtle);
+    font-size: 12px;
+    line-height: 1.4;
+  }
+
+  &--error {
+    --mpin-border: var(--surface-error-base);
+    color: var(--surface-error-base);
+  }
+
+  &--success {
+    --mpin-border: var(--surface-success-base);
+    color: var(--surface-success-base);
+  }
+
+  &--disabled {
+    color: var(--forms-text-color-disabled);
+
+    .mpin-input-control {
+      background: var(--control-background-color-disabled);
+      cursor: not-allowed;
+    }
+  }
+
+  &--read-only .mpin-input-control {
+    background: var(--control-background-color-disabled);
+  }
+}
+
+.mpin-input--length-6 .mpin-input-digits {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}

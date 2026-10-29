@@ -1,0 +1,53 @@
+.browser-bar {
+  display: flex;
+  width: 100%;
+  min-height: 48px;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 12px;
+  background: var(--surface-neutral-lighter, #f1f2f4);
+  color: var(--text-strong, #242424);
+
+  &-navigation {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+
+    button {
+      width: 28px;
+      height: 28px;
+      border: 0;
+      border-radius: 50%;
+      background: transparent;
+      color: inherit;
+      font-size: 20px;
+      cursor: pointer;
+
+      &:disabled {
+        opacity: 0.35;
+        cursor: default;
+      }
+    }
+  }
+
+  &-address {
+    display: flex;
+    min-width: 0;
+    height: 32px;
+    flex: 1;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    overflow: hidden;
+    border-radius: 8px;
+    padding: 0 12px;
+    background: var(--surface-root, #fff);
+    font-size: 12px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &-lock {
+    flex: 0 0 auto;
+  }
+}

@@ -1,0 +1,30 @@
+.rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--surface-neutral-light, #c8cbd1);
+
+  &-star {
+    border: 0;
+    padding: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    font-size: var(--ratings-height, 24px);
+    line-height: 1;
+    cursor: pointer;
+
+    &--filled {
+      color: var(--surface-static-warning, #f8b600);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--border-primary-default, #1c3fca);
+      outline-offset: 2px;
+    }
+  }
+
+  &--readonly .rating-star {
+    cursor: default;
+  }
+}

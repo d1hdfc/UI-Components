@@ -1,0 +1,40 @@
+.snackbar {
+  display: flex;
+  width: min(560px, calc(100vw - 32px));
+  min-height: 52px;
+  align-items: center;
+  gap: var(--snackbar-size-gap, 8px);
+  border-radius: var(--snackbar-size-radius, var(--layout-radius-md, 8px));
+  padding: var(--snackbar-size-padding-y, 12px) var(--snackbar-size-padding-x, 16px);
+  background: var(--surface-neutral-dark, #30343b);
+  color: var(--text-inverse, #fff);
+  box-shadow: var(--elevation-strong-x, 0) var(--elevation-strong-y, 4px) var(--elevation-strong-blur, 8px) var(--elevation-strong-spread, 0) var(--elevation-strong-color-dark, rgb(20 30 55 / 18%));
+
+  &-message {
+    min-width: 0;
+    flex: 1;
+    font-size: 14px;
+    line-height: 1.4;
+  }
+
+  &-action,
+  &-close {
+    flex: 0 0 auto;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+  }
+
+  &-action {
+    color: var(--surface-primary-light, #a9bbff);
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+
+  &-close {
+    font-size: 20px;
+    line-height: 1;
+  }
+}

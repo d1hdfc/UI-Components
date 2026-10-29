@@ -1,0 +1,18 @@
+.separator {
+  flex: 0 0 auto;
+  border: 0;
+  background: var(--seperator-default, var(--border-neutral-subtle, #e2e4e8));
+
+  &--horizontal {
+    width: 100%;
+    height: var(--seperator-border-width, 1px);
+    margin: 0;
+  }
+
+  &--vertical {
+    display: inline-block;
+    width: var(--seperator-border-width, 1px);
+    height: 100%;
+    margin: 0;
+  }
+}

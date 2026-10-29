@@ -1,14 +1,24 @@
 import React from 'react';
 import type { ButtonProps } from './Button.types';
+import chevronLeft from '../assets/figma/button-chevron-left.svg';
+import chevronRight from '../assets/figma/button-chevron-right.svg';
 
 const cx = (...parts: Array<string | false | undefined>) => parts.filter(Boolean).join(' ');
 
-const renderIcon = (icon: boolean | React.ReactNode, fallback: string) => {
+const renderIcon = (
+  icon: boolean | React.ReactNode,
+  direction: 'left' | 'right'
+) => {
   if (!icon) return null;
+  const maskImage = `url("${direction === 'left' ? chevronLeft : chevronRight}")`;
 
   return (
-    <span className="btn-icon" aria-hidden="true">
-      {icon === true ? fallback : icon}
+    <span
+      className={`btn-icon${icon === true ? ` btn-icon--${direction}` : ''}`}
+      style={icon === true ? { maskImage } : undefined}
+      aria-hidden="true"
+    >
+      {icon === true ? null : icon}
     </span>
   );
 };
@@ -46,10 +56,10 @@ export const Button: React.FC<ButtonProps> = ({
       aria-busy={loading || undefined}
       aria-pressed={selected || undefined}
     >
-      {renderIcon(leftIcon, '‹')}
+      {renderIcon(leftIcon, 'left')}
       <span className="btn-label">{children}</span>
       {loading && <span className="spinner" aria-hidden="true" />}
-      {!loading && renderIcon(rightIcon, '›')}
+      {!loading && renderIcon(rightIcon, 'right')}
     </button>
   );
 };

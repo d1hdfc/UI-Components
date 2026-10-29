@@ -1,0 +1,67 @@
+.bottom-sheet-backdrop {
+  position: fixed;
+  z-index: 1000;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: rgb(12 18 32 / 45%);
+}
+
+.bottom-sheet {
+  width: min(100%, 640px);
+  max-height: min(90vh, 880px);
+  overflow: auto;
+  border-radius: 20px 20px 0 0;
+  padding: 12px 24px max(24px, env(safe-area-inset-bottom));
+  background: var(--surface-root, #fff);
+  color: var(--text-strong, #242424);
+  box-shadow: 0 -12px 36px var(--elevation-strong-color-dark, rgb(20 30 55 / 16%));
+  animation: bottom-sheet-enter 0.2s ease-out;
+
+  &-handle {
+    width: 40px;
+    height: 4px;
+    margin: 0 auto 18px;
+    border-radius: 999px;
+    background: var(--bottomsheet-default, var(--surface-neutral-light, #c8cbd1));
+  }
+
+  &-close {
+    position: absolute;
+    top: 24px;
+    right: max(20px, calc((100vw - 600px) / 2));
+    display: grid;
+    width: 32px;
+    height: 32px;
+    place-items: center;
+    border: 0;
+    border-radius: 50%;
+    background: var(--surface-neutral-lighter, #f1f2f4);
+    color: var(--text-strong, #242424);
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  &-title {
+    margin: 0 0 16px;
+    font-size: 18px;
+    line-height: 1.35;
+  }
+
+  &-content {
+    min-height: 0;
+  }
+}
+
+@keyframes bottom-sheet-enter {
+  from {
+    transform: translateY(24px);
+    opacity: 0.7;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}

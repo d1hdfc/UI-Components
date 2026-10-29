@@ -1,0 +1,119 @@
+@use 'sass:list';
+
+$chips-tones: (
+  'blue': (var(--chips-filled-background-color-blue, #1c3fca), var(--chips-filled-foreground-color-blue, #fff), var(--chips-accent-background-color-blue, #e8edff), var(--chips-accent-foreground-color-blue, #1735ad), var(--chips-outline-foreground-color-blue, #1c3fca)),
+  'warning': (var(--chips-filled-background-color-warning, #f8b600), var(--chips-filled-foreground-color-warning, #222), var(--chips-accent-background-color-warning, #fff4d6), var(--chips-accent-foreground-color-warning, #986c00), var(--chips-outline-foreground-color-warning, #986c00)),
+  'destructive': (var(--chips-filled-background-color-destructive, #d61c53), var(--chips-filled-foreground-color-destructive, #fff), var(--chips-accent-background-color-destructive, #fde7ee), var(--chips-accent-foreground-color-destructive, #b31443), var(--chips-outline-foreground-color-destructive, #b31443)),
+  'success': (var(--chips-filled-background-color-success, #00815a), var(--chips-filled-foreground-color-success, #fff), var(--chips-accent-background-color-success, #e3f5ef), var(--chips-accent-foreground-color-success, #006b4b), var(--chips-outline-foreground-color-success, #006b4b)),
+  'neutral': (var(--chips-filled-background-color-neutral, #50555d), var(--chips-filled-foreground-color-neutral, #fff), var(--chips-accent-background-color-neutral, #f1f2f4), var(--chips-accent-foreground-color-neutral, #50555d), var(--chips-outline-foreground-color-neutral, #50555d)),
+  'info': (#0878bd, #fff, #e4f4ff, #08649e, #08649e),
+  'rust': (#a94d2b, #fff, #f8eae4, #843b20, #843b20),
+  'yellow': (#f2c500, #242424, #fff8cc, #856c00, #856c00),
+  'violet': (#6941c6, #fff, #eee8ff, #5931b0, #5931b0),
+  'purple': (#7a3db8, #fff, #f3e8ff, #612d95, #612d95)
+);
+
+.chips {
+  --chips-height: var(--chips-size-medium-height, 40px);
+  --chips-padding-x: var(--chips-size-medium-padding-x, 12px);
+  --chips-padding-y: var(--chips-size-medium-padding-y, 8px);
+  --chips-gap: var(--chips-size-medium-gap, 4px);
+  --chips-radius: var(--chips-size-medium-radius-default, 6px);
+  --chips-fill: var(--surface-primary-base, #1c3fca);
+  --chips-fill-text: #fff;
+  --chips-accent: var(--surface-primary-lighter, #e8edff);
+  --chips-accent-text: var(--surface-primary-interactive-darkest, #1735ad);
+  --chips-outline-text: var(--surface-primary-base, #1c3fca);
+
+  display: inline-flex;
+  min-width: 0;
+  height: var(--chips-height);
+  align-items: center;
+  justify-content: center;
+  gap: var(--chips-gap);
+  border: var(--chips-size-border-width, 1px) solid transparent;
+  border-radius: var(--chips-radius);
+  padding: var(--chips-padding-y) var(--chips-padding-x);
+  background: var(--chips-accent);
+  color: var(--chips-accent-text);
+  font: inherit;
+  font-size: 14px;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+
+  @each $tone, $colors in $chips-tones {
+    &--#{$tone} {
+      --chips-fill: #{list.nth($colors, 1)};
+      --chips-fill-text: #{list.nth($colors, 2)};
+      --chips-accent: #{list.nth($colors, 3)};
+      --chips-accent-text: #{list.nth($colors, 4)};
+      --chips-outline-text: #{list.nth($colors, 5)};
+    }
+  }
+
+  &--small {
+    --chips-height: var(--chips-size-small-height, 32px);
+    --chips-padding-x: var(--chips-size-small-padding-x, 6px);
+    --chips-padding-y: var(--chips-size-small-padding-y, 4px);
+    --chips-gap: var(--chips-size-small-gap, 4px);
+    font-size: 12px;
+  }
+
+  &--large {
+    --chips-height: var(--chips-size-large-height, 48px);
+    --chips-padding-x: var(--chips-size-large-padding-x, 16px);
+    --chips-padding-y: var(--chips-size-large-padding-y, 10px);
+    --chips-gap: var(--chips-size-large-gap, 4px);
+    font-size: 16px;
+  }
+
+  &--round {
+    --chips-radius: var(--chips-size-radius, 999px);
+  }
+
+  &--filled {
+    background: var(--chips-fill);
+    color: var(--chips-fill-text);
+  }
+
+  &--outline {
+    border-color: currentColor;
+    background: transparent;
+    color: var(--chips-outline-text);
+  }
+
+  &:hover:not(:disabled) {
+    filter: brightness(0.96);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--border-primary-default, #1c3fca);
+    outline-offset: 2px;
+  }
+
+  &:disabled,
+  &--disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+
+  &--selected:not(:disabled) {
+    box-shadow: inset 0 0 0 1px currentColor;
+  }
+
+  &-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &-icon {
+    display: inline-flex;
+    flex: 0 0 auto;
+    width: 16px;
+    height: 16px;
+    align-items: center;
+    justify-content: center;
+  }
+}

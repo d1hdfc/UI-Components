@@ -2,16 +2,24 @@
 
 $text-field-sizes: (
   small: (
-    height: 36px,
-    padding: 12px,
+    height: var(--forms-text-input-size-small-height, 52px),
+    padding: var(--forms-text-input-size-small-padding, 16px),
     font-size: 13px,
-    label-size: 12px
+    label-size: 12px,
+    gap: var(--forms-text-input-size-small-gap, 12px),
+    radius: var(--forms-text-input-size-small-radius, 8px),
+    border-width: var(--forms-text-input-size-small-border-width, 1px),
+    focus-border-width: var(--forms-text-input-size-small-focus-border-width, 2px)
   ),
   medium: (
-    height: 44px,
-    padding: 16px,
+    height: var(--forms-text-input-size-medium-height, 64px),
+    padding: var(--forms-text-input-size-medium-padding, 20px),
     font-size: 14px,
-    label-size: 13px
+    label-size: 13px,
+    gap: var(--forms-text-input-size-medium-gap, 12px),
+    radius: var(--forms-text-input-size-medium-radius, 8px),
+    border-width: var(--forms-text-input-size-medium-border-width, 1px),
+    focus-border-width: var(--forms-text-input-size-medium-focus-border-width, 2px)
   )
 );
 
@@ -20,6 +28,7 @@ $text-field-sizes: (
 
   &:focus-within {
     border-color: var(--text-field-border-#{$focus});
+    border-width: var(--text-field-focus-border-width);
     box-shadow: 0 0 0 2px var(--text-field-focus-ring);
   }
 }
@@ -54,9 +63,9 @@ $text-field-sizes: (
     min-width: 0;
     height: var(--text-field-height);
     align-items: center;
-    gap: 8px;
-    border: 1px solid var(--text-field-border-default);
-    border-radius: 6px;
+    gap: var(--text-field-gap);
+    border: var(--text-field-border-width) solid var(--text-field-border-default);
+    border-radius: var(--text-field-radius);
     padding: 0 var(--text-field-padding);
     background: var(--text-field-background);
     transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
@@ -174,6 +183,10 @@ $text-field-sizes: (
     --text-field-padding: #{map.get($tokens, padding)};
     --text-field-font-size: #{map.get($tokens, font-size)};
     --text-field-label-size: #{map.get($tokens, label-size)};
+    --text-field-gap: #{map.get($tokens, gap)};
+    --text-field-radius: #{map.get($tokens, radius)};
+    --text-field-border-width: #{map.get($tokens, border-width)};
+    --text-field-focus-border-width: #{map.get($tokens, focus-border-width)};
   }
 }
 
