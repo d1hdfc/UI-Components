@@ -86,4 +86,14 @@ $badge-tones: (
     align-items: center;
     justify-content: center;
   }
+
+  &-icon--left,
+  &-icon--right {
+    width: 16px;
+    height: 16px;
+    background-color: currentColor;
+    mask-position: center;
+    mask-repeat: no-repeat;
+    mask-size: contain;
+  }
 }

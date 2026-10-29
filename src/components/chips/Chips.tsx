@@ -1,6 +1,24 @@
+import type { ReactNode } from 'react';
 import type { ChipsProps } from './Chips.types';
+import chevronLeft from '../assets/figma/chip-chevron-left.svg';
+import chevronRight from '../assets/figma/chip-chevron-right.svg';
 
 const cx = (...parts: Array<string | false | undefined>) => parts.filter(Boolean).join(' ');
+
+function renderIcon(icon: boolean | ReactNode, direction: 'left' | 'right') {
+  if (!icon) return null;
+  const maskImage = `url("${direction === 'left' ? chevronLeft : chevronRight}")`;
+
+  return (
+    <span
+      className={`chips-icon${icon === true ? ` chips-icon--${direction}` : ''}`}
+      style={icon === true ? { maskImage } : undefined}
+      aria-hidden="true"
+    >
+      {icon === true ? null : icon}
+    </span>
+  );
+}
 
 export function Chips({
   size = 'medium',
@@ -24,9 +42,9 @@ export function Chips({
       disabled={disabled}
       aria-pressed={selected}
     >
-      {leftIcon && <span className="chips-icon chips-icon--left">{leftIcon}</span>}
+      {renderIcon(leftIcon, 'left')}
       <span className="chips-label">{children}</span>
-      {rightIcon && <span className="chips-icon chips-icon--right">{rightIcon}</span>}
+      {renderIcon(rightIcon, 'right')}
     </button>
   );
 }

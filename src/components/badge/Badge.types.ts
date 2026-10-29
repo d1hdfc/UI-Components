@@ -8,6 +8,6 @@ export interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
   size?: BadgeSize;
   tone?: BadgeTone;
   variant?: BadgeStyle;
-  leftIcon?: React.ReactNode;
-  rightIcon?: React.ReactNode;
+  leftIcon?: boolean | React.ReactNode;
+  rightIcon?: boolean | React.ReactNode;
 }

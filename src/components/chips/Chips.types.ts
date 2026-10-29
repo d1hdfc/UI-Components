@@ -11,6 +11,6 @@ export interface ChipsProps extends React.ButtonHTMLAttributes<HTMLButtonElement
   tone?: ChipsTone;
   corner?: ChipsCorner;
   selected?: boolean;
-  leftIcon?: React.ReactNode;
-  rightIcon?: React.ReactNode;
+  leftIcon?: boolean | React.ReactNode;
+  rightIcon?: boolean | React.ReactNode;
 }
