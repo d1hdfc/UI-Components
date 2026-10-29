@@ -1,6 +1,6 @@
 @echo off
 echo ===========================================
-echo   Figma Syncing & Auto GitHub Push Starts
+echo   Figma Syncing ^& Auto GitHub Push Starts
 echo ===========================================
 
 echo [1/3] Fetching latest tokens and generating updates from Figma...

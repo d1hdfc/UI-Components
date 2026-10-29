@@ -30,7 +30,7 @@ Project structure
 - `src/components/` — reusable UI components, grouped by component
 - `src/library.ts` — public entry point for the installable package
 - `src/tokens/tokens.json` — synced Figma token source
-- `src/tokens/build/` — generated SCSS variables consumed by the app
+- `src/tokens/variables/` — generated SCSS variables consumed by the app
 - `src/main.tsx` — Vite application entry point
 
 ## Install the component library
@@ -81,23 +81,22 @@ without the `@main` suffix.
 
 Set `FIGMA_PERSONAL_ACCESS_TOKEN` in a local `.env` file. `npm run dev` starts
 the token watcher, which fetches Figma variables immediately and every 60
-seconds, then regenerates the token SCSS used by both the app and package.
-Review and commit the changed files under `src/tokens/` so the changes are
-tracked in Git and included in the next package build. `npm run tokens:build`
-regenerates SCSS from the checked-in `src/tokens/tokens.json` without making a
-Figma API request.
+seconds, then writes the generated token SCSS directly to
+`src/tokens/variables/`. Review and commit the changed files under
+`src/tokens/variables/` so the changes are tracked in Git and included in the
+next package build. `npm run tokens:build` regenerates SCSS from the checked-in
+`src/tokens/tokens.json` without making a Figma API request.
 
-## Figma component gallery
+## Figma component catalog
 
 Set `FIGMA_PERSONAL_ACCESS_TOKEN` and optionally `FIGMA_FILE_KEY` (or
 `FIGMA_DESIGN_FILE_KEY`) in `.env`. The configured Figma file key in
 `.mcp/config.json` is used when neither file-key variable is set. `npm run dev`
 syncs component page names, descriptions, and preview images into
-`src/figma/components.json` on startup and every 60 seconds. The Components
-page and its sidebar links refresh from that manifest, so Figma additions and
-deletions appear in the local UI without restarting Vite. Preview images are
-cached locally under the ignored `public/figma/components/` directory; signed
-Figma image URLs are not written into the source manifest.
+`src/figma/components.json` on startup and every 60 seconds. This manifest sync
+is separate from the MCP WebSocket connection status. Preview images are cached
+locally under the ignored `public/figma/components/` directory; signed Figma
+image URLs are not written into the source manifest.
 
 The gallery is a Figma preview/catalog, not generated React source. Figma
 changes do not create or delete files under `src/components`; update and review

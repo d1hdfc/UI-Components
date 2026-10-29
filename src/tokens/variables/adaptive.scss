@@ -1,0 +1,330 @@
+@use 'sass:map';
+@use 'sass:list';
+
+$columns: (
+  "12m-12t-12d": (328, 704, 1168, 1168),
+  "12m-12t-9d": (328, 704, 871, 871),
+  "12m-12t-8d": (328, 704, 772, 772),
+  "12m-6t-6d": (328, 344, 574, 574),
+  "12m-6t-4d": (328, 344, 376, 376),
+  "12m-6t-3d": (328, 344, 277, 277),
+  "mscroll-6t-4d": (280, 344, 376, 376),
+  "mscroll-4t-3d": (280, 224, 277, 277),
+  "6m-6t-6d": (160, 344, 574, 574),
+  "6m-6t-4d": (160, 344, 376, 376),
+  "6m-4t-3d": (160, 224, 277, 277),
+  "6m-3t-2d": (160, 164, 178, 178),
+  "4m-3t-2d": (104, 164, 178, 178),
+  "3m-3t-2d": (76, 164, 178, 178),
+  "3m-2t-1d": (76, 104, 79, 79),
+  "gutter": (8, 16, 20, 20)
+);
+
+$screen-index: (
+  "mobile": 1,
+  "tablet": 2,
+  "desktop": 3,
+  "large-desktop": 4
+);
+
+$adaptive-viewport-tokens: (
+  "mobile": (
+    "number": 0,
+    "font-size": (
+      "h1": var(--font-size-heading-h1),
+      "h2": var(--font-size-heading-h2),
+      "h3": var(--font-size-heading-h3),
+      "h4": var(--font-size-heading-h4),
+      "h5": var(--font-size-heading-h5),
+      "p1": var(--font-size-paragraph-lg),
+      "p2": var(--font-size-paragraph-md),
+      "p3": var(--font-size-paragraph-sm),
+      "p4": var(--font-size-paragraph-xsm)
+    ),
+    "font-lineheight": (
+      "h1": var(--font-line-height-heading-h1),
+      "h2": var(--font-line-height-heading-h2),
+      "h3": var(--font-line-height-heading-h3),
+      "h4": var(--font-line-height-heading-h4),
+      "h5": var(--font-line-height-heading-h5),
+      "p1": var(--font-line-height-paragraph-lg),
+      "p2": var(--font-line-height-paragraph-md),
+      "p3": var(--font-line-height-paragraph-sm),
+      "p4": var(--font-line-height-paragraph-xsm)
+    ),
+    "radius": (
+      "2xs": var(--layout-radius-2xs),
+      "xs": var(--layout-radius-sm),
+      "sm": var(--layout-radius-md),
+      "md": var(--layout-radius-lg),
+      "lg": var(--layout-radius-xl),
+      "xl": var(--layout-radius-2xl),
+      "full": var(--layout-radius-full),
+      "bottomsheet": var(--layout-radius-3xs)
+    ),
+    "spacing": (
+      "2xs": var(--layout-spacing-2xs),
+      "xs": var(--layout-spacing-xs),
+      "sm": var(--layout-spacing-sm),
+      "md": var(--layout-spacing-md),
+      "lg": var(--layout-spacing-lg),
+      "xl": var(--layout-spacing-xl),
+      "2xl": var(--layout-spacing-2xl),
+      "3xl": var(--layout-spacing-3xl),
+      "4xl": var(--layout-spacing-4xl),
+      "5xl": var(--layout-spacing-5xl),
+      "negative-overlap": -32px,
+      "bottomsheet-top": var(--layout-spacing-sm)
+    ),
+    "visibility": (
+      "d0-t0-m1": 1,
+      "d1-t1-m0": 0
+    ),
+    "popup": (
+      "small": 360,
+      "medium": 360
+    ),
+    "margin": (
+      "horizontal": var(--global-scale-200),
+      "vertical": var(--global-scale-250)
+    ),
+    "breakpoints": 360,
+    "button-size": "medium"
+  ),
+  "tablet": (
+    "number": 0,
+    "font-size": (
+      "h1": var(--font-size-display-sm),
+      "h2": var(--font-size-heading-h1),
+      "h3": var(--font-size-heading-h2),
+      "h4": var(--font-size-heading-h3),
+      "h5": var(--font-size-heading-h4),
+      "p1": var(--font-size-heading-h5),
+      "p2": var(--font-size-paragraph-lg),
+      "p3": var(--font-size-paragraph-md),
+      "p4": var(--font-size-paragraph-sm)
+    ),
+    "font-lineheight": (
+      "h1": var(--font-line-height-display-sm),
+      "h2": var(--font-line-height-heading-h1),
+      "h3": var(--font-line-height-heading-h2),
+      "h4": var(--font-line-height-heading-h3),
+      "h5": var(--font-line-height-heading-h4),
+      "p1": var(--font-line-height-heading-h5),
+      "p2": var(--font-line-height-paragraph-lg),
+      "p3": var(--font-line-height-paragraph-md),
+      "p4": var(--font-line-height-paragraph-sm)
+    ),
+    "radius": (
+      "2xs": var(--layout-radius-2xs),
+      "xs": var(--layout-radius-sm),
+      "sm": var(--layout-radius-md),
+      "md": var(--layout-radius-lg),
+      "lg": var(--layout-radius-xl),
+      "xl": var(--layout-radius-2xl),
+      "full": var(--layout-radius-full),
+      "bottomsheet": var(--layout-radius-xl)
+    ),
+    "spacing": (
+      "2xs": var(--layout-spacing-2xs),
+      "xs": var(--layout-spacing-xs),
+      "sm": var(--layout-spacing-sm),
+      "md": var(--layout-spacing-md),
+      "lg": var(--layout-spacing-lg),
+      "xl": var(--layout-spacing-2xl),
+      "2xl": var(--layout-spacing-3xl),
+      "3xl": var(--layout-spacing-4xl),
+      "4xl": var(--layout-spacing-5xl),
+      "5xl": var(--layout-spacing-6xl),
+      "negative-overlap": -32px,
+      "bottomsheet-top": var(--layout-spacing-2xl)
+    ),
+    "visibility": (
+      "d0-t0-m1": 0,
+      "d1-t1-m0": 1
+    ),
+    "popup": (
+      "small": 480,
+      "medium": 688
+    ),
+    "margin": (
+      "horizontal": var(--global-scale-400),
+      "vertical": var(--global-scale-450)
+    ),
+    "breakpoints": 768,
+    "button-size": "large"
+  ),
+  "desktop": (
+    "number": 0,
+    "font-size": (
+      "h1": var(--font-size-display-md),
+      "h2": var(--font-size-display-sm),
+      "h3": var(--font-size-heading-h1),
+      "h4": var(--font-size-heading-h2),
+      "h5": var(--font-size-heading-h3),
+      "p1": var(--font-size-heading-h4),
+      "p2": var(--font-size-heading-h5),
+      "p3": var(--font-size-paragraph-lg),
+      "p4": var(--font-size-paragraph-md)
+    ),
+    "font-lineheight": (
+      "h1": var(--font-line-height-display-md),
+      "h2": var(--font-line-height-display-sm),
+      "h3": var(--font-line-height-heading-h1),
+      "h4": var(--font-line-height-heading-h2),
+      "h5": var(--font-line-height-heading-h3),
+      "p1": var(--font-line-height-heading-h4),
+      "p2": var(--font-line-height-heading-h5),
+      "p3": var(--font-line-height-paragraph-lg),
+      "p4": var(--font-line-height-paragraph-md)
+    ),
+    "radius": (
+      "2xs": var(--layout-radius-sm),
+      "xs": var(--layout-radius-sm),
+      "sm": var(--layout-radius-lg),
+      "md": var(--layout-radius-xl),
+      "lg": var(--layout-radius-2xl),
+      "xl": var(--layout-radius-2xl),
+      "full": var(--layout-radius-full),
+      "bottomsheet": var(--layout-radius-2xl)
+    ),
+    "spacing": (
+      "2xs": var(--layout-spacing-xs),
+      "xs": var(--layout-spacing-sm),
+      "sm": var(--layout-spacing-md),
+      "md": var(--layout-spacing-lg),
+      "lg": var(--layout-spacing-xl),
+      "xl": var(--layout-spacing-3xl),
+      "2xl": var(--layout-spacing-4xl),
+      "3xl": var(--layout-spacing-5xl),
+      "4xl": var(--layout-spacing-6xl),
+      "5xl": var(--layout-spacing-7xl),
+      "negative-overlap": -32px,
+      "bottomsheet-top": var(--layout-spacing-4xl)
+    ),
+    "visibility": (
+      "d0-t0-m1": 0,
+      "d1-t1-m0": 1
+    ),
+    "popup": (
+      "small": 550,
+      "medium": 740
+    ),
+    "margin": (
+      "horizontal": var(--global-scale-700),
+      "vertical": var(--global-scale-500)
+    ),
+    "breakpoints": 1280,
+    "button-size": "large"
+  ),
+  "large-desktop": (
+    "number": 0,
+    "font-size": (
+      "h1": var(--font-size-display-lg),
+      "h2": var(--font-size-display-md),
+      "h3": var(--font-size-display-sm),
+      "h4": var(--font-size-heading-h1),
+      "h5": var(--font-size-heading-h2),
+      "p1": var(--font-size-heading-h3),
+      "p2": var(--font-size-heading-h4),
+      "p3": var(--font-size-heading-h5),
+      "p4": var(--font-size-paragraph-lg)
+    ),
+    "font-lineheight": (
+      "h1": var(--font-line-height-display-lg),
+      "h2": var(--font-line-height-display-md),
+      "h3": var(--font-line-height-display-sm),
+      "h4": var(--font-line-height-heading-h1),
+      "h5": var(--font-line-height-heading-h2),
+      "p1": var(--font-line-height-heading-h3),
+      "p2": var(--font-line-height-heading-h4),
+      "p3": var(--font-line-height-heading-h5),
+      "p4": var(--font-line-height-paragraph-lg)
+    ),
+    "radius": (
+      "2xs": var(--layout-radius-sm),
+      "xs": var(--layout-radius-md),
+      "sm": var(--layout-radius-lg),
+      "md": var(--layout-radius-2xl),
+      "lg": var(--layout-radius-2xl),
+      "xl": var(--layout-radius-2xl),
+      "full": var(--layout-radius-full),
+      "bottomsheet": var(--layout-radius-2xl)
+    ),
+    "spacing": (
+      "2xs": var(--layout-spacing-xs),
+      "xs": var(--layout-spacing-sm),
+      "sm": var(--layout-spacing-md),
+      "md": var(--layout-spacing-xl),
+      "lg": var(--layout-spacing-2xl),
+      "xl": var(--layout-spacing-4xl),
+      "2xl": var(--layout-spacing-5xl),
+      "3xl": var(--layout-spacing-6xl),
+      "4xl": var(--layout-spacing-7xl),
+      "5xl": var(--layout-spacing-8xl),
+      "negative-overlap": -60px,
+      "bottomsheet-top": var(--layout-spacing-4xl)
+    ),
+    "visibility": (
+      "d0-t0-m1": 0,
+      "d1-t1-m0": 1
+    ),
+    "popup": (
+      "small": 0,
+      "medium": 0
+    ),
+    "margin": (
+      "horizontal": var(--global-scale-700),
+      "vertical": var(--global-scale-500)
+    ),
+    "breakpoints": 1440,
+    "button-size": "String value"
+  )
+);
+
+@function column($name, $screen) {
+  @return list.nth(map.get($columns, $name), map.get($screen-index, $screen));
+}
+
+@mixin render-group($group, $tokens) {
+  @each $key, $value in $tokens {
+    --global-#{$group}-#{$key}: #{$value};
+  }
+}
+
+@mixin render-screen($screen, $tokens) {
+  --global-number: #{map.get($tokens, 'number')};
+  @each $group in (font-size, font-lineheight, radius, spacing, visibility, popup, margin) {
+    @include render-group($group, map.get($tokens, $group));
+  }
+  @each $name in map.keys($columns) {
+    --global-columns-#{$name}: #{column($name, $screen)};
+  }
+  --global-button-size: #{map.get($tokens, 'button-size')};
+}
+
+@each $screen, $tokens in $adaptive-viewport-tokens {
+  $breakpoint: map.get($tokens, 'breakpoints');
+  @if $screen == mobile {
+    :root { @include render-screen($screen, $tokens); }
+  } @else {
+    @media (min-width: #{$breakpoint}px) {
+      :root { @include render-screen($screen, $tokens); }
+    }
+  }
+}
+
+// Example usage in a component SCSS file:
+// .button {
+//   padding: var(--global-spacing-md) var(--global-spacing-lg);
+//   font-size: var(--global-font-size-p2);
+//   line-height: var(--global-font-lineheight-p2);
+//   border-radius: var(--global-radius-md);
+//   min-height: var(--global-button-size);
+// }
+//
+// Example usage in CSS variables:
+// --button-height: var(--global-button-size);
+// --button-padding-x: var(--global-spacing-lg);
+// --button-radius: var(--global-radius-md);
+// --button-column-width: var(--global-columns-6m-6t-6d);

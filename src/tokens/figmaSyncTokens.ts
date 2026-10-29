@@ -7,18 +7,20 @@ const fileKey = process.env.FIGMA_FILE_KEY || process.env.FIGMA_DESIGN_FILE_KEY 
 const syncIntervalMs = 60_000;
 
 const jsonDir = path.join(process.cwd(), 'src', 'tokens');
-const scssDir = path.join(process.cwd(), 'src', 'tokens', 'build');
+const scssDir = path.join(process.cwd(), 'src', 'tokens', 'variables');
 
 type FigmaVariable = {
   name?: string;
   variableCollectionId?: string;
   resolvedType?: string;
   valuesByMode?: Record<string, unknown>;
+  deletedButReferenced?: boolean;
 };
 
 type FigmaVariableCollection = {
   id: string;
   name: string;
+  remote?: boolean;
   defaultModeId?: string;
   modes?: Array<{ modeId: string; name: string }>;
 };
@@ -42,7 +44,7 @@ async function fetchFigmaVariables() {
     throw new Error('FIGMA_PERSONAL_ACCESS_TOKEN is missing. Add it to the local .env file or shell environment.');
   }
 
-  console.log('🚀 Fetching code from Figma API...');
+  console.log('🚀 Fetching Figma variables...');
   
   if (!fs.existsSync(jsonDir)) {
     fs.mkdirSync(jsonDir, { recursive: true });
@@ -91,7 +93,7 @@ function processFigmaVariables() {
   const idToNameMap = new Map<string, string>();
   for (const id in variables) {
     const variable = variables[id];
-    if (variable && variable.name) {
+    if (variable && variable.name && !variable.deletedButReferenced) {
       const collectionName = variableCollections[variable.variableCollectionId ?? '']?.name.toLowerCase();
       let cssName = normalizeScssVariableName(variable.name);
       if (collectionName === 'layout') {
@@ -117,10 +119,7 @@ function processFigmaVariables() {
   );
   const updates = new Map<string, string>();
 
-  const generatedVariables = generateFigmaVariableScss(variables, variableCollections, idToNameMap);
-  updates.set(path.join(scssDir, 'figma-variables.scss'), generatedVariables);
-
-  const primitivePath = path.join(scssDir, 'variables', 'primitives.scss');
+  const primitivePath = path.join(scssDir, 'primitives.scss');
   let primitiveContent = readTargetFile(primitivePath);
   primitiveContent = updatePrimitives(
     primitiveContent,
@@ -130,12 +129,12 @@ function processFigmaVariables() {
   );
   updates.set(primitivePath, primitiveContent);
 
-  const aliasPath = path.join(scssDir, 'variables', 'alias.scss');
+  const aliasPath = path.join(scssDir, 'alias.scss');
   let aliasContent = readTargetFile(aliasPath);
   aliasContent = updateAlias(aliasContent, selectedCollections.get('Alias')!, idToNameMap);
   updates.set(aliasPath, aliasContent);
 
-  const semanticPath = path.join(scssDir, 'variables', 'semantics.scss');
+  const semanticPath = path.join(scssDir,'semantics.scss');
   const semanticContent = updateCollectionMap(
     readTargetFile(semanticPath),
     'semantic-tokens',
@@ -144,7 +143,7 @@ function processFigmaVariables() {
   );
   updates.set(semanticPath, semanticContent);
 
-  const layoutPath = path.join(scssDir, 'variables', 'layout.scss');
+  const layoutPath = path.join(scssDir, 'layout.scss');
   const layoutContent = updateCollectionMap(
     readTargetFile(layoutPath),
     'layout-tokens',
@@ -153,7 +152,7 @@ function processFigmaVariables() {
   );
   updates.set(layoutPath, layoutContent);
 
-  const adaptivePath = path.join(scssDir, 'variables', 'adaptive.scss');
+  const adaptivePath = path.join(scssDir,'adaptive.scss');
   const adaptiveContent = updateAdaptive(
     readTargetFile(adaptivePath),
     selectedCollections.get('Adaptive')!,
@@ -163,7 +162,7 @@ function processFigmaVariables() {
   );
   updates.set(adaptivePath, adaptiveContent);
 
-  const primitiveTypePath = path.join(scssDir, 'variables', 'primitive-type.scss');
+  const primitiveTypePath = path.join(scssDir,'primitive-type.scss');
   const primitiveTypeContent = updatePrimitiveType(
     readTargetFile(primitiveTypePath),
     selectedCollections.get('Primitive-type')!,
@@ -171,7 +170,7 @@ function processFigmaVariables() {
   );
   updates.set(primitiveTypePath, primitiveTypeContent);
 
-  const platformPath = path.join(scssDir, 'variables', 'platform.scss');
+  const platformPath = path.join(scssDir,'platform.scss');
   const platformContent = updatePlatform(
     readTargetFile(platformPath),
     selectedCollections.get('Platform')!,
@@ -185,71 +184,6 @@ function processFigmaVariables() {
   }
 }
 
-function generateFigmaVariableScss(
-  variables: Record<string, FigmaVariable>,
-  collections: Record<string, FigmaVariableCollection>,
-  idToNameMap: Map<string, string>
-): string {
-  const tokens = new Map<string, string>();
-  let skipped = 0;
-
-  for (const variable of Object.values(variables)) {
-    if (!variable?.name || !variable.valuesByMode) continue;
-    const collection = collections[variable.variableCollectionId ?? ''];
-    const mode = collection?.defaultModeId;
-    const valueByMode = variable.valuesByMode;
-    const selectedMode = mode && Object.prototype.hasOwnProperty.call(valueByMode, mode)
-      ? mode
-      : Object.keys(valueByMode)[0];
-    if (!selectedMode) continue;
-
-    try {
-      const value = toScssLiteral(valueByMode[selectedMode], normalizeScssVariableName(variable.name), idToNameMap);
-      const name = normalizeScssVariableName(variable.name);
-      tokens.set(/^[0-9]/.test(name) ? `token-${name}` : name, value);
-    } catch (error) {
-      if (!(error instanceof Error) || !error.message.startsWith('Unresolved Figma variable alias')) throw error;
-      skipped++;
-    }
-  }
-
-  if (skipped > 0) {
-    console.warn(`⚠️ Skipped ${skipped} generated variables with aliases outside the Figma response.`);
-  }
-
-  const lines: string[] = [];
-  let line = '  ';
-  for (const [name, value] of tokens) {
-    const entry = `"${name}": ${value}`;
-    const separator = line === '  ' ? '' : ', ';
-    if (line.length + separator.length + entry.length > 112) {
-      lines.push(`${line},`);
-      line = `  ${entry}`;
-    } else {
-      line += `${separator}${entry}`;
-    }
-  }
-  if (line.trim()) lines.push(line);
-
-  return [
-    '// Auto-generated SCSS variables from Figma API',
-    '$figma-tokens: (',
-    ...lines,
-    ');',
-    '',
-    '@mixin render-figma-tokens($tokens: $figma-tokens) {',
-    '  @each $name, $value in $tokens {',
-    '    --#{$name}: #{$value};',
-    '  }',
-    '}',
-    '',
-    ':root {',
-    '  @include render-figma-tokens();',
-    '}',
-    ''
-  ].join('\n');
-}
-
 type ScssTree = Map<string, string | ScssTree>;
 
 function findCollection(
@@ -259,13 +193,17 @@ function findCollection(
 ): FigmaVariableCollection {
   const matches = collections
     .filter((collection) => collection.name.toLowerCase() === name.toLowerCase())
-    .sort((left, right) => collectionVariableCount(right, variables) - collectionVariableCount(left, variables));
+    .sort((left, right) => {
+      if (left.remote !== right.remote) return left.remote ? 1 : -1;
+      return collectionVariableCount(right, variables) - collectionVariableCount(left, variables);
+    });
   const collection = matches[0];
   if (!collection) {
     throw new Error(`Figma variable collection "${name}" was not found.`);
   }
   if (matches.length > 1) {
-    console.warn(`⚠️ Multiple Figma collections named "${name}" found; using the one with the most variables.`);
+    const selection = collection.remote ? 'the collection with the most variables' : 'the local collection';
+    console.warn(`⚠️ Multiple Figma collections named "${name}" found; using ${selection}.`);
   }
   return collection;
 }
@@ -274,7 +212,9 @@ function collectionVariableCount(
   collection: FigmaVariableCollection,
   variables: Record<string, FigmaVariable>
 ): number {
-  return Object.values(variables).filter((variable) => variable.variableCollectionId === collection.id).length;
+  return Object.values(variables).filter(
+    (variable) => variable.variableCollectionId === collection.id && !variable.deletedButReferenced
+  ).length;
 }
 
 function readTargetFile(filePath: string): string {
@@ -289,7 +229,8 @@ function variablesInCollection(
   variables: Record<string, FigmaVariable>
 ): FigmaVariable[] {
   return Object.values(variables).filter(
-    (variable) => variable.variableCollectionId === collection.id && Boolean(variable.name)
+    (variable) => variable.variableCollectionId === collection.id && Boolean(variable.name) &&
+      !variable.deletedButReferenced
   );
 }
 
@@ -337,7 +278,7 @@ function resolveAliasValue(
     throw new Error(`Circular Figma variable alias detected at "${rawValue.id}".`);
   }
   const target = variablesById.get(rawValue.id);
-  if (!target || !target.variableCollectionId) {
+  if (!target || !target.variableCollectionId || target.deletedButReferenced) {
     throw new Error(`Unresolved Figma variable alias "${rawValue.id}".`);
   }
   const targetCollection = collectionsById[target.variableCollectionId];
@@ -639,7 +580,7 @@ function updateAlias(
   collection: FigmaVariableCollection,
   idToNameMap: Map<string, string>
 ): string {
-  const variables = Object.values(currentVariables).filter((variable) => variable.variableCollectionId === collection.id);
+  const variables = getVariablesForCollection(collection);
   const modes = collectionModes(collection, variables);
   const lightMode = modes.find((mode) => mode.name.toLowerCase() === 'light') ?? modes[0];
   const darkMode = modes.find((mode) => mode.name.toLowerCase() === 'dark') ?? modes[1] ?? modes[0];
@@ -770,7 +711,7 @@ function updatePrimitiveType(
   collection: FigmaVariableCollection,
   idToNameMap: Map<string, string>
 ): string {
-  const variables = Object.values(currentVariables).filter((variable) => variable.variableCollectionId === collection.id);
+  const variables = getVariablesForCollection(collection);
   const variablesById = new Map(Object.entries(currentVariables));
   const collectionsById = getCollectionsById();
   const tree = createTree();
@@ -793,8 +734,10 @@ function updatePlatform(
   collection: FigmaVariableCollection,
   idToNameMap: Map<string, string>
 ): string {
-  const variables = Object.values(currentVariables).filter((variable) => variable.variableCollectionId === collection.id);
-  const modes = collectionModes(collection, variables);
+  const matchingCollections = Object.values(currentCollections)
+    .filter((candidate) => candidate.name.toLowerCase() === collection.name.toLowerCase())
+    .sort((left, right) => Number(right.remote === true) - Number(left.remote === true));
+  const modes = collectionModes(collection, getVariablesForCollection(collection));
   const variablesById = new Map(Object.entries(currentVariables));
   const collectionsById = getCollectionsById();
   const priorWeb = readSassMapEntries(content, 'web-tokens');
@@ -802,18 +745,36 @@ function updatePlatform(
   const trees = new Map<string, ScssTree>();
   for (const mode of modes) {
     const entries = new Map<string, string>();
-    for (const variable of variables) {
-      const name = normalizeScssVariableName(variable.name ?? 'token');
-      try {
-        entries.set(name, getTokenLiteral(variable, collection, idToNameMap, variablesById, collectionsById, mode.modeId));
-      } catch (error) {
-        if (!(error instanceof Error) || !error.message.startsWith('Unresolved Figma variable alias')) throw error;
-        const previous = (mode.name.toLowerCase() === 'app' ? priorApp : priorWeb).get(name);
-        if (previous) {
-          console.warn(`⚠️ Keeping existing "$${name}" in ${mode.name} platform tokens; Figma alias "${error.message}" is unavailable.`);
-          entries.set(name, previous);
-        } else {
-          console.warn(`⚠️ Omitting "${name}" from ${mode.name} platform tokens; Figma alias "${error.message}" is unavailable.`);
+    for (const sourceCollection of matchingCollections) {
+      const sourceVariables = getVariablesForCollection(sourceCollection);
+      const sourceMode = collectionModes(sourceCollection, sourceVariables)
+        .find((candidate) => candidate.name.toLowerCase() === mode.name.toLowerCase());
+      if (!sourceMode) continue;
+      for (const variable of sourceVariables) {
+        const name = normalizeScssVariableName(variable.name ?? 'token');
+        try {
+          setUniqueEntry(
+            entries,
+            name,
+            getTokenLiteral(
+              variable,
+              sourceCollection,
+              idToNameMap,
+              variablesById,
+              collectionsById,
+              sourceMode.modeId
+            ),
+            `${mode.name} platform tokens`
+          );
+        } catch (error) {
+          if (!(error instanceof Error) || !error.message.startsWith('Unresolved Figma variable alias')) throw error;
+          const previous = (mode.name.toLowerCase() === 'app' ? priorApp : priorWeb).get(name);
+          if (previous) {
+            console.warn(`⚠️ Keeping existing "$${name}" in ${mode.name} platform tokens; Figma alias "${error.message}" is unavailable.`);
+            entries.set(name, previous);
+          } else {
+            console.warn(`⚠️ Omitting "${name}" from ${mode.name} platform tokens; Figma alias "${error.message}" is unavailable.`);
+          }
         }
       }
     }
@@ -830,7 +791,7 @@ function updatePlatform(
 }
 
 function getVariablesForCollection(collection: FigmaVariableCollection): FigmaVariable[] {
-  return Object.values(currentVariables).filter((variable) => variable.variableCollectionId === collection.id);
+  return variablesInCollection(collection, currentVariables);
 }
 
 let currentVariables: Record<string, FigmaVariable> = {};

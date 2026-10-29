@@ -32,18 +32,20 @@
     "dev": "concurrently -k \"npm run tokens:watch\" \"npm run figma:components:watch\" \"vite\"",
     "figma:components:sync": "tsx src/figma/syncComponents.ts",
     "figma:components:watch": "tsx src/figma/syncComponents.ts --watch",
-    "build": "tsc && vite build",
+    "build": "tsc && vite build && npm run build:mcp-socket",
     "build:library": "vite build --config vite.library.config.ts && tsc -p tsconfig.library.json",
     "preview": "vite preview",
     "mcp:watch": "node .mcp/watch.js",
     "dev:mcp": "concurrently \"npm run dev\" \"npm run mcp:watch\"",
-    "mcp:start": "echo \"Start your MCP server here (see .mcp/config.json)\"",
+    "build:mcp-socket": "node scripts/build-mcp-socket.cjs",
+    "mcp:start": "npm run build:mcp-socket && node dist/socket.js",
     "build:tokens": "style-dictionary build"
   },
   "dependencies": {
     "dotenv": "^18.0.7",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "ws": "^8.22.0"
   },
   "devDependencies": {
     "@figma/code-connect": "^2.1.0",
