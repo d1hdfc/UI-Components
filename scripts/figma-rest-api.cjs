@@ -114,17 +114,22 @@ async function getDevResources(fileKey = getFileKey(), nodeId = null) {
 }
 
 /**
- * Create or attach a Dev Resource to a Figma node via REST API
+ * Create or attach Dev Resource(s) to Figma nodes via REST API (Batch supported)
  */
-async function createDevResource(fileKey = getFileKey(), { name, url, nodeId }) {
-  return request(`/v1/files/${encodeURIComponent(fileKey)}/dev_resources`, {
-    method: 'POST',
-    body: JSON.stringify({
-      name,
-      url,
+async function createDevResources(fileKey = getFileKey(), resources = []) {
+  if (!resources || !resources.length) return { links_created: [], errors: [] };
+  const payload = {
+    dev_resources: resources.map(r => ({
+      name: r.name,
+      url: r.url,
       file_key: fileKey,
-      node_id: nodeId
-    })
+      node_id: r.nodeId
+    }))
+  };
+
+  return request('/v1/dev_resources', {
+    method: 'POST',
+    body: JSON.stringify(payload)
   });
 }
 
@@ -172,18 +177,24 @@ async function postComment(fileKey = getFileKey(), message, clientMeta = null) {
 }
 
 /**
- * List Figma webhooks
+ * List Figma webhooks (Requires Figma Team Plan and FIGMA_TEAM_ID)
  */
-async function listWebhooks() {
-  return request(`/v2/webhooks`);
+async function listWebhooks(teamId = process.env.FIGMA_TEAM_ID) {
+  if (!teamId) {
+    console.log('[Webhook] Note: Figma Webhook API requires a Figma Team ID. Add FIGMA_TEAM_ID to your .env to manage remote webhooks.');
+    console.log('[Webhook] Real-time syncing continues seamlessly via the local WebSocket Plugin Bridge and background Poller.');
+    return { webhooks: [] };
+  }
+  return request(`/v2/webhooks?context=team&team_id=${encodeURIComponent(teamId)}`);
 }
 
 /**
- * Create a Figma webhook
+ * Create a Figma webhook (Requires Figma Team Plan and FIGMA_TEAM_ID)
  */
 async function createWebhook({
   eventType = 'FILE_UPDATE',
   fileKey = getFileKey(),
+  teamId = process.env.FIGMA_TEAM_ID,
   endpoint,
   passcode,
   description = 'HDFC UI Components Bi-directional Auto-Sync'
@@ -191,15 +202,19 @@ async function createWebhook({
   if (!endpoint) {
     throw new Error('Webhook endpoint URL is required.');
   }
+  const body = {
+    event_type: eventType,
+    file_key: fileKey,
+    endpoint,
+    passcode: passcode || 'hdfc-sync-secret',
+    description
+  };
+  if (teamId) {
+    body.team_id = teamId;
+  }
   return request(`/v2/webhooks`, {
     method: 'POST',
-    body: JSON.stringify({
-      event_type: eventType,
-      file_key: fileKey,
-      endpoint,
-      passcode: passcode || 'hdfc-sync-secret',
-      description
-    })
+    body: JSON.stringify(body)
   });
 }
 
@@ -221,7 +236,7 @@ module.exports = {
   getNodes,
   getImages,
   getDevResources,
-  createDevResource,
+  createDevResources,
   deleteDevResource,
   getLocalVariables,
   postVariables,

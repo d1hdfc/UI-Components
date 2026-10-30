@@ -121,7 +121,7 @@ echo   --figma-to-code       Sync added/updated/deleted components from Figma to
 echo   --code-to-figma       Sync local code changes back to Figma canvas / dev resources
 echo   --generate-all        Generate Flutter and HTML/CSS for all existing components
 echo   --webhook-list        List registered Figma webhooks
-echo   --webhook-create <url> Register a new Figma webhook endpoint
+echo   --webhook-create ^<url^> Register a new Figma webhook endpoint
 echo   --help, -h            Show this help dialog
 exit /b 0
 

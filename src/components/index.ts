@@ -67,7 +67,7 @@ export type { PartnerLogoSmartwealthProps } from './partner-logo-smart-wealth/Pa
 export { PartnerLogoMaster } from './partner-logo_master/PartnerLogoMaster'
 export type { PartnerLogoMasterProps } from './partner-logo_master/PartnerLogoMaster.types'
 
-export { BadgeSize } from './badge-size/BadgeSize'
+export { BadgeSize as UIBadgeSize } from './badge-size/BadgeSize'
 export type { BadgeSizeProps } from './badge-size/BadgeSize.types'
 
 export { ColorFallback } from './color-fallback/ColorFallback'

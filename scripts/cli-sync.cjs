@@ -122,7 +122,6 @@ async function syncFigmaToCode(options = {}) {
 
     if (!prev) {
       if (componentDirExists) {
-        // Component exists in code, record in state and ensure multi-framework files exist
         codeGenerator.generateComponentFiles(comp.node, { preserveExistingReact: true });
         syncState.components[id] = {
           id,
@@ -202,10 +201,24 @@ async function syncCodeToFigma(options = {}) {
     return;
   }
 
-  const entries = fs.readdirSync(COMPONENTS_DIR, { withFileTypes: true });
   const fileKey = figmaApi.getFileKey();
+  let existingDevResources = [];
+  try {
+    const res = await figmaApi.getDevResources(fileKey);
+    existingDevResources = res.dev_resources || [];
+  } catch {
+    // ignore
+  }
 
-  let syncedCount = 0;
+  const existingMap = new Map();
+  for (const r of existingDevResources) {
+    existingMap.set(`${r.node_id}|${r.url}`, r.id);
+  }
+
+  const entries = fs.readdirSync(COMPONENTS_DIR, { withFileTypes: true });
+  let attachedCount = 0;
+  let skippedCount = 0;
+  const toCreate = [];
 
   for (const entry of entries) {
     if (!entry.isDirectory() || entry.name === 'assets') continue;
@@ -213,27 +226,37 @@ async function syncCodeToFigma(options = {}) {
     const compData = codeParser.parseComponentDir(folder);
 
     if (compData.nodeId) {
-      console.log(`[CodeToFigma] Syncing "${compData.componentName}" (${folder}) -> Figma Node ${compData.nodeId}...`);
+      const repoUrl = `https://github.com/d1hdfc/UI-Components/blob/main/src/components/${folder}/${compData.componentName}.tsx`;
+      const key = `${compData.nodeId}|${repoUrl}`;
 
-      try {
-        const repoUrl = `https://github.com/d1hdfc/UI-Components/blob/main/src/components/${folder}/${compData.componentName}.tsx`;
-        await figmaApi.createDevResource(fileKey, {
-          name: `${compData.componentName} (Code Component)`,
-          url: repoUrl,
-          nodeId: compData.nodeId
-        });
-        console.log(`[CodeToFigma] Attached Dev Resource on Figma Node ${compData.nodeId}`);
-      } catch (devErr) {
-        if (!String(devErr.message).includes('already exists') && !String(devErr.message).includes('400')) {
-          console.warn(`[CodeToFigma] Dev Resource warning for ${compData.componentName}:`, devErr.message);
-        }
+      if (existingMap.has(key)) {
+        skippedCount++;
+        continue;
       }
 
-      syncedCount++;
+      toCreate.push({
+        name: `${compData.componentName} (Code Component)`,
+        url: repoUrl,
+        nodeId: compData.nodeId
+      });
     }
   }
 
-  console.log(`[CodeToFigma] Completed sync for ${syncedCount} components to Figma.`);
+  if (toCreate.length > 0) {
+    console.log(`[CodeToFigma] Batch attaching ${toCreate.length} new Dev Resources to Figma...`);
+    // Batch in groups of 10 to respect payload limits
+    for (let i = 0; i < toCreate.length; i += 10) {
+      const batch = toCreate.slice(i, i + 10);
+      try {
+        const res = await figmaApi.createDevResources(fileKey, batch);
+        attachedCount += res.links_created?.length || batch.length;
+      } catch (devErr) {
+        console.warn('[CodeToFigma] Batch Dev Resource warning:', devErr.message);
+      }
+    }
+  }
+
+  console.log(`[CodeToFigma] Completed: ${attachedCount} new Dev Resources attached, ${skippedCount} already linked.`);
 }
 
 /**
