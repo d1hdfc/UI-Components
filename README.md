@@ -87,6 +87,24 @@ seconds, then writes the generated token SCSS directly to
 next package build. `npm run tokens:build` regenerates SCSS from the checked-in
 `src/tokens/tokens.json` without making a Figma API request.
 
+## Two-Way Real-Time Auto-Sync System (Figma <-> Code)
+
+A complete bi-directional auto-sync system connecting Figma and local code (React, Flutter, HTML/CSS) with automated GitHub integration.
+
+- **Figma to Code**: Detects additions, modifications, and deletions in Figma (via Webhooks, REST API Polling, and WebSocket bridge), generates or cleans up multi-framework code inside `src/components/`, and automatically commits and pushes to GitHub (`origin main`).
+- **Code to Figma**: Watches local changes in `src/components/` and propagates updates or removals to the Figma canvas via the Figma Plugin WebSocket Bridge, while updating Dev Resources via Figma REST API.
+
+Run the master sync script:
+```bash
+# One-time full sync & GitHub push
+sync.bat
+
+# Start the persistent background real-time auto-sync daemon
+sync.bat --server
+```
+
+See [docs/FIGMA_AUTO_SYNC.md](docs/FIGMA_AUTO_SYNC.md) for full architecture and usage guide.
+
 ## Figma component catalog
 
 Set `FIGMA_PERSONAL_ACCESS_TOKEN` and optionally `FIGMA_FILE_KEY` (or
