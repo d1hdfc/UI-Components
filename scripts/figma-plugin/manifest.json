@@ -7,11 +7,13 @@
   "editorType": ["figma"],
   "networkAccess": {
     "allowedDomains": [
-      "http://localhost:*",
-      "ws://localhost:*",
-      "http://127.0.0.1:*",
-      "ws://127.0.0.1:*"
+      "none"
+    ],
+    "devAllowedDomains": [
+      "http://localhost:3055",
+      "ws://localhost:3055",
+      "http://127.0.0.1:3055",
+      "ws://127.0.0.1:3055"
     ]
   }
 }
-
