@@ -1,25 +1,35 @@
 .docs-sidebar {
   position: sticky;
-  top: 60px;
+  top: 56px;
   display: flex;
-  height: calc(100vh - 60px);
+  height: calc(100vh - 56px);
   min-height: 380px;
   flex-direction: column;
   border-right: 1px solid #dfe1e6;
-  padding: 22px 13px 14px;
+  padding: 16px 8px 12px;
   background: #fff;
+  overflow: hidden;
 }
 
 .docs-search {
   display: flex;
-  height: 36px;
+  height: 34px;
   align-items: center;
   gap: 8px;
   border: 1px solid #dfe1e6;
-  border-radius: 4px;
-  padding: 0 9px;
+  border-radius: 6px;
+  padding: 0 10px;
+  background: #f7f8fa;
   color: #626f86;
   font-size: 16px;
+  flex-shrink: 0;
+  transition: border-color 0.15s, box-shadow 0.15s;
+
+  &:focus-within {
+    border-color: #0c66e4;
+    box-shadow: 0 0 0 2px #e9f2ff;
+    background: #fff;
+  }
 
   input {
     width: 100%;
@@ -39,39 +49,117 @@
     flex: 0 0 auto;
     border: 1px solid #dfe1e6;
     border-radius: 3px;
-    padding: 2px 4px;
+    padding: 2px 5px;
+    background: #fff;
     color: #626f86;
     font: 9px Arial, sans-serif;
   }
 }
 
 .docs-sidebar nav {
-  display: grid;
-  gap: 4px;
-  margin-top: 25px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: 16px;
   overflow-y: auto;
+  flex: 1;
+
+  a {
+    border-radius: 5px;
+    padding: 7px 10px;
+    color: #44546f;
+    font-size: 13px;
+    text-decoration: none;
+    transition: background 0.1s, color 0.1s;
+
+    &:hover {
+      background: #f7f8fa;
+      color: #172b4d;
+    }
+  }
+
+  .docs-nav-active {
+    background: #e9f2ff;
+    color: #0c66e4;
+    font-weight: 600;
+  }
 }
 
 .docs-nav-heading {
-  margin: 16px 9px 6px;
+  margin: 12px 10px 4px;
   color: #626f86;
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.08em;
 }
 
-.docs-sidebar nav a {
-  border-radius: 5px;
-  padding: 8px 10px;
-  color: #44546f;
-  font-size: 13px;
-  text-decoration: none;
+.docs-nav-group {
+  display: flex;
+  flex-direction: column;
 }
 
-.docs-sidebar nav .docs-nav-active {
-  background: #e9f2ff;
-  color: #0c66e4;
+.docs-nav-category {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  border: none;
+  border-radius: 5px;
+  padding: 7px 10px;
+  background: transparent;
+  color: #172b4d;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-align: left;
+  text-transform: uppercase;
+  margin-top: 8px;
+  transition: background 0.1s;
+
+  &:hover {
+    background: #f7f8fa;
+  }
+}
+
+.docs-nav-category-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.docs-nav-count {
+  border-radius: 8px;
+  padding: 1px 6px;
+  background: #dfe1e6;
+  color: #626f86;
+  font-size: 10px;
   font-weight: 600;
+}
+
+.docs-nav-chevron {
+  color: #8590a2;
+  font-size: 14px;
+}
+
+.docs-nav-group-items {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding-left: 8px;
+}
+
+.docs-nav-divider {
+  height: 1px;
+  margin: 10px 0;
+  background: #dfe1e6;
+  flex-shrink: 0;
+}
+
+.docs-search-empty {
+  padding: 8px 12px;
+  color: #8590a2;
+  font-size: 12px;
 }
 
 .docs-sidebar-footer {
@@ -80,9 +168,10 @@
   gap: 10px;
   margin-top: auto;
   border-top: 1px solid #dfe1e6;
-  padding: 15px 5px 0;
+  padding: 12px 5px 0;
   color: #44546f;
   font-size: 11px;
+  flex-shrink: 0;
 
   strong,
   small {
@@ -95,7 +184,7 @@
   }
 
   small {
-    margin-top: 4px;
+    margin-top: 3px;
     color: #626f86;
     font-size: 10px;
   }
@@ -103,14 +192,27 @@
 
 .docs-sidebar-footer-mark {
   display: grid;
-  width: 27px;
-  height: 27px;
+  width: 28px;
+  height: 28px;
   place-items: center;
-  border-radius: 5px;
+  border-radius: 6px;
   background: #0c66e4;
   color: #fff;
   font-size: 14px;
   font-weight: 700;
+  flex-shrink: 0;
+}
+
+.docs-sidebar-sync-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-left: auto;
+  flex-shrink: 0;
+
+  &--connected { background: #22a06b; }
+  &--connecting { background: #e2b203; }
+  &--disconnected { background: #ca3521; }
 }
 
 @media (max-width: 640px) {

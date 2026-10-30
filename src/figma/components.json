@@ -1,6 +1,6 @@
 {
   "fileKey": "CXxUbHl3oMzt9Bzv3SKv75",
-  "version": "2415764404677586598",
+  "version": "2416103925057920543",
   "components": [
     {
       "key": "3663:64097",
@@ -165,15 +165,6 @@
       "thumbnailUrl": "/figma/components/3663-64115.png"
     },
     {
-      "key": "6343:1193",
-      "name": "Gradient Button",
-      "pageName": "button-hdfc",
-      "description": "3 variants",
-      "nodeId": "6343:1193",
-      "type": "COMPONENT_SET",
-      "thumbnailUrl": "/figma/components/6343-1193.png"
-    },
-    {
       "key": "6343:1205",
       "name": "Button",
       "pageName": "button-hdfc",
@@ -195,7 +186,7 @@
       "key": "3972:30799",
       "name": "Button",
       "pageName": "Button",
-      "description": "320 variants",
+      "description": "300 variants",
       "nodeId": "3972:30799",
       "type": "COMPONENT_SET",
       "thumbnailUrl": "/figma/components/3972-30799.png"

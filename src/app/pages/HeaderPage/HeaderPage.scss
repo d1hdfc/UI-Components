@@ -1,30 +1,33 @@
 .docs-topbar {
   position: sticky;
-  z-index: 5;
   top: 0;
+  z-index: 100;
   display: flex;
-  height: 60px;
+  height: 56px;
   align-items: center;
-  justify-content: space-between;
+  gap: 0;
   border-bottom: 1px solid #dfe1e6;
-  padding: 0 28px;
+  padding: 0 20px;
   background: #fff;
-}
-
-.docs-brand,
-.docs-topbar-actions {
-  display: flex;
-  align-items: center;
+  box-shadow: 0 1px 0 #dfe1e6;
 }
 
 .docs-brand {
-  gap: 11px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-right: 32px;
   color: #172b4d;
   font-size: 14px;
   text-decoration: none;
+  white-space: nowrap;
 
   strong {
     font-weight: 700;
+  }
+
+  &:hover {
+    color: #0c66e4;
   }
 }
 
@@ -36,39 +39,89 @@
   border-radius: 6px;
   background: #0c66e4;
   color: #fff;
-  font-size: 17px;
+  font-size: 15px;
   font-weight: 700;
+  flex-shrink: 0;
+}
+
+.docs-version-badge {
+  border: 1px solid #dfe1e6;
+  border-radius: 10px;
+  padding: 1px 7px;
+  background: #f7f8fa;
+  color: #626f86;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.docs-topbar-nav {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex: 1;
+
+  a {
+    border-radius: 4px;
+    padding: 6px 12px;
+    color: #44546f;
+    font-size: 13px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: background 0.12s, color 0.12s;
+
+    &:hover {
+      background: #f7f8fa;
+      color: #172b4d;
+    }
+  }
+}
+
+.docs-topbar-nav-active {
+  background: #e9f2ff !important;
+  color: #0c66e4 !important;
+  font-weight: 600 !important;
 }
 
 .docs-topbar-actions {
-  gap: 16px;
-  color: #44546f;
-  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: auto;
 }
 
-.docs-version {
-  border-radius: 4px;
-  padding: 5px 8px;
-  background: #f1f2f4;
-  color: #44546f;
-}
+.docs-sync-badge {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  border-radius: 12px;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
 
-.docs-topbar-link {
-  color: #44546f;
-  text-decoration: none;
+  &--live {
+    background: #dcfce7;
+    color: #14532d;
+  }
 
-  &:hover {
-    color: #0c66e4;
+  &--connecting {
+    background: #fef9c3;
+    color: #713f12;
+  }
+
+  &--offline {
+    background: #fee2e2;
+    color: #7f1d1d;
   }
 }
 
-@media (max-width: 640px) {
-  .docs-topbar {
-    height: 54px;
-    padding: 0 14px;
+@media (max-width: 768px) {
+  .docs-topbar-nav a:not(.docs-topbar-nav-active) {
+    display: none;
   }
 
-  .docs-topbar-actions {
-    gap: 11px;
+  .docs-version-badge {
+    display: none;
   }
 }

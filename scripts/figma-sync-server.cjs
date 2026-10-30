@@ -371,6 +371,21 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  // UI Notify — broadcast sync events to all WebSocket clients
+  if (req.method === 'POST' && pathname === '/api/ui-notify') {
+    try {
+      const payload = await parseBody(req);
+      broadcastToChannel('figma-sync', payload);
+      console.log(`[UINotify] Broadcasted event "${payload.event}" to ${channels.get('figma-sync')?.size || 0} client(s)`);
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ status: 'broadcasted' }));
+    } catch (err) {
+      res.writeHead(400, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: err.message }));
+    }
+    return;
+  }
+
   res.writeHead(404, { 'Content-Type': 'application/json' });
   res.end(JSON.stringify({ error: 'Not Found' }));
 });

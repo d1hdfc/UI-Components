@@ -1,0 +1,239 @@
+================================================================
+ HDFC UI COMPONENTS — COMPLETE TESTING GUIDE
+ Two-Way Figma <-> Code Auto-Sync System
+ Version: 1.0.0  |  Last Updated: 2026-10-30
+================================================================
+
+PREREQUISITES
+-------------
+- Node.js v18+  installed
+- Git configured with access to https://github.com/d1hdfc/UI-Components
+- .env file present in d:\HDFC\UI Components\ with:
+    FIGMA_ACCESS_TOKEN=your_figma_token
+    FIGMA_FILE_KEY=CXxUbHl3oMzt9Bzv3SKv75
+    GITHUB_TOKEN=your_github_token (optional for git push)
+
+================================================================
+STEP 1: ENVIRONMENT SETUP
+================================================================
+
+cd "d:\HDFC\UI Components"
+npm install
+
+-- Verify .env exists:
+type .env
+
+-- If .env is missing, create it:
+echo FIGMA_ACCESS_TOKEN=your_token_here > .env
+echo FIGMA_FILE_KEY=CXxUbHl3oMzt9Bzv3SKv75 >> .env
+
+================================================================
+STEP 2: START AUTO-SYNC DAEMON SERVER (Terminal 1)
+================================================================
+
+cd "d:\HDFC\UI Components"
+sync.bat --server
+
+   OR use npm:
+   npm run sync:server
+
+-- Expected output:
+   [Server] Starting Two-Way Real-Time Auto-Sync Daemon Server...
+   HDFC Two-Way Real-Time Auto-Sync Server Running
+   HTTP & Webhook Endpoint: http://localhost:3055/api/webhook
+   Figma Plugin Bridge WebSocket: ws://localhost:3055
+   Health & Status Check: http://localhost:3055/api/sync/status
+   [CodeWatcher] Watching for local component changes in: ...
+   [FigmaPoller] Polling Figma REST API every 30 seconds...
+   [FigmaPoller] Initialized Figma file version: XXXXXXXXXXXXXXXXX
+
+-- Verify server health (open new CMD):
+   curl http://localhost:3055/health
+   Expected: {"status":"ok","uptime":XX}
+
+================================================================
+STEP 3: START UI DOCUMENTATION DEV SERVER (Terminal 2)
+================================================================
+
+cd "d:\HDFC\UI Components"
+npm run dev
+
+-- Expected output:
+   VITE vX.X.X  ready in XXX ms
+   ➜  Local:   http://localhost:5173/
+
+-- Open browser:
+   http://localhost:5173/#button
+
+-- You should see:
+   ✅ HDFC UI Library documentation with 3-column layout
+   ✅ Left sidebar with categorized components
+   ✅ Center content with live preview
+   ✅ Right "On this page" navigation
+   ✅ Top-right WebSocket status: 🟢 Live Sync (when server running)
+                                   🔴 Offline  (when server stopped)
+
+================================================================
+STEP 4: ONE-CLICK SYNC & GIT AUTO-PUSH
+================================================================
+
+-- Full sync (Figma to Code + Code to Figma + Git push):
+cd "d:\HDFC\UI Components"
+sync.bat
+
+-- Only Figma to Code sync:
+sync.bat --figma-to-code
+   OR: node scripts/cli-sync.cjs --figma-to-code
+
+-- Only Code to Figma sync:
+sync.bat --code-to-figma
+   OR: node scripts/cli-sync.cjs --code-to-figma
+
+-- Generate code for all existing components:
+sync.bat --generate-all
+   OR: node scripts/cli-sync.cjs --generate-existing
+
+================================================================
+STEP 5: TESTING CHECKLIST
+================================================================
+
+--- TEST A: Figma Edit -> Code Update -> UI Site Update ---
+
+1. Open Figma: https://www.figma.com/design/CXxUbHl3oMzt9Bzv3SKv75
+2. Select the "Button" component set on the Button page
+3. Change any property (e.g., rename a variant or change corner radius)
+4. Save in Figma (Ctrl+S)
+5. Wait 30 seconds OR run manually:
+      node scripts/cli-sync.cjs --figma-to-code
+6. Watch Terminal 1 for:
+      [FigmaPoller] Detected new Figma file version: XXXXXX
+      [FigmaToCode] Updated Component detected: "Button"
+      [FigmaToCode] Successfully pushed to GitHub!
+7. Check UI site at http://localhost:5173/#button
+8. A toast should appear: "✅ Figma sync: ~1 updated"
+9. The component preview should reflect changes
+
+--- TEST B: Figma Delete -> Code Deletion -> UI Site Update ---
+
+1. In Figma, select an ENTIRE COMPONENT_SET (not just one variant)
+   IMPORTANT: Must delete the entire component set, not individual variants
+2. Press Delete key in Figma
+3. Save (Ctrl+S) — wait 30 seconds OR run:
+      node scripts/cli-sync.cjs --figma-to-code
+4. Watch Terminal 1 for:
+      [FigmaToCode] ❌ Deleted Component in Figma: "ComponentName"
+      [CodeGen] 🗑️  Deleted component directory: src/components/component-name
+5. Check that src/components/component-name/ folder is DELETED
+6. Check that src/components/index.ts no longer exports it
+7. UI site should show toast: "🗑️ ComponentName removed from Figma"
+8. Component should disappear from Left Sidebar automatically on next refresh
+
+--- TEST C: Code Edit -> Figma Canvas Update ---
+
+1. Edit any component file:
+      notepad "d:\HDFC\UI Components\src\components\button\Button.tsx"
+2. Make any change and save
+3. Watch Terminal 1 for (within 2 seconds):
+      [CodeWatcher] Change detected in: button
+      [SyncServer] Triggering Code to Figma Auto-Sync (update: button)
+      [SyncServer] Dispatching canvas update to Figma for "Button"
+4. In Figma, open the plugin:
+      Plugins > Development > HDFC UI Components Two-Way Auto-Sync
+5. The plugin will receive the WebSocket message and show:
+      "Canvas update received for Button"
+      (Plugin applies changes to Figma canvas)
+
+--- TEST D: Server Health & WebSocket Verification ---
+
+-- Test server health:
+curl http://localhost:3055/health
+
+-- Test sync status:
+curl http://localhost:3055/api/sync/status
+
+-- Test webhook endpoint:
+curl -X POST http://localhost:3055/api/webhook -H "Content-Type: application/json" -d "{\"event_type\":\"PING\"}"
+Expected: {"status":"pong","timestamp":"..."}
+
+-- Test manual Figma sync trigger via HTTP:
+curl -X POST http://localhost:3055/api/sync/figma-to-code
+Expected: {"message":"Figma to Code sync triggered"}
+
+--- TEST E: Git Auto-Push Verification ---
+
+1. After any sync with changes, check git log:
+      cd "d:\HDFC\UI Components"
+      git log --oneline -5
+
+2. Expected auto-commit messages:
+      auto-sync: Figma to Code (+1 ~0 -0)   (new component)
+      auto-sync: Figma to Code (+0 ~1 -0)   (updated component)  
+      auto-sync: Figma to Code (+0 ~0 -1)   (deleted component)
+
+3. Check GitHub:
+      https://github.com/d1hdfc/UI-Components/commits/main
+
+================================================================
+TROUBLESHOOTING
+================================================================
+
+PROBLEM: Server won't start (port 3055 in use)
+SOLUTION: 
+   netstat -ano | findstr :3055
+   taskkill /PID <PID> /F
+   sync.bat --server
+
+PROBLEM: "FIGMA_ACCESS_TOKEN not set" error
+SOLUTION:
+   type .env  (check if file exists and has token)
+   -- Create .env if missing:
+   echo FIGMA_ACCESS_TOKEN=figd_YOUR_TOKEN > .env
+   echo FIGMA_FILE_KEY=CXxUbHl3oMzt9Bzv3SKv75 >> .env
+
+PROBLEM: WebSocket shows "🔴 Offline" in browser
+SOLUTION:
+   -- Server not running. Start it:
+   sync.bat --server
+   -- Then refresh browser
+
+PROBLEM: Figma changes not detected after 30 seconds
+SOLUTION:
+   -- Run manual sync:
+   node scripts/cli-sync.cjs --figma-to-code
+   -- Check Terminal 1 for polling errors
+   -- Verify FIGMA_ACCESS_TOKEN is valid
+
+PROBLEM: Component deleted in Figma but folder still exists in code
+SOLUTION:
+   -- Run manual sync:
+   node scripts/cli-sync.cjs --figma-to-code
+   -- Check .sync-state.json for stale entries
+
+PROBLEM: Git push fails
+SOLUTION:
+   cd "d:\HDFC\UI Components"
+   git status
+   git remote -v
+   git push origin main
+
+================================================================
+USEFUL COMMANDS REFERENCE
+================================================================
+
+Start Sync Server:         sync.bat --server
+Start Dev UI:              npm run dev
+Figma to Code Sync:        sync.bat --figma-to-code
+Code to Figma Sync:        sync.bat --code-to-figma
+Generate All Components:   sync.bat --generate-all
+Build Library:             npm run build:library
+Build Dev Site:            npm run build
+Check Git Status:          git status
+Check Git Log:             git log --oneline -10
+Sync Server Health:        curl http://localhost:3055/health
+Sync Status:               curl http://localhost:3055/api/sync/status
+Kill Server:               taskkill /F /IM node.exe (kills ALL node)
+
+================================================================
+ END OF TESTING GUIDE
+ HDFC UI Components Two-Way Auto-Sync System v1.0.0
+================================================================

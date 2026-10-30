@@ -64,6 +64,44 @@ function isUIComponent(node, pageName) {
   return node.type === 'COMPONENT' || node.type === 'COMPONENT_SET';
 }
 
+function removeFromIndexTs(componentName) {
+  const indexPath = path.join(process.cwd(), 'src', 'components', 'index.ts');
+  if (!fs.existsSync(indexPath)) return;
+
+  try {
+    let content = fs.readFileSync(indexPath, 'utf8');
+    const kebab = componentName.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+    // Remove export lines referencing this component folder
+    const lines = content.split('\n');
+    const filtered = lines.filter(line => !line.includes(`/${kebab}/`) && !line.includes(`/${kebab}'`));
+    if (filtered.length !== lines.length) {
+      fs.writeFileSync(indexPath, filtered.join('\n'), 'utf8');
+      console.log(`[FigmaToCode] Removed exports for "${componentName}" from index.ts`);
+    }
+  } catch (err) {
+    console.warn('[FigmaToCode] Could not update index.ts:', err.message);
+  }
+}
+
+async function notifyUIServer(event, data) {
+  try {
+    const http = require('node:http');
+    const body = JSON.stringify({ event, ...data, timestamp: new Date().toISOString() });
+    await new Promise((resolve) => {
+      const req = http.request({
+        hostname: 'localhost',
+        port: 3055,
+        path: '/api/ui-notify',
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(body) }
+      }, resolve);
+      req.on('error', resolve); // ignore errors if server not running
+      req.write(body);
+      req.end();
+    });
+  } catch { /* server not running, ignore */ }
+}
+
 /**
  * Perform Figma to Code Sync
  */
@@ -159,6 +197,8 @@ async function syncFigmaToCode(options = {}) {
     if (!currentFigmaComponents.has(id)) {
       console.log(`[FigmaToCode] ❌ Deleted Component in Figma: "${prev.name}" (${id})`);
       codeGenerator.deleteComponentFiles(prev.name);
+      removeFromIndexTs(prev.name);
+      await notifyUIServer('CODE_COMPONENT_DELETED', { componentName: prev.name, nodeId: id });
       delete syncState.components[id];
       deletedCount++;
     }

@@ -7,24 +7,27 @@ import { SidebarPage } from './pages/SidebarPage';
 import { FigmaComponentsPage } from './pages/FigmaComponentsPage/FigmaComponentsPage';
 import { ComponentPage } from './pages/ComponentPage/ComponentPage';
 import { componentDocumentation } from './pages/ComponentPage/componentRegistry';
+import { SyncToast } from './components/SyncToast';
+import { useSyncWebSocket } from './hooks/useSyncWebSocket';
 
 export default function App() {
+  const { status: syncStatus, lastEvent } = useSyncWebSocket();
+
   const getCurrentPage = (): string => {
     const hash = window.location.hash.slice(1);
     if (hash.startsWith('figma-components')) return 'figma-components';
     if (hash.startsWith('textarea') || hash.startsWith('text-area')) return 'text-area';
     if (hash.startsWith('textfield') || hash.startsWith('text-field')) return 'text-field';
+    if (hash.startsWith('installation')) return 'installation';
     return componentDocumentation.find((component) =>
       hash === component.slug || hash === component.routeSlug
     )?.routeSlug ?? 'button';
   };
+
   const [currentPage, setCurrentPage] = useState(getCurrentPage);
 
   useEffect(() => {
-    const updatePage = () => {
-      setCurrentPage(getCurrentPage());
-    };
-
+    const updatePage = () => setCurrentPage(getCurrentPage());
     window.addEventListener('hashchange', updatePage);
     return () => window.removeEventListener('hashchange', updatePage);
   }, []);
@@ -32,16 +35,60 @@ export default function App() {
   const isTextFieldPage = currentPage === 'text-field';
   const isTextAreaPage = currentPage === 'text-area';
   const isFigmaComponentsPage = currentPage === 'figma-components';
-  const genericComponent = componentDocumentation.find((component) =>
-    component.routeSlug === currentPage &&
-    !['button', 'textfield', 'textarea'].includes(component.routeSlug)
+  const genericComponent = componentDocumentation.find(
+    (component) =>
+      component.routeSlug === currentPage &&
+      !['button', 'textfield', 'textarea'].includes(component.routeSlug)
   );
+
+  // Dynamic TOC links based on page
+  const tocLinks = isFigmaComponentsPage
+    ? [{ href: '#figma-catalog', label: 'Components' }]
+    : genericComponent
+    ? [
+        { href: '#component-installation', label: 'Installation' },
+        { href: '#component-examples', label: 'Examples' },
+        { href: '#component-guidelines', label: 'Usage guidelines' },
+        { href: '#component-api', label: 'API reference' },
+      ]
+    : isTextAreaPage
+    ? [
+        { href: '#textarea-installation', label: 'Installation' },
+        { href: '#textarea-examples', label: 'States and sizes', nested: false },
+        { href: '#textarea-playground', label: 'Try it out', nested: true },
+        { href: '#textarea-guidelines', label: 'Usage guidelines' },
+        { href: '#textarea-api', label: 'API reference' },
+      ]
+    : isTextFieldPage
+    ? [
+        { href: '#textfield-installation', label: 'Installation' },
+        { href: '#textfield-examples', label: 'Examples' },
+        { href: '#textfield-playground', label: 'Try it out', nested: true },
+        { href: '#textfield-guidelines', label: 'Usage guidelines' },
+        { href: '#textfield-api', label: 'API reference' },
+      ]
+    : [
+        { href: '#installation', label: 'Installation' },
+        { href: '#examples', label: 'Examples' },
+        { href: '#variant-examples', label: 'Variants', nested: true },
+        { href: '#size-examples', label: 'Sizes', nested: true },
+        { href: '#icon-examples', label: 'Icons', nested: true },
+        { href: '#state-examples', label: 'Loading and disabled', nested: true },
+        { href: '#playground', label: 'Try it out' },
+        { href: '#guidelines', label: 'Usage guidelines' },
+        { href: '#api', label: 'API reference' },
+      ];
 
   return (
     <div className="docs-shell">
-      <HeaderPage />
+      <HeaderPage
+        syncStatus={syncStatus}
+        currentPage={currentPage}
+        onNav={(page) => setCurrentPage(page)}
+      />
       <div className="docs-layout" id="top">
-        <SidebarPage currentPage={currentPage} />
+        <SidebarPage currentPage={currentPage} syncStatus={syncStatus} />
+
         {isFigmaComponentsPage ? (
           <FigmaComponentsPage />
         ) : isTextAreaPage ? (
@@ -53,48 +100,24 @@ export default function App() {
         ) : (
           <ButtonPage />
         )}
+
         <aside className="docs-toc" aria-label="On this page">
           <h2>On this page</h2>
-          {isFigmaComponentsPage ? (
-            <nav>
-              <a href="#figma-catalog">Components</a>
-            </nav>
-          ) : genericComponent ? (
-            <nav>
-              <a href="#component-installation">Installation</a>
-              <a href="#component-examples">Live preview</a>
-            </nav>
-          ) : isTextAreaPage ? (
-            <nav>
-              <a href="#textarea-installation">Installation</a>
-              <a href="#textarea-examples">States and sizes</a>
-              <a className="docs-toc-nested" href="#textarea-playground">Try it out</a>
-              <a href="#textarea-guidelines">Usage guidelines</a>
-              <a href="#textarea-api">API reference</a>
-            </nav>
-          ) : isTextFieldPage ? (
-            <nav>
-              <a href="#textfield-installation">Installation</a>
-              <a href="#textfield-examples">Examples</a>
-              <a className="docs-toc-nested" href="#textfield-playground">Try it out</a>
-              <a href="#textfield-guidelines">Usage guidelines</a>
-              <a href="#textfield-api">API reference</a>
-            </nav>
-          ) : (
-            <nav>
-              <a href="#installation">Installation</a>
-              <a href="#examples">Examples</a>
-              <a className="docs-toc-nested" href="#variant-examples">Variants</a>
-              <a className="docs-toc-nested" href="#size-examples">Sizes</a>
-              <a className="docs-toc-nested" href="#icon-examples">Icons</a>
-              <a className="docs-toc-nested" href="#state-examples">Loading and disabled</a>
-              <a href="#playground">Try it out</a>
-              <a href="#guidelines">Usage guidelines</a>
-              <a href="#api">API reference</a>
-            </nav>
-          )}
+          <nav>
+            {tocLinks.map(({ href, label, nested }) => (
+              <a
+                key={href}
+                href={href}
+                className={nested ? 'docs-toc-nested' : ''}
+              >
+                {label}
+              </a>
+            ))}
+          </nav>
         </aside>
       </div>
+
+      <SyncToast event={lastEvent} />
     </div>
   );
 }
