@@ -1,0 +1,93 @@
+/* Standalone CSS for ProgressBarCircular */
+.ui-progress-bar-circular {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+  outline: none;
+}
+
+.ui-progress-bar-circular__content {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ui-progress-bar-circular__spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: ui-progress-bar-circular-spin 0.75s linear infinite;
+}
+
+.ui-progress-bar-circular--small {
+  font-size: 13px;
+  line-height: 16px;
+  padding: 7px 11px;
+}
+
+.ui-progress-bar-circular--medium {
+  font-size: 14px;
+  line-height: 20px;
+  padding: 10px 16px;
+}
+
+.ui-progress-bar-circular--large {
+  font-size: 16px;
+  line-height: 24px;
+  padding: 13px 21px;
+}
+
+.ui-progress-bar-circular--primary {
+  background-color: #0c2340;
+  color: #ffffff;
+  border-color: transparent;
+}
+
+.ui-progress-bar-circular--primary:hover:not(.ui-progress-bar-circular--disabled) {
+  background-color: #1d4076;
+}
+
+.ui-progress-bar-circular--secondary {
+  background-color: transparent;
+  color: #0c2340;
+  border-color: #d1d5db;
+}
+
+.ui-progress-bar-circular--secondary:hover:not(.ui-progress-bar-circular--disabled) {
+  background-color: rgba(12, 35, 64, 0.05);
+}
+
+.ui-progress-bar-circular--outlined {
+  background-color: transparent;
+  color: #0c2340;
+  border: 1.5px solid currentColor;
+}
+
+.ui-progress-bar-circular--full-width {
+  width: 100%;
+  display: flex;
+}
+
+.ui-progress-bar-circular--disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+@keyframes ui-progress-bar-circular-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}

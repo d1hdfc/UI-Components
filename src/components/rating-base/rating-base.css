@@ -1,0 +1,93 @@
+/* Standalone CSS for RatingBase */
+.ui-rating-base {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+  outline: none;
+}
+
+.ui-rating-base__content {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ui-rating-base__spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: ui-rating-base-spin 0.75s linear infinite;
+}
+
+.ui-rating-base--small {
+  font-size: 13px;
+  line-height: 16px;
+  padding: 14px 12px;
+}
+
+.ui-rating-base--medium {
+  font-size: 14px;
+  line-height: 20px;
+  padding: 20px 17px;
+}
+
+.ui-rating-base--large {
+  font-size: 16px;
+  line-height: 24px;
+  padding: 26px 22px;
+}
+
+.ui-rating-base--primary {
+  background-color: #0c2340;
+  color: #ffffff;
+  border-color: transparent;
+}
+
+.ui-rating-base--primary:hover:not(.ui-rating-base--disabled) {
+  background-color: #1d4076;
+}
+
+.ui-rating-base--secondary {
+  background-color: transparent;
+  color: #0c2340;
+  border-color: #d1d5db;
+}
+
+.ui-rating-base--secondary:hover:not(.ui-rating-base--disabled) {
+  background-color: rgba(12, 35, 64, 0.05);
+}
+
+.ui-rating-base--outlined {
+  background-color: transparent;
+  color: #0c2340;
+  border: 1.5px solid currentColor;
+}
+
+.ui-rating-base--full-width {
+  width: 100%;
+  display: flex;
+}
+
+.ui-rating-base--disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+@keyframes ui-rating-base-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}

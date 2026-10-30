@@ -39,7 +39,15 @@
     "dev:mcp": "concurrently \"npm run dev\" \"npm run mcp:watch\"",
     "build:mcp-socket": "node scripts/build-mcp-socket.cjs",
     "mcp:start": "npm run build:mcp-socket && node dist/socket.js",
-    "build:tokens": "style-dictionary build"
+    "build:tokens": "style-dictionary build",
+    "sync": "sync.bat",
+    "sync:server": "node scripts/figma-sync-server.cjs",
+    "sync:watch": "node scripts/figma-sync-server.cjs",
+    "sync:all": "node scripts/cli-sync.cjs --all",
+    "sync:figma-to-code": "node scripts/cli-sync.cjs --figma-to-code",
+    "sync:code-to-figma": "node scripts/cli-sync.cjs --code-to-figma",
+    "sync:generate-all": "node scripts/cli-sync.cjs --generate-existing",
+    "figma:webhook": "node scripts/webhook-manager.cjs"
   },
   "dependencies": {
     "dotenv": "^18.0.7",

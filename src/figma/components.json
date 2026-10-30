@@ -1,216 +1,1563 @@
 {
   "fileKey": "CXxUbHl3oMzt9Bzv3SKv75",
-  "version": "2415724761607780041",
+  "version": "2415764404677586598",
   "components": [
     {
-      "key": "3663:112469",
-      "name": "Variables",
-      "description": "6 components · 0 component sets",
-      "nodeId": "3663:112469",
-      "thumbnailUrl": "/figma/components/3663-112469.png"
+      "key": "3663:64097",
+      "name": "@VariableNameTemplate",
+      "pageName": "Variables",
+      "description": "Component",
+      "nodeId": "3663:64097",
+      "type": "COMPONENT",
+      "thumbnailUrl": "/figma/components/3663-64097.png"
     },
     {
-      "key": "1860:5196",
-      "name": "Logo",
-      "description": "31 components · 7 component sets",
-      "nodeId": "1860:5196",
-      "thumbnailUrl": "/figma/components/1860-5196.png"
+      "key": "3663:64099",
+      "name": "@VariableTitleTemplate",
+      "pageName": "Variables",
+      "description": "Component",
+      "nodeId": "3663:64099",
+      "type": "COMPONENT",
+      "thumbnailUrl": "/figma/components/3663-64099.png"
     },
     {
-      "key": "1887:3794",
-      "name": "Gradient",
-      "description": "5 components · 0 component sets",
-      "nodeId": "1887:3794",
-      "thumbnailUrl": "/figma/components/1887-3794.png"
+      "key": "3663:64101",
+      "name": "@VariableRowValueTemplate",
+      "pageName": "Variables",
+      "description": "Component",
+      "nodeId": "3663:64101",
+      "type": "COMPONENT",
+      "thumbnailUrl": "/figma/components/3663-64101.png"
     },
     {
-      "key": "2617:4609",
+      "key": "3663:64144",
+      "name": "@VariableHTypeTemplate",
+      "pageName": "Variables",
+      "description": "Component",
+      "nodeId": "3663:64144",
+      "type": "COMPONENT",
+      "thumbnailUrl": "/figma/components/3663-64144.png"
+    },
+    {
+      "key": "3663:64146",
+      "name": "@VariableHeaderTemplate",
+      "pageName": "Variables",
+      "description": "Component",
+      "nodeId": "3663:64146",
+      "type": "COMPONENT",
+      "thumbnailUrl": "/figma/components/3663-64146.png"
+    },
+    {
+      "key": "3663:141985",
+      "name": "@FontDocTemplate",
+      "pageName": "Variables",
+      "description": "Component",
+      "nodeId": "3663:141985",
+      "type": "COMPONENT",
+      "thumbnailUrl": "/figma/components/3663-141985.png"
+    },
+    {
+      "key": "1860:25021",
+      "name": "HDFC_Logo",
+      "pageName": "Logo",
+      "description": "3 variants",
+      "nodeId": "1860:25021",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/1860-25021.png"
+    },
+    {
+      "key": "2126:16149",
+      "name": "HDFC_Logo_Master",
+      "pageName": "Logo",
+      "description": "6 variants",
+      "nodeId": "2126:16149",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/2126-16149.png"
+    },
+    {
+      "key": "1862:34679",
+      "name": "Partner Logo",
+      "pageName": "Logo",
+      "description": "6 variants",
+      "nodeId": "1862:34679",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/1862-34679.png"
+    },
+    {
+      "key": "1862:34716",
+      "name": "Partner Logo",
+      "pageName": "Logo",
+      "description": "6 variants",
+      "nodeId": "1862:34716",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/1862-34716.png"
+    },
+    {
+      "key": "1869:3729",
+      "name": "Partner Logo\\Payzapp",
+      "pageName": "Logo",
+      "description": "2 variants",
+      "nodeId": "1869:3729",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/1869-3729.png"
+    },
+    {
+      "key": "1869:3911",
+      "name": "Partner Logo\\SmartWealth",
+      "pageName": "Logo",
+      "description": "2 variants",
+      "nodeId": "1869:3911",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/1869-3911.png"
+    },
+    {
+      "key": "2143:840",
+      "name": "Partner Logo_Master",
+      "pageName": "Logo",
+      "description": "6 variants",
+      "nodeId": "2143:840",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/2143-840.png"
+    },
+    {
+      "key": "3663:63162",
+      "name": "@ColorDocTemplate",
+      "pageName": "Gradient",
+      "description": "Component",
+      "nodeId": "3663:63162",
+      "type": "COMPONENT",
+      "thumbnailUrl": "/figma/components/3663-63162.png"
+    },
+    {
+      "key": "3663:64109",
+      "name": "Component",
+      "pageName": "Gradient",
+      "description": "Component",
+      "nodeId": "3663:64109",
+      "type": "COMPONENT",
+      "thumbnailUrl": "/figma/components/3663-64109.png"
+    },
+    {
+      "key": "3663:64110",
+      "name": "Component",
+      "pageName": "Gradient",
+      "description": "Component",
+      "nodeId": "3663:64110",
+      "type": "COMPONENT",
+      "thumbnailUrl": "/figma/components/3663-64110.png"
+    },
+    {
+      "key": "3663:64111",
+      "name": "rowAlphaEven",
+      "pageName": "Gradient",
+      "description": "Component",
+      "nodeId": "3663:64111",
+      "type": "COMPONENT",
+      "thumbnailUrl": "/figma/components/3663-64111.png"
+    },
+    {
+      "key": "3663:64115",
+      "name": "rowAlphaOdd",
+      "pageName": "Gradient",
+      "description": "Component",
+      "nodeId": "3663:64115",
+      "type": "COMPONENT",
+      "thumbnailUrl": "/figma/components/3663-64115.png"
+    },
+    {
+      "key": "6343:1193",
+      "name": "Gradient Button",
+      "pageName": "button-hdfc",
+      "description": "3 variants",
+      "nodeId": "6343:1193",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/6343-1193.png"
+    },
+    {
+      "key": "6343:1205",
       "name": "Button",
-      "description": "10 components · 1 component sets",
-      "nodeId": "2617:4609",
-      "thumbnailUrl": "/figma/components/2617-4609.png"
+      "pageName": "button-hdfc",
+      "description": "320 variants",
+      "nodeId": "6343:1205",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/6343-1205.png"
     },
     {
-      "key": "2617:4611",
-      "name": "Text-input",
-      "description": "123 components · 10 component sets",
-      "nodeId": "2617:4611",
-      "thumbnailUrl": "/figma/components/2617-4611.png"
+      "key": "4104:3783",
+      "name": "Gradient Button",
+      "pageName": "Button",
+      "description": "3 variants",
+      "nodeId": "4104:3783",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/4104-3783.png"
     },
     {
-      "key": "4285:36878",
-      "name": "Input-Area",
-      "description": "17 components · 1 component sets",
-      "nodeId": "4285:36878",
-      "thumbnailUrl": "/figma/components/4285-36878.png"
+      "key": "3972:30799",
+      "name": "Button",
+      "pageName": "Button",
+      "description": "320 variants",
+      "nodeId": "3972:30799",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/3972-30799.png"
     },
     {
-      "key": "4285:37102",
-      "name": "MPIN-input",
-      "description": "16 components · 2 component sets",
-      "nodeId": "4285:37102",
-      "thumbnailUrl": "/figma/components/4285-37102.png"
+      "key": "3718:88340",
+      "name": "Input Field",
+      "pageName": "Text-input",
+      "description": "16 variants",
+      "nodeId": "3718:88340",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/3718-88340.png"
     },
     {
-      "key": "3557:23745",
-      "name": "Search bar",
-      "description": "13 components · 2 component sets",
-      "nodeId": "3557:23745",
-      "thumbnailUrl": "/figma/components/3557-23745.png"
+      "key": "3810:20370",
+      "name": "Input Field",
+      "pageName": "Text-input",
+      "description": "16 variants",
+      "nodeId": "3810:20370",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/3810-20370.png"
     },
     {
-      "key": "2617:4612",
+      "key": "3826:60237",
+      "name": "Helper Text | Small",
+      "pageName": "Text-input",
+      "description": "6 variants",
+      "nodeId": "3826:60237",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/3826-60237.png"
+    },
+    {
+      "key": "3826:61122",
+      "name": "Leading Area | Small",
+      "pageName": "Text-input",
+      "description": "18 variants",
+      "nodeId": "3826:61122",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/3826-61122.png"
+    },
+    {
+      "key": "2690:2503",
+      "name": "Input Field",
+      "pageName": "Text-input",
+      "description": "16 variants",
+      "nodeId": "2690:2503",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/2690-2503.png"
+    },
+    {
+      "key": "2690:2770",
+      "name": "Trailing Area | Small",
+      "pageName": "Text-input",
+      "description": "Component",
+      "nodeId": "2690:2770",
+      "type": "COMPONENT",
+      "thumbnailUrl": "/figma/components/2690-2770.png"
+    },
+    {
+      "key": "2690:2773",
+      "name": "Label",
+      "pageName": "Text-input",
+      "description": "1 variants",
+      "nodeId": "2690:2773",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/2690-2773.png"
+    },
+    {
+      "key": "2690:2778",
+      "name": "Helper Text | Small",
+      "pageName": "Text-input",
+      "description": "6 variants",
+      "nodeId": "2690:2778",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/2690-2778.png"
+    },
+    {
+      "key": "2690:2797",
+      "name": "Helper Text | Medium",
+      "pageName": "Text-input",
+      "description": "6 variants",
+      "nodeId": "2690:2797",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/2690-2797.png"
+    },
+    {
+      "key": "2690:2834",
+      "name": "Leading Area | Small",
+      "pageName": "Text-input",
+      "description": "18 variants",
+      "nodeId": "2690:2834",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/2690-2834.png"
+    },
+    {
+      "key": "2690:3046",
+      "name": "Leading Area | Medium",
+      "pageName": "Text-input",
+      "description": "18 variants",
+      "nodeId": "2690:3046",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/2690-3046.png"
+    },
+    {
+      "key": "2690:3259",
+      "name": "Trailing Area | Medium",
+      "pageName": "Text-input",
+      "description": "Component",
+      "nodeId": "2690:3259",
+      "type": "COMPONENT",
+      "thumbnailUrl": "/figma/components/2690-3259.png"
+    },
+    {
+      "key": "2922:5360",
+      "name": "2. Final Input Area Component",
+      "pageName": "Input-Area",
+      "description": "16 variants",
+      "nodeId": "2922:5360",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/2922-5360.png"
+    },
+    {
+      "key": "3198:12013",
+      "name": "Icons/Light/20/Essential/Sort",
+      "pageName": "Input-Area",
+      "description": "Component",
+      "nodeId": "3198:12013",
+      "type": "COMPONENT",
+      "thumbnailUrl": "/figma/components/3198-12013.png"
+    },
+    {
+      "key": "2922:5494",
+      "name": "3. Final MPIN Component",
+      "pageName": "MPIN-input",
+      "description": "12 variants",
+      "nodeId": "2922:5494",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/2922-5494.png"
+    },
+    {
+      "key": "2922:5536",
+      "name": "MPIN | Types (4,6)",
+      "pageName": "MPIN-input",
+      "description": "4 variants",
+      "nodeId": "2922:5536",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/2922-5536.png"
+    },
+    {
+      "key": "3557:23845",
+      "name": "1. Final Search Component",
+      "pageName": "Search bar",
+      "description": "10 variants",
+      "nodeId": "3557:23845",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/3557-23845.png"
+    },
+    {
+      "key": "3557:23891",
+      "name": "right-area",
+      "pageName": "Search bar",
+      "description": "Component",
+      "nodeId": "3557:23891",
+      "type": "COMPONENT",
+      "thumbnailUrl": "/figma/components/3557-23891.png"
+    },
+    {
+      "key": "3557:23895",
+      "name": "Search Field",
+      "pageName": "Search bar",
+      "description": "2 variants",
+      "nodeId": "3557:23895",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/3557-23895.png"
+    },
+    {
+      "key": "4129:2348",
       "name": "Chips",
-      "description": "252 components · 1 component sets",
-      "nodeId": "2617:4612",
-      "thumbnailUrl": "/figma/components/2617-4612.png"
+      "pageName": "Chips",
+      "description": "252 variants",
+      "nodeId": "4129:2348",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/4129-2348.png"
     },
     {
-      "key": "4514:81323",
-      "name": "Focus ring",
-      "description": "1 components · 0 component sets",
-      "nodeId": "4514:81323",
-      "thumbnailUrl": "/figma/components/4514-81323.png"
+      "key": "4535:81329",
+      "name": "focus ring",
+      "pageName": "Focus ring",
+      "description": "Component",
+      "nodeId": "4535:81329",
+      "type": "COMPONENT",
+      "thumbnailUrl": "/figma/components/4535-81329.png"
     },
     {
-      "key": "3557:23709",
+      "key": "3991:3115",
+      "name": "Badge/size",
+      "pageName": "Badge",
+      "description": "3 variants",
+      "nodeId": "3991:3115",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/3991-3115.png"
+    },
+    {
+      "key": "3991:3173",
       "name": "Badge",
-      "description": "46 components · 3 component sets",
-      "nodeId": "3557:23709",
-      "thumbnailUrl": "/figma/components/3557-23709.png"
+      "pageName": "Badge",
+      "description": "30 variants",
+      "nodeId": "3991:3173",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/3991-3173.png"
     },
     {
-      "key": "3032:9762",
+      "key": "4331:381",
+      "name": "Badge",
+      "pageName": "Badge",
+      "description": "13 variants",
+      "nodeId": "4331:381",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/4331-381.png"
+    },
+    {
+      "key": "3032:10171",
+      "name": "Color fallback",
+      "pageName": "Avatar",
+      "description": "9 variants",
+      "nodeId": "3032:10171",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/3032-10171.png"
+    },
+    {
+      "key": "3032:10175",
+      "name": "Status",
+      "pageName": "Avatar",
+      "description": "6 variants",
+      "nodeId": "3032:10175",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/3032-10175.png"
+    },
+    {
+      "key": "3032:10198",
+      "name": "Profile picture",
+      "pageName": "Avatar",
+      "description": "11 variants",
+      "nodeId": "3032:10198",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/3032-10198.png"
+    },
+    {
+      "key": "3032:10221",
       "name": "Avatar",
-      "description": "53 components · 8 component sets",
-      "nodeId": "3032:9762",
-      "thumbnailUrl": "/figma/components/3032-9762.png"
+      "pageName": "Avatar",
+      "description": "7 variants",
+      "nodeId": "3032:10221",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/3032-10221.png"
     },
     {
-      "key": "3980:27171",
+      "key": "4285:41338",
+      "name": "Avatar",
+      "pageName": "Avatar",
+      "description": "7 variants",
+      "nodeId": "4285:41338",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/4285-41338.png"
+    },
+    {
+      "key": "4285:40975",
+      "name": "Avatar",
+      "pageName": "Avatar",
+      "description": "7 variants",
+      "nodeId": "4285:40975",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/4285-40975.png"
+    },
+    {
+      "key": "3032:10251",
+      "name": "Style",
+      "pageName": "Avatar",
+      "description": "4 variants",
+      "nodeId": "3032:10251",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/3032-10251.png"
+    },
+    {
+      "key": "3686:42299",
+      "name": "Text Colour",
+      "pageName": "Avatar",
+      "description": "2 variants",
+      "nodeId": "3686:42299",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/3686-42299.png"
+    },
+    {
+      "key": "3557:23728",
       "name": "tag",
-      "description": "8 components · 2 component sets",
-      "nodeId": "3980:27171",
-      "thumbnailUrl": "/figma/components/3980-27171.png"
+      "pageName": "tag",
+      "description": "5 variants",
+      "nodeId": "3557:23728",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/3557-23728.png"
     },
     {
-      "key": "2999:10001",
+      "key": "3557:23721",
+      "name": "tag/size",
+      "pageName": "tag",
+      "description": "3 variants",
+      "nodeId": "3557:23721",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/3557-23721.png"
+    },
+    {
+      "key": "2999:10007",
+      "name": "checkbox/size",
+      "pageName": "Controls",
+      "description": "3 variants",
+      "nodeId": "2999:10007",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/2999-10007.png"
+    },
+    {
+      "key": "2999:10014",
+      "name": "checkbox",
+      "pageName": "Controls",
+      "description": "8 variants",
+      "nodeId": "2999:10014",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/2999-10014.png"
+    },
+    {
+      "key": "2999:10024",
+      "name": "radio/size",
+      "pageName": "Controls",
+      "description": "3 variants",
+      "nodeId": "2999:10024",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/2999-10024.png"
+    },
+    {
+      "key": "3219:4512",
+      "name": "radio",
+      "pageName": "Controls",
+      "description": "5 variants",
+      "nodeId": "3219:4512",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/3219-4512.png"
+    },
+    {
+      "key": "3225:4398",
+      "name": "toggle/size",
+      "pageName": "Controls",
+      "description": "3 variants",
+      "nodeId": "3225:4398",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/3225-4398.png"
+    },
+    {
+      "key": "3225:4419",
+      "name": "toggle",
+      "pageName": "Controls",
+      "description": "5 variants",
+      "nodeId": "3225:4419",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/3225-4419.png"
+    },
+    {
+      "key": "3234:12064",
+      "name": "controls",
+      "pageName": "Controls",
+      "description": "3 variants",
+      "nodeId": "3234:12064",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/3234-12064.png"
+    },
+    {
+      "key": "4205:22967",
+      "name": "Checkbox",
+      "pageName": "Controls",
+      "description": "24 variants",
+      "nodeId": "4205:22967",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/4205-22967.png"
+    },
+    {
+      "key": "4205:23025",
+      "name": "Toggle",
+      "pageName": "Controls",
+      "description": "15 variants",
+      "nodeId": "4205:23025",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/4205-23025.png"
+    },
+    {
+      "key": "4205:23059",
+      "name": "Radio",
+      "pageName": "Controls",
+      "description": "15 variants",
+      "nodeId": "4205:23059",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/4205-23059.png"
+    },
+    {
+      "key": "4205:23093",
       "name": "Controls",
-      "description": "87 components · 11 component sets",
-      "nodeId": "2999:10001",
-      "thumbnailUrl": "/figma/components/2999-10001.png"
+      "pageName": "Controls",
+      "description": "3 variants",
+      "nodeId": "4205:23093",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/4205-23093.png"
     },
     {
-      "key": "4097:2814",
-      "name": "Rating",
-      "description": "13 components · 2 component sets",
-      "nodeId": "4097:2814",
-      "thumbnailUrl": "/figma/components/4097-2814.png"
+      "key": "4201:21995",
+      "name": "Rating-base",
+      "pageName": "Rating",
+      "description": "4 variants",
+      "nodeId": "4201:21995",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/4201-21995.png"
     },
     {
-      "key": "3557:23126",
-      "name": "Progress bar",
-      "description": "18 components · 2 component sets",
-      "nodeId": "3557:23126",
-      "thumbnailUrl": "/figma/components/3557-23126.png"
+      "key": "4201:22017",
+      "name": "Ratings",
+      "pageName": "Rating",
+      "description": "9 variants",
+      "nodeId": "4201:22017",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/4201-22017.png"
     },
     {
-      "key": "3557:23183",
+      "key": "3557:23145",
+      "name": "Progress-bar/circular",
+      "pageName": "Progress bar",
+      "description": "12 variants",
+      "nodeId": "3557:23145",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/3557-23145.png"
+    },
+    {
+      "key": "3557:23132",
+      "name": "Progress-bar/linear",
+      "pageName": "Progress bar",
+      "description": "6 variants",
+      "nodeId": "3557:23132",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/3557-23132.png"
+    },
+    {
+      "key": "3557:23269",
+      "name": "actionPrevious",
+      "pageName": "Pagination",
+      "description": "3 variants",
+      "nodeId": "3557:23269",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/3557-23269.png"
+    },
+    {
+      "key": "3557:23276",
+      "name": "actionNext",
+      "pageName": "Pagination",
+      "description": "2 variants",
+      "nodeId": "3557:23276",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/3557-23276.png"
+    },
+    {
+      "key": "3557:23283",
+      "name": "base",
+      "pageName": "Pagination",
+      "description": "12 variants",
+      "nodeId": "3557:23283",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/3557-23283.png"
+    },
+    {
+      "key": "3928:1701",
       "name": "Pagination",
-      "description": "49 components · 9 component sets",
-      "nodeId": "3557:23183",
-      "thumbnailUrl": "/figma/components/3557-23183.png"
+      "pageName": "Pagination",
+      "description": "6 variants",
+      "nodeId": "3928:1701",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/3928-1701.png"
     },
     {
-      "key": "3612:11171",
-      "name": "Tabs",
-      "description": "8 components · 1 component sets",
-      "nodeId": "3612:11171",
-      "thumbnailUrl": "/figma/components/3612-11171.png"
+      "key": "3557:23387",
+      "name": "actionFirst",
+      "pageName": "Pagination",
+      "description": "5 variants",
+      "nodeId": "3557:23387",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/3557-23387.png"
     },
     {
-      "key": "3159:10382",
-      "name": "seperator",
-      "description": "6 components · 1 component sets",
-      "nodeId": "3159:10382",
-      "thumbnailUrl": "/figma/components/3159-10382.png"
+      "key": "3557:23404",
+      "name": "actionLast",
+      "pageName": "Pagination",
+      "description": "5 variants",
+      "nodeId": "3557:23404",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/3557-23404.png"
     },
     {
-      "key": "3855:102718",
+      "key": "3557:23421",
+      "name": "actionLeftArrow",
+      "pageName": "Pagination",
+      "description": "5 variants",
+      "nodeId": "3557:23421",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/3557-23421.png"
+    },
+    {
+      "key": "3928:2199",
+      "name": "actionRightArrow",
+      "pageName": "Pagination",
+      "description": "5 variants",
+      "nodeId": "3928:2199",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/3928-2199.png"
+    },
+    {
+      "key": "3557:23311",
+      "name": "Pagination",
+      "pageName": "Pagination",
+      "description": "6 variants",
+      "nodeId": "3557:23311",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/3557-23311.png"
+    },
+    {
+      "key": "3612:11201",
+      "name": "Tab item",
+      "pageName": "Tabs",
+      "description": "8 variants",
+      "nodeId": "3612:11201",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/3612-11201.png"
+    },
+    {
+      "key": "2690:3262",
+      "name": "Seperator",
+      "pageName": "seperator",
+      "description": "6 variants",
+      "nodeId": "2690:3262",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/2690-3262.png"
+    },
+    {
+      "key": "4235:1824",
       "name": "Toast",
-      "description": "12 components · 1 component sets",
-      "nodeId": "3855:102718",
-      "thumbnailUrl": "/figma/components/3855-102718.png"
+      "pageName": "Toast",
+      "description": "12 variants",
+      "nodeId": "4235:1824",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/4235-1824.png"
     },
     {
-      "key": "3234:13174",
-      "name": "bottomsheet",
-      "description": "13 components · 3 component sets",
-      "nodeId": "3234:13174",
-      "thumbnailUrl": "/figma/components/3234-13174.png"
+      "key": "3242:4332",
+      "name": "Grabber",
+      "pageName": "bottomsheet",
+      "description": "Component",
+      "nodeId": "3242:4332",
+      "type": "COMPONENT",
+      "thumbnailUrl": "/figma/components/3242-4332.png"
     },
     {
-      "key": "3235:16438",
-      "name": "status bar / browser",
-      "description": "6 components · 2 component sets",
-      "nodeId": "3235:16438",
-      "thumbnailUrl": "/figma/components/3235-16438.png"
-    },
-    {
-      "key": "3612:11317",
+      "key": "3242:4397",
       "name": "Carousel hook",
-      "description": "6 components · 2 component sets",
-      "nodeId": "3612:11317",
-      "thumbnailUrl": "/figma/components/3612-11317.png"
+      "pageName": "bottomsheet",
+      "description": "Component",
+      "nodeId": "3242:4397",
+      "type": "COMPONENT",
+      "thumbnailUrl": "/figma/components/3242-4397.png"
     },
     {
-      "key": "3612:11444",
+      "key": "3278:15371",
+      "name": "Bottom Sh",
+      "pageName": "bottomsheet",
+      "description": "2 variants",
+      "nodeId": "3278:15371",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/3278-15371.png"
+    },
+    {
+      "key": "3287:20482",
+      "name": "header",
+      "pageName": "bottomsheet",
+      "description": "2 variants",
+      "nodeId": "3287:20482",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/3287-20482.png"
+    },
+    {
+      "key": "3317:5765",
+      "name": "Grabber Notch",
+      "pageName": "bottomsheet",
+      "description": "Component",
+      "nodeId": "3317:5765",
+      "type": "COMPONENT",
+      "thumbnailUrl": "/figma/components/3317-5765.png"
+    },
+    {
+      "key": "3125:4299",
+      "name": "bottomsheet",
+      "pageName": "bottomsheet",
+      "description": "Component",
+      "nodeId": "3125:4299",
+      "type": "COMPONENT",
+      "thumbnailUrl": "/figma/components/3125-4299.png"
+    },
+    {
+      "key": "3346:30606",
+      "name": "Slot Block",
+      "pageName": "bottomsheet",
+      "description": "Component",
+      "nodeId": "3346:30606",
+      "type": "COMPONENT",
+      "thumbnailUrl": "/figma/components/3346-30606.png"
+    },
+    {
+      "key": "3333:28941",
+      "name": "OTP",
+      "pageName": "bottomsheet",
+      "description": "Component",
+      "nodeId": "3333:28941",
+      "type": "COMPONENT",
+      "thumbnailUrl": "/figma/components/3333-28941.png"
+    },
+    {
+      "key": "3357:34111",
+      "name": "bottomsheet footer",
+      "pageName": "bottomsheet",
+      "description": "3 variants",
+      "nodeId": "3357:34111",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/3357-34111.png"
+    },
+    {
+      "key": "3555:22871",
+      "name": "Status Bar",
+      "pageName": "status bar / browser",
+      "description": "Component",
+      "nodeId": "3555:22871",
+      "type": "COMPONENT",
+      "thumbnailUrl": "/figma/components/3555-22871.png"
+    },
+    {
+      "key": "3555:22878",
+      "name": "Browser",
+      "pageName": "status bar / browser",
+      "description": "2 variants",
+      "nodeId": "3555:22878",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/3555-22878.png"
+    },
+    {
+      "key": "3555:23068",
+      "name": "Browser+StatusBar",
+      "pageName": "status bar / browser",
+      "description": "Component",
+      "nodeId": "3555:23068",
+      "type": "COMPONENT",
+      "thumbnailUrl": "/figma/components/3555-23068.png"
+    },
+    {
+      "key": "4333:940",
+      "name": "Browser",
+      "pageName": "status bar / browser",
+      "description": "2 variants",
+      "nodeId": "4333:940",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/4333-940.png"
+    },
+    {
+      "key": "3612:11322",
+      "name": "Carousel Hook",
+      "pageName": "Carousel hook",
+      "description": "2 variants",
+      "nodeId": "3612:11322",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/3612-11322.png"
+    },
+    {
+      "key": "3612:11335",
+      "name": "Arrow",
+      "pageName": "Carousel hook",
+      "description": "4 variants",
+      "nodeId": "3612:11335",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/3612-11335.png"
+    },
+    {
+      "key": "3612:11467",
+      "name": "Card/Component Placeholder",
+      "pageName": "Card",
+      "description": "Component",
+      "nodeId": "3612:11467",
+      "type": "COMPONENT",
+      "thumbnailUrl": "/figma/components/3612-11467.png"
+    },
+    {
+      "key": "3612:11469",
       "name": "Card",
-      "description": "9 components · 1 component sets",
-      "nodeId": "3612:11444",
-      "thumbnailUrl": "/figma/components/3612-11444.png"
+      "pageName": "Card",
+      "description": "8 variants",
+      "nodeId": "3612:11469",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/3612-11469.png"
     },
     {
-      "key": "4239:28194",
+      "key": "4241:17368",
+      "name": "_Base Tippy",
+      "pageName": "Tooltip",
+      "description": "Component",
+      "nodeId": "4241:17368",
+      "type": "COMPONENT",
+      "thumbnailUrl": "/figma/components/4241-17368.png"
+    },
+    {
+      "key": "4242:28824",
       "name": "Tooltip",
-      "description": "13 components · 1 component sets",
-      "nodeId": "4239:28194",
-      "thumbnailUrl": "/figma/components/4239-28194.png"
+      "pageName": "Tooltip",
+      "description": "12 variants",
+      "nodeId": "4242:28824",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/4242-28824.png"
     },
     {
-      "key": "3612:11359",
+      "key": "3612:11390",
       "name": "Snackbar",
-      "description": "3 components · 1 component sets",
-      "nodeId": "3612:11359",
-      "thumbnailUrl": "/figma/components/3612-11359.png"
+      "pageName": "Snackbar",
+      "description": "3 variants",
+      "nodeId": "3612:11390",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/3612-11390.png"
     },
     {
-      "key": "3826:70573",
-      "name": "Testing",
-      "description": "656 components · 41 component sets",
-      "nodeId": "3826:70573",
-      "thumbnailUrl": "/figma/components/3826-70573.png"
+      "key": "4276:19478",
+      "name": "Input Field",
+      "pageName": "Testing",
+      "description": "16 variants",
+      "nodeId": "4276:19478",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/4276-19478.png"
     },
     {
-      "key": "2011:26502",
-      "name": "Components",
-      "description": "31 components · 1 component sets",
-      "nodeId": "2011:26502",
-      "thumbnailUrl": "/figma/components/2011-26502.png"
+      "key": "4276:37729",
+      "name": "Input Field",
+      "pageName": "Testing",
+      "description": "16 variants",
+      "nodeId": "4276:37729",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/4276-37729.png"
     },
     {
-      "key": "0:1",
-      "name": "global_token_architecture",
-      "description": "64 components · 1 component sets",
-      "nodeId": "0:1",
-      "thumbnailUrl": "/figma/components/0-1.png"
+      "key": "4276:3079",
+      "name": "Input Field",
+      "pageName": "Testing",
+      "description": "16 variants",
+      "nodeId": "4276:3079",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/4276-3079.png"
     },
     {
-      "key": "2568:2572",
-      "name": "derpicated items",
-      "description": "21 components · 2 component sets",
-      "nodeId": "2568:2572",
-      "thumbnailUrl": "/figma/components/2568-2572.png"
+      "key": "4614:63695",
+      "name": "Input Field",
+      "pageName": "Testing",
+      "description": "16 variants",
+      "nodeId": "4614:63695",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/4614-63695.png"
+    },
+    {
+      "key": "4276:7785",
+      "name": "Input Field",
+      "pageName": "Testing",
+      "description": "16 variants",
+      "nodeId": "4276:7785",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/4276-7785.png"
+    },
+    {
+      "key": "4614:63810",
+      "name": "Input Field",
+      "pageName": "Testing",
+      "description": "16 variants",
+      "nodeId": "4614:63810",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/4614-63810.png"
+    },
+    {
+      "key": "4278:40161",
+      "name": "Input Field",
+      "pageName": "Testing",
+      "description": "16 variants",
+      "nodeId": "4278:40161",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/4278-40161.png"
+    },
+    {
+      "key": "4278:40389",
+      "name": "Input Field",
+      "pageName": "Testing",
+      "description": "16 variants",
+      "nodeId": "4278:40389",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/4278-40389.png"
+    },
+    {
+      "key": "4278:40626",
+      "name": "Input Field",
+      "pageName": "Testing",
+      "description": "16 variants",
+      "nodeId": "4278:40626",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/4278-40626.png"
+    },
+    {
+      "key": "4278:40930",
+      "name": "Input Field",
+      "pageName": "Testing",
+      "description": "16 variants",
+      "nodeId": "4278:40930",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/4278-40930.png"
+    },
+    {
+      "key": "4278:41210",
+      "name": "Input Field",
+      "pageName": "Testing",
+      "description": "16 variants",
+      "nodeId": "4278:41210",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/4278-41210.png"
+    },
+    {
+      "key": "4278:41444",
+      "name": "Input Field",
+      "pageName": "Testing",
+      "description": "16 variants",
+      "nodeId": "4278:41444",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/4278-41444.png"
+    },
+    {
+      "key": "4278:41706",
+      "name": "Input Field",
+      "pageName": "Testing",
+      "description": "16 variants",
+      "nodeId": "4278:41706",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/4278-41706.png"
+    },
+    {
+      "key": "4278:41986",
+      "name": "Input Field",
+      "pageName": "Testing",
+      "description": "16 variants",
+      "nodeId": "4278:41986",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/4278-41986.png"
+    },
+    {
+      "key": "4278:42326",
+      "name": "Input Field",
+      "pageName": "Testing",
+      "description": "16 variants",
+      "nodeId": "4278:42326",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/4278-42326.png"
+    },
+    {
+      "key": "4278:42593",
+      "name": "Input Field",
+      "pageName": "Testing",
+      "description": "16 variants",
+      "nodeId": "4278:42593",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/4278-42593.png"
+    },
+    {
+      "key": "4278:42876",
+      "name": "Input Field",
+      "pageName": "Testing",
+      "description": "16 variants",
+      "nodeId": "4278:42876",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/4278-42876.png"
+    },
+    {
+      "key": "4278:43161",
+      "name": "Input Field",
+      "pageName": "Testing",
+      "description": "16 variants",
+      "nodeId": "4278:43161",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/4278-43161.png"
+    },
+    {
+      "key": "4278:43443",
+      "name": "Input Field",
+      "pageName": "Testing",
+      "description": "16 variants",
+      "nodeId": "4278:43443",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/4278-43443.png"
+    },
+    {
+      "key": "4278:43784",
+      "name": "Input Field",
+      "pageName": "Testing",
+      "description": "16 variants",
+      "nodeId": "4278:43784",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/4278-43784.png"
+    },
+    {
+      "key": "4278:44115",
+      "name": "Input Field",
+      "pageName": "Testing",
+      "description": "16 variants",
+      "nodeId": "4278:44115",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/4278-44115.png"
+    },
+    {
+      "key": "4278:44399",
+      "name": "Input Field",
+      "pageName": "Testing",
+      "description": "16 variants",
+      "nodeId": "4278:44399",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/4278-44399.png"
+    },
+    {
+      "key": "4278:44704",
+      "name": "Input Field",
+      "pageName": "Testing",
+      "description": "16 variants",
+      "nodeId": "4278:44704",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/4278-44704.png"
+    },
+    {
+      "key": "4278:45021",
+      "name": "Input Field",
+      "pageName": "Testing",
+      "description": "16 variants",
+      "nodeId": "4278:45021",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/4278-45021.png"
+    },
+    {
+      "key": "4278:45384",
+      "name": "Input Field",
+      "pageName": "Testing",
+      "description": "16 variants",
+      "nodeId": "4278:45384",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/4278-45384.png"
+    },
+    {
+      "key": "4278:45729",
+      "name": "Input Field",
+      "pageName": "Testing",
+      "description": "16 variants",
+      "nodeId": "4278:45729",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/4278-45729.png"
+    },
+    {
+      "key": "4278:46055",
+      "name": "Input Field",
+      "pageName": "Testing",
+      "description": "16 variants",
+      "nodeId": "4278:46055",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/4278-46055.png"
+    },
+    {
+      "key": "4278:46375",
+      "name": "Input Field",
+      "pageName": "Testing",
+      "description": "16 variants",
+      "nodeId": "4278:46375",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/4278-46375.png"
+    },
+    {
+      "key": "4278:46692",
+      "name": "Input Field",
+      "pageName": "Testing",
+      "description": "16 variants",
+      "nodeId": "4278:46692",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/4278-46692.png"
+    },
+    {
+      "key": "4278:47097",
+      "name": "Input Field",
+      "pageName": "Testing",
+      "description": "16 variants",
+      "nodeId": "4278:47097",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/4278-47097.png"
+    },
+    {
+      "key": "4278:47463",
+      "name": "Input Field",
+      "pageName": "Testing",
+      "description": "16 variants",
+      "nodeId": "4278:47463",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/4278-47463.png"
+    },
+    {
+      "key": "4278:47796",
+      "name": "Input Field",
+      "pageName": "Testing",
+      "description": "16 variants",
+      "nodeId": "4278:47796",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/4278-47796.png"
+    },
+    {
+      "key": "4278:48130",
+      "name": "Input Field",
+      "pageName": "Testing",
+      "description": "16 variants",
+      "nodeId": "4278:48130",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/4278-48130.png"
+    },
+    {
+      "key": "4278:48475",
+      "name": "Input Field",
+      "pageName": "Testing",
+      "description": "16 variants",
+      "nodeId": "4278:48475",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/4278-48475.png"
+    },
+    {
+      "key": "4278:48795",
+      "name": "Input Field",
+      "pageName": "Testing",
+      "description": "16 variants",
+      "nodeId": "4278:48795",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/4278-48795.png"
+    },
+    {
+      "key": "4278:49219",
+      "name": "Input Field",
+      "pageName": "Testing",
+      "description": "16 variants",
+      "nodeId": "4278:49219",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/4278-49219.png"
+    },
+    {
+      "key": "4278:49599",
+      "name": "Input Field",
+      "pageName": "Testing",
+      "description": "16 variants",
+      "nodeId": "4278:49599",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/4278-49599.png"
+    },
+    {
+      "key": "4278:49938",
+      "name": "Input Field",
+      "pageName": "Testing",
+      "description": "16 variants",
+      "nodeId": "4278:49938",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/4278-49938.png"
+    },
+    {
+      "key": "4278:33067",
+      "name": "Input Field",
+      "pageName": "Testing",
+      "description": "16 variants",
+      "nodeId": "4278:33067",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/4278-33067.png"
+    },
+    {
+      "key": "4276:44675",
+      "name": "Input Field",
+      "pageName": "Testing",
+      "description": "16 variants",
+      "nodeId": "4276:44675",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/4276-44675.png"
+    },
+    {
+      "key": "4276:35339",
+      "name": "Input Field",
+      "pageName": "Testing",
+      "description": "16 variants",
+      "nodeId": "4276:35339",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/4276-35339.png"
+    },
+    {
+      "key": "2011:26574",
+      "name": "Cover-card",
+      "pageName": "Components",
+      "description": "Component",
+      "nodeId": "2011:26574",
+      "type": "COMPONENT",
+      "thumbnailUrl": "/figma/components/2011-26574.png"
+    },
+    {
+      "key": "2216:2270",
+      "name": "Badge",
+      "pageName": "Components",
+      "description": "11 variants",
+      "nodeId": "2216:2270",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/2216-2270.png"
+    },
+    {
+      "key": "1268:2219",
+      "name": "row",
+      "pageName": "Components",
+      "description": "Component",
+      "nodeId": "1268:2219",
+      "type": "COMPONENT",
+      "thumbnailUrl": "/figma/components/1268-2219.png"
+    },
+    {
+      "key": "1272:3783",
+      "name": "container",
+      "pageName": "Components",
+      "description": "Component",
+      "nodeId": "1272:3783",
+      "type": "COMPONENT",
+      "thumbnailUrl": "/figma/components/1272-3783.png"
+    },
+    {
+      "key": "1379:1073",
+      "name": "Usage_guidelines_tag",
+      "pageName": "Components",
+      "description": "Component",
+      "nodeId": "1379:1073",
+      "type": "COMPONENT",
+      "thumbnailUrl": "/figma/components/1379-1073.png"
+    },
+    {
+      "key": "1379:1067",
+      "name": "Usage_guideline_tag",
+      "pageName": "Components",
+      "description": "Component",
+      "nodeId": "1379:1067",
+      "type": "COMPONENT",
+      "thumbnailUrl": "/figma/components/1379-1067.png"
+    },
+    {
+      "key": "1486:1544",
+      "name": "Footer_hyperlink",
+      "pageName": "Components",
+      "description": "Component",
+      "nodeId": "1486:1544",
+      "type": "COMPONENT",
+      "thumbnailUrl": "/figma/components/1486-1544.png"
+    },
+    {
+      "key": "1486:1351",
+      "name": "Footer_down",
+      "pageName": "Components",
+      "description": "Component",
+      "nodeId": "1486:1351",
+      "type": "COMPONENT",
+      "thumbnailUrl": "/figma/components/1486-1351.png"
+    },
+    {
+      "key": "2228:3701",
+      "name": "_Divider / label-center / 1px",
+      "pageName": "Components",
+      "description": "Component",
+      "nodeId": "2228:3701",
+      "type": "COMPONENT",
+      "thumbnailUrl": "/figma/components/2228-3701.png"
+    },
+    {
+      "key": "2228:3754",
+      "name": "Label",
+      "pageName": "Components",
+      "description": "Component",
+      "nodeId": "2228:3754",
+      "type": "COMPONENT",
+      "thumbnailUrl": "/figma/components/2228-3754.png"
+    },
+    {
+      "key": "2228:4144",
+      "name": "Text Item",
+      "pageName": "Components",
+      "description": "Component",
+      "nodeId": "2228:4144",
+      "type": "COMPONENT",
+      "thumbnailUrl": "/figma/components/2228-4144.png"
+    },
+    {
+      "key": "1112:23398",
+      "name": "Container",
+      "pageName": "Components",
+      "description": "Component",
+      "nodeId": "1112:23398",
+      "type": "COMPONENT",
+      "thumbnailUrl": "/figma/components/1112-23398.png"
+    },
+    {
+      "key": "262:1055",
+      "name": ".Color_ramp_card",
+      "pageName": "Components",
+      "description": "Component",
+      "nodeId": "262:1055",
+      "type": "COMPONENT",
+      "thumbnailUrl": "/figma/components/262-1055.png"
+    },
+    {
+      "key": "447:4202",
+      "name": "Compliance",
+      "pageName": "Components",
+      "description": "Component",
+      "nodeId": "447:4202",
+      "type": "COMPONENT",
+      "thumbnailUrl": "/figma/components/447-4202.png"
+    },
+    {
+      "key": "1005:1919",
+      "name": "alias_roles",
+      "pageName": "Components",
+      "description": "Component",
+      "nodeId": "1005:1919",
+      "type": "COMPONENT",
+      "thumbnailUrl": "/figma/components/1005-1919.png"
+    },
+    {
+      "key": "999:1843",
+      "name": "color_roles",
+      "pageName": "Components",
+      "description": "Component",
+      "nodeId": "999:1843",
+      "type": "COMPONENT",
+      "thumbnailUrl": "/figma/components/999-1843.png"
+    },
+    {
+      "key": "3604:39265",
+      "name": "thumbnail_header",
+      "pageName": "Components",
+      "description": "Component",
+      "nodeId": "3604:39265",
+      "type": "COMPONENT",
+      "thumbnailUrl": "/figma/components/3604-39265.png"
+    },
+    {
+      "key": "3811:25706",
+      "name": "Token_name",
+      "pageName": "Components",
+      "description": "Component",
+      "nodeId": "3811:25706",
+      "type": "COMPONENT",
+      "thumbnailUrl": "/figma/components/3811-25706.png"
+    },
+    {
+      "key": "3811:25696",
+      "name": "Token_name_pill",
+      "pageName": "Components",
+      "description": "Component",
+      "nodeId": "3811:25696",
+      "type": "COMPONENT",
+      "thumbnailUrl": "/figma/components/3811-25696.png"
+    },
+    {
+      "key": "3820:28368",
+      "name": "Usage_guidelines_tag",
+      "pageName": "Components",
+      "description": "Component",
+      "nodeId": "3820:28368",
+      "type": "COMPONENT",
+      "thumbnailUrl": "/figma/components/3820-28368.png"
+    },
+    {
+      "key": "1180:2361",
+      "name": "Color Role",
+      "pageName": "Components",
+      "description": "Component",
+      "nodeId": "1180:2361",
+      "type": "COMPONENT",
+      "thumbnailUrl": "/figma/components/1180-2361.png"
+    },
+    {
+      "key": "1:895",
+      "name": "Master_1",
+      "pageName": "global_token_architecture",
+      "description": "Component",
+      "nodeId": "1:895",
+      "type": "COMPONENT",
+      "thumbnailUrl": "/figma/components/1-895.png"
+    },
+    {
+      "key": "1:897",
+      "name": "Master_2",
+      "pageName": "global_token_architecture",
+      "description": "Component",
+      "nodeId": "1:897",
+      "type": "COMPONENT",
+      "thumbnailUrl": "/figma/components/1-897.png"
+    },
+    {
+      "key": "1:1416",
+      "name": "Master_1",
+      "pageName": "global_token_architecture",
+      "description": "Component",
+      "nodeId": "1:1416",
+      "type": "COMPONENT",
+      "thumbnailUrl": "/figma/components/1-1416.png"
+    },
+    {
+      "key": "1:1417",
+      "name": "Body",
+      "pageName": "global_token_architecture",
+      "description": "Component",
+      "nodeId": "1:1417",
+      "type": "COMPONENT",
+      "thumbnailUrl": "/figma/components/1-1417.png"
+    },
+    {
+      "key": "1117:21195",
+      "name": "CTA/Primary",
+      "pageName": "global_token_architecture",
+      "description": "60 variants",
+      "nodeId": "1117:21195",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/1117-21195.png"
+    },
+    {
+      "key": "3873:103673",
+      "name": "size/Default",
+      "pageName": "derpicated items",
+      "description": "Component",
+      "nodeId": "3873:103673",
+      "type": "COMPONENT",
+      "thumbnailUrl": "/figma/components/3873-103673.png"
+    },
+    {
+      "key": "2893:1464",
+      "name": ".button/size",
+      "pageName": "derpicated items",
+      "description": "4 variants",
+      "nodeId": "2893:1464",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/2893-1464.png"
+    },
+    {
+      "key": "2893:1489",
+      "name": ".button",
+      "pageName": "derpicated items",
+      "description": "16 variants",
+      "nodeId": "2893:1489",
+      "type": "COMPONENT_SET",
+      "thumbnailUrl": "/figma/components/2893-1489.png"
     }
   ]
 }

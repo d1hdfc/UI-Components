@@ -1,0 +1,93 @@
+/* Standalone CSS for Avatar */
+.ui-avatar {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+  outline: none;
+}
+
+.ui-avatar__content {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ui-avatar__spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: ui-avatar-spin 0.75s linear infinite;
+}
+
+.ui-avatar--small {
+  font-size: 13px;
+  line-height: 16px;
+  padding: 14px 14px;
+}
+
+.ui-avatar--medium {
+  font-size: 14px;
+  line-height: 20px;
+  padding: 20px 20px;
+}
+
+.ui-avatar--large {
+  font-size: 16px;
+  line-height: 24px;
+  padding: 26px 26px;
+}
+
+.ui-avatar--primary {
+  background-color: #0c2340;
+  color: #ffffff;
+  border-color: transparent;
+}
+
+.ui-avatar--primary:hover:not(.ui-avatar--disabled) {
+  background-color: #1d4076;
+}
+
+.ui-avatar--secondary {
+  background-color: transparent;
+  color: #0c2340;
+  border-color: #d1d5db;
+}
+
+.ui-avatar--secondary:hover:not(.ui-avatar--disabled) {
+  background-color: rgba(12, 35, 64, 0.05);
+}
+
+.ui-avatar--outlined {
+  background-color: transparent;
+  color: #0c2340;
+  border: 1.5px solid currentColor;
+}
+
+.ui-avatar--full-width {
+  width: 100%;
+  display: flex;
+}
+
+.ui-avatar--disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+@keyframes ui-avatar-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}

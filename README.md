@@ -92,16 +92,19 @@ next package build. `npm run tokens:build` regenerates SCSS from the checked-in
 Set `FIGMA_PERSONAL_ACCESS_TOKEN` and optionally `FIGMA_FILE_KEY` (or
 `FIGMA_DESIGN_FILE_KEY`) in `.env`. The configured Figma file key in
 `.mcp/config.json` is used when neither file-key variable is set. `npm run dev`
-syncs component page names, descriptions, and preview images into
-`src/figma/components.json` on startup and every 60 seconds. This manifest sync
-is separate from the MCP WebSocket connection status. Preview images are cached
-locally under the ignored `public/figma/components/` directory; signed Figma
-image URLs are not written into the source manifest.
+syncs Figma component sets and standalone components, their variant counts, and
+preview images into `src/figma/components.json` on startup and every 60 seconds.
+The docs app displays this catalog under **Figma catalog**; Vite hot reload
+updates it when the manifest changes. Removed components are removed from the
+catalog and their cached previews are cleaned up. This manifest sync is separate
+from the MCP WebSocket connection status. Preview images are cached locally
+under the ignored `public/figma/components/` directory; signed Figma image URLs
+are not written into the source manifest.
 
-The gallery is a Figma preview/catalog, not generated React source. Figma
-changes do not create or delete files under `src/components`; update and review
-those implementation files separately. Run `npm run figma:components:sync` for
-a one-time version check, or `npm run figma:components:sync -- --force` to
+The gallery is a Figma design preview/catalog, not generated React source.
+Figma changes do not create or delete implementation files under
+`src/components`; update those separately. Run `npm run figma:components:sync`
+for a one-time version check, or `npm run figma:components:sync -- --force` to
 refresh the catalog and previews regardless of the current file version.
 
 The docs sidebar also provides a dedicated page for each exported React

@@ -1,0 +1,16 @@
+{
+  "name": "HDFC UI Components Two-Way Auto-Sync",
+  "id": "hdfc-ui-components-sync-plugin",
+  "api": "1.0.0",
+  "main": "code.js",
+  "ui": "ui.html",
+  "editorType": ["figma"],
+  "networkAccess": {
+    "allowedDomains": [
+      "http://localhost:*",
+      "ws://localhost:*",
+      "http://127.0.0.1:*",
+      "ws://127.0.0.1:*"
+    ]
+  }
+}

@@ -1,0 +1,93 @@
+/* Standalone CSS for Rating */
+.ui-rating {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+  outline: none;
+}
+
+.ui-rating__content {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ui-rating__spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: ui-rating-spin 0.75s linear infinite;
+}
+
+.ui-rating--small {
+  font-size: 13px;
+  line-height: 16px;
+  padding: 7px 11px;
+}
+
+.ui-rating--medium {
+  font-size: 14px;
+  line-height: 20px;
+  padding: 10px 16px;
+}
+
+.ui-rating--large {
+  font-size: 16px;
+  line-height: 24px;
+  padding: 13px 21px;
+}
+
+.ui-rating--primary {
+  background-color: #0c2340;
+  color: #ffffff;
+  border-color: transparent;
+}
+
+.ui-rating--primary:hover:not(.ui-rating--disabled) {
+  background-color: #1d4076;
+}
+
+.ui-rating--secondary {
+  background-color: transparent;
+  color: #0c2340;
+  border-color: #d1d5db;
+}
+
+.ui-rating--secondary:hover:not(.ui-rating--disabled) {
+  background-color: rgba(12, 35, 64, 0.05);
+}
+
+.ui-rating--outlined {
+  background-color: transparent;
+  color: #0c2340;
+  border: 1.5px solid currentColor;
+}
+
+.ui-rating--full-width {
+  width: 100%;
+  display: flex;
+}
+
+.ui-rating--disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+@keyframes ui-rating-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}

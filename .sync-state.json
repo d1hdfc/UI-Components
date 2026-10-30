@@ -1,0 +1,447 @@
+{
+  "version": "2415764404677586598",
+  "components": {
+    "1869:3729": {
+      "id": "1869:3729",
+      "name": "Partner Logo\\Payzapp",
+      "type": "COMPONENT_SET",
+      "pageName": "Logo",
+      "updatedAt": "2026-10-30T05:59:09.587Z"
+    },
+    "1869:3911": {
+      "id": "1869:3911",
+      "name": "Partner Logo\\SmartWealth",
+      "type": "COMPONENT_SET",
+      "pageName": "Logo",
+      "updatedAt": "2026-10-30T05:59:09.602Z"
+    },
+    "2143:840": {
+      "id": "2143:840",
+      "name": "Partner Logo_Master",
+      "type": "COMPONENT_SET",
+      "pageName": "Logo",
+      "updatedAt": "2026-10-30T05:59:09.611Z"
+    },
+    "3972:30799": {
+      "id": "3972:30799",
+      "name": "Button",
+      "type": "COMPONENT_SET",
+      "pageName": "Button",
+      "updatedAt": "2026-10-30T05:59:09.614Z"
+    },
+    "4129:2348": {
+      "id": "4129:2348",
+      "name": "Chips",
+      "type": "COMPONENT_SET",
+      "pageName": "Chips",
+      "updatedAt": "2026-10-30T05:59:09.617Z"
+    },
+    "4535:81329": {
+      "id": "4535:81329",
+      "name": "focus ring",
+      "type": "COMPONENT",
+      "pageName": "Focus ring",
+      "updatedAt": "2026-10-30T05:59:09.624Z"
+    },
+    "3991:3115": {
+      "id": "3991:3115",
+      "name": "Badge/size",
+      "type": "COMPONENT_SET",
+      "pageName": "Badge",
+      "updatedAt": "2026-10-30T05:59:09.633Z"
+    },
+    "3991:3173": {
+      "id": "3991:3173",
+      "name": "Badge",
+      "type": "COMPONENT_SET",
+      "pageName": "Badge",
+      "updatedAt": "2026-10-30T05:59:09.637Z"
+    },
+    "4331:381": {
+      "id": "4331:381",
+      "name": "Badge",
+      "type": "COMPONENT_SET",
+      "pageName": "Badge",
+      "updatedAt": "2026-10-30T05:59:09.639Z"
+    },
+    "3032:10171": {
+      "id": "3032:10171",
+      "name": "Color fallback",
+      "type": "COMPONENT_SET",
+      "pageName": "Avatar",
+      "updatedAt": "2026-10-30T05:59:09.647Z"
+    },
+    "3032:10175": {
+      "id": "3032:10175",
+      "name": "Status",
+      "type": "COMPONENT_SET",
+      "pageName": "Avatar",
+      "updatedAt": "2026-10-30T05:59:09.656Z"
+    },
+    "3032:10198": {
+      "id": "3032:10198",
+      "name": "Profile picture",
+      "type": "COMPONENT_SET",
+      "pageName": "Avatar",
+      "updatedAt": "2026-10-30T05:59:09.670Z"
+    },
+    "3032:10221": {
+      "id": "3032:10221",
+      "name": "Avatar",
+      "type": "COMPONENT_SET",
+      "pageName": "Avatar",
+      "updatedAt": "2026-10-30T05:59:09.673Z"
+    },
+    "3032:10251": {
+      "id": "3032:10251",
+      "name": "Style",
+      "type": "COMPONENT_SET",
+      "pageName": "Avatar",
+      "updatedAt": "2026-10-30T05:59:09.682Z"
+    },
+    "3686:42299": {
+      "id": "3686:42299",
+      "name": "Text Colour",
+      "type": "COMPONENT_SET",
+      "pageName": "Avatar",
+      "updatedAt": "2026-10-30T05:59:09.692Z"
+    },
+    "3557:23728": {
+      "id": "3557:23728",
+      "name": "tag",
+      "type": "COMPONENT_SET",
+      "pageName": "tag",
+      "updatedAt": "2026-10-30T05:59:09.694Z"
+    },
+    "3557:23721": {
+      "id": "3557:23721",
+      "name": "tag/size",
+      "type": "COMPONENT_SET",
+      "pageName": "tag",
+      "updatedAt": "2026-10-30T05:59:09.705Z"
+    },
+    "4205:22967": {
+      "id": "4205:22967",
+      "name": "Checkbox",
+      "type": "COMPONENT_SET",
+      "pageName": "Controls",
+      "updatedAt": "2026-10-30T05:59:09.708Z"
+    },
+    "4205:23025": {
+      "id": "4205:23025",
+      "name": "Toggle",
+      "type": "COMPONENT_SET",
+      "pageName": "Controls",
+      "updatedAt": "2026-10-30T05:59:09.718Z"
+    },
+    "4205:23059": {
+      "id": "4205:23059",
+      "name": "Radio",
+      "type": "COMPONENT_SET",
+      "pageName": "Controls",
+      "updatedAt": "2026-10-30T05:59:09.721Z"
+    },
+    "4205:23093": {
+      "id": "4205:23093",
+      "name": "Controls",
+      "type": "COMPONENT_SET",
+      "pageName": "Controls",
+      "updatedAt": "2026-10-30T05:59:09.735Z"
+    },
+    "4201:21995": {
+      "id": "4201:21995",
+      "name": "Rating-base",
+      "type": "COMPONENT_SET",
+      "pageName": "Rating",
+      "updatedAt": "2026-10-30T05:59:09.744Z"
+    },
+    "4201:22017": {
+      "id": "4201:22017",
+      "name": "Ratings",
+      "type": "COMPONENT_SET",
+      "pageName": "Rating",
+      "updatedAt": "2026-10-30T05:59:09.753Z"
+    },
+    "3557:23145": {
+      "id": "3557:23145",
+      "name": "Progress-bar/circular",
+      "type": "COMPONENT_SET",
+      "pageName": "Progress bar",
+      "updatedAt": "2026-10-30T05:59:09.767Z"
+    },
+    "3557:23132": {
+      "id": "3557:23132",
+      "name": "Progress-bar/linear",
+      "type": "COMPONENT_SET",
+      "pageName": "Progress bar",
+      "updatedAt": "2026-10-30T05:59:09.778Z"
+    },
+    "3557:23311": {
+      "id": "3557:23311",
+      "name": "Pagination",
+      "type": "COMPONENT_SET",
+      "pageName": "Pagination",
+      "updatedAt": "2026-10-30T05:59:09.780Z"
+    },
+    "2690:3262": {
+      "id": "2690:3262",
+      "name": "Seperator",
+      "type": "COMPONENT_SET",
+      "pageName": "seperator",
+      "updatedAt": "2026-10-30T05:59:09.793Z"
+    },
+    "4235:1824": {
+      "id": "4235:1824",
+      "name": "Toast",
+      "type": "COMPONENT_SET",
+      "pageName": "Toast",
+      "updatedAt": "2026-10-30T05:59:09.796Z"
+    },
+    "3242:4332": {
+      "id": "3242:4332",
+      "name": "Grabber",
+      "type": "COMPONENT",
+      "pageName": "bottomsheet",
+      "updatedAt": "2026-10-30T05:59:09.809Z"
+    },
+    "3242:4397": {
+      "id": "3242:4397",
+      "name": "Carousel hook",
+      "type": "COMPONENT",
+      "pageName": "bottomsheet",
+      "updatedAt": "2026-10-30T05:59:09.818Z"
+    },
+    "3287:20482": {
+      "id": "3287:20482",
+      "name": "header",
+      "type": "COMPONENT_SET",
+      "pageName": "bottomsheet",
+      "updatedAt": "2026-10-30T05:59:09.827Z"
+    },
+    "3317:5765": {
+      "id": "3317:5765",
+      "name": "Grabber Notch",
+      "type": "COMPONENT",
+      "pageName": "bottomsheet",
+      "updatedAt": "2026-10-30T05:59:09.836Z"
+    },
+    "3125:4299": {
+      "id": "3125:4299",
+      "name": "bottomsheet",
+      "type": "COMPONENT",
+      "pageName": "bottomsheet",
+      "updatedAt": "2026-10-30T05:59:09.845Z"
+    },
+    "3346:30606": {
+      "id": "3346:30606",
+      "name": "Slot Block",
+      "type": "COMPONENT",
+      "pageName": "bottomsheet",
+      "updatedAt": "2026-10-30T05:59:09.856Z"
+    },
+    "3357:34111": {
+      "id": "3357:34111",
+      "name": "bottomsheet footer",
+      "type": "COMPONENT_SET",
+      "pageName": "bottomsheet",
+      "updatedAt": "2026-10-30T05:59:09.865Z"
+    },
+    "3555:22871": {
+      "id": "3555:22871",
+      "name": "Status Bar",
+      "type": "COMPONENT",
+      "pageName": "status bar / browser",
+      "updatedAt": "2026-10-30T05:59:09.867Z"
+    },
+    "3555:22878": {
+      "id": "3555:22878",
+      "name": "Browser",
+      "type": "COMPONENT_SET",
+      "pageName": "status bar / browser",
+      "updatedAt": "2026-10-30T05:59:09.877Z"
+    },
+    "3555:23068": {
+      "id": "3555:23068",
+      "name": "Browser+StatusBar",
+      "type": "COMPONENT",
+      "pageName": "status bar / browser",
+      "updatedAt": "2026-10-30T05:59:09.890Z"
+    },
+    "4333:940": {
+      "id": "4333:940",
+      "name": "Browser",
+      "type": "COMPONENT_SET",
+      "pageName": "status bar / browser",
+      "updatedAt": "2026-10-30T05:59:09.892Z"
+    },
+    "3612:11467": {
+      "id": "3612:11467",
+      "name": "Card/Component Placeholder",
+      "type": "COMPONENT",
+      "pageName": "Card",
+      "updatedAt": "2026-10-30T05:59:09.910Z"
+    },
+    "3612:11469": {
+      "id": "3612:11469",
+      "name": "Card",
+      "type": "COMPONENT_SET",
+      "pageName": "Card",
+      "updatedAt": "2026-10-30T05:59:09.912Z"
+    },
+    "4242:28824": {
+      "id": "4242:28824",
+      "name": "Tooltip",
+      "type": "COMPONENT_SET",
+      "pageName": "Tooltip",
+      "updatedAt": "2026-10-30T05:59:09.914Z"
+    },
+    "3612:11390": {
+      "id": "3612:11390",
+      "name": "Snackbar",
+      "type": "COMPONENT_SET",
+      "pageName": "Snackbar",
+      "updatedAt": "2026-10-30T05:59:09.917Z"
+    },
+    "4276:19478": {
+      "id": "4276:19478",
+      "name": "Input Field",
+      "type": "COMPONENT_SET",
+      "pageName": "Testing",
+      "updatedAt": "2026-10-30T05:59:09.925Z"
+    },
+    "4276:44675": {
+      "id": "4276:44675",
+      "name": "Input Field",
+      "type": "COMPONENT_SET",
+      "pageName": "Testing",
+      "updatedAt": "2026-10-30T05:59:09.928Z"
+    },
+    "2011:26574": {
+      "id": "2011:26574",
+      "name": "Cover-card",
+      "type": "COMPONENT",
+      "pageName": "Components",
+      "updatedAt": "2026-10-30T05:59:09.936Z"
+    },
+    "2216:2270": {
+      "id": "2216:2270",
+      "name": "Badge",
+      "type": "COMPONENT_SET",
+      "pageName": "Components",
+      "updatedAt": "2026-10-30T05:59:09.938Z"
+    },
+    "1379:1073": {
+      "id": "1379:1073",
+      "name": "Usage_guidelines_tag",
+      "type": "COMPONENT",
+      "pageName": "Components",
+      "updatedAt": "2026-10-30T05:59:09.949Z"
+    },
+    "1379:1067": {
+      "id": "1379:1067",
+      "name": "Usage_guideline_tag",
+      "type": "COMPONENT",
+      "pageName": "Components",
+      "updatedAt": "2026-10-30T05:59:09.959Z"
+    },
+    "1486:1544": {
+      "id": "1486:1544",
+      "name": "Footer_hyperlink",
+      "type": "COMPONENT",
+      "pageName": "Components",
+      "updatedAt": "2026-10-30T05:59:09.969Z"
+    },
+    "1486:1351": {
+      "id": "1486:1351",
+      "name": "Footer_down",
+      "type": "COMPONENT",
+      "pageName": "Components",
+      "updatedAt": "2026-10-30T05:59:09.979Z"
+    },
+    "2228:3754": {
+      "id": "2228:3754",
+      "name": "Label",
+      "type": "COMPONENT",
+      "pageName": "Components",
+      "updatedAt": "2026-10-30T05:59:09.989Z"
+    },
+    "2228:4144": {
+      "id": "2228:4144",
+      "name": "Text Item",
+      "type": "COMPONENT",
+      "pageName": "Components",
+      "updatedAt": "2026-10-30T05:59:09.999Z"
+    },
+    "1112:23398": {
+      "id": "1112:23398",
+      "name": "Container",
+      "type": "COMPONENT",
+      "pageName": "Components",
+      "updatedAt": "2026-10-30T05:59:10.009Z"
+    },
+    "262:1055": {
+      "id": "262:1055",
+      "name": ".Color_ramp_card",
+      "type": "COMPONENT",
+      "pageName": "Components",
+      "updatedAt": "2026-10-30T05:59:10.017Z"
+    },
+    "447:4202": {
+      "id": "447:4202",
+      "name": "Compliance",
+      "type": "COMPONENT",
+      "pageName": "Components",
+      "updatedAt": "2026-10-30T05:59:10.031Z"
+    },
+    "1005:1919": {
+      "id": "1005:1919",
+      "name": "alias_roles",
+      "type": "COMPONENT",
+      "pageName": "Components",
+      "updatedAt": "2026-10-30T05:59:10.040Z"
+    },
+    "999:1843": {
+      "id": "999:1843",
+      "name": "color_roles",
+      "type": "COMPONENT",
+      "pageName": "Components",
+      "updatedAt": "2026-10-30T05:59:10.125Z"
+    },
+    "3604:39265": {
+      "id": "3604:39265",
+      "name": "thumbnail_header",
+      "type": "COMPONENT",
+      "pageName": "Components",
+      "updatedAt": "2026-10-30T05:59:10.134Z"
+    },
+    "3811:25706": {
+      "id": "3811:25706",
+      "name": "Token_name",
+      "type": "COMPONENT",
+      "pageName": "Components",
+      "updatedAt": "2026-10-30T05:59:10.141Z"
+    },
+    "3811:25696": {
+      "id": "3811:25696",
+      "name": "Token_name_pill",
+      "type": "COMPONENT",
+      "pageName": "Components",
+      "updatedAt": "2026-10-30T05:59:10.150Z"
+    },
+    "3820:28368": {
+      "id": "3820:28368",
+      "name": "Usage_guidelines_tag",
+      "type": "COMPONENT",
+      "pageName": "Components",
+      "updatedAt": "2026-10-30T05:59:10.152Z"
+    },
+    "1180:2361": {
+      "id": "1180:2361",
+      "name": "Color Role",
+      "type": "COMPONENT",
+      "pageName": "Components",
+      "updatedAt": "2026-10-30T05:59:10.161Z"
+    }
+  },
+  "lastSync": "2026-10-30T05:59:10.161Z"
+}

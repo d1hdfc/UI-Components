@@ -7,10 +7,16 @@ type FigmaNode = {
   name: string;
   type: string;
   children?: FigmaNode[];
-  absoluteBoundingBox?: {
-    width: number;
-    height: number;
-  };
+};
+
+type FigmaComponentEntry = {
+  key: string;
+  name: string;
+  pageName: string;
+  description: string;
+  nodeId: string;
+  type: 'COMPONENT' | 'COMPONENT_SET';
+  thumbnailUrl: string;
 };
 
 type FigmaFile = {
@@ -34,24 +40,19 @@ type SyncConfig = {
   };
 };
 
-type FigmaComponentEntry = {
-  key: string;
-  name: string;
-  description: string;
-  nodeId: string;
-  thumbnailUrl: string;
-};
-
 type FigmaComponentCatalog = {
   fileKey: string;
   version: string;
   components: FigmaComponentEntry[];
 };
 
+type FigmaComponentCandidate = Omit<FigmaComponentEntry, 'thumbnailUrl'>;
+
 const syncIntervalMs = 60_000;
 const configPath = path.join(process.cwd(), '.mcp', 'config.json');
 const outputPath = path.join(process.cwd(), 'src', 'figma', 'components.json');
 const previewDirectory = path.join(process.cwd(), 'public', 'figma', 'components');
+const imageBatchSize = 50;
 
 function getFileKey(): string {
   const config = JSON.parse(fs.readFileSync(configPath, 'utf8')) as SyncConfig;
@@ -86,34 +87,35 @@ async function fetchFigmaJson<T>(url: string, token: string): Promise<T> {
   return response.json() as Promise<T>;
 }
 
-function summarizePage(page: FigmaNode): {
-  componentCount: number;
-  componentSetCount: number;
-  previewNodeId: string;
-} {
-  let componentCount = 0;
-  let componentSetCount = 0;
-  let largestComponentNodeId = '';
-  let largestComponentArea = 0;
-  let largestComponentSetNodeId = '';
-  let largestComponentSetArea = 0;
+function collectComponents(page: FigmaNode): FigmaComponentCandidate[] {
+  const components: FigmaComponentCandidate[] = [];
 
   const visit = (node: FigmaNode) => {
     if (node.type === 'INSTANCE') return;
 
-    const area = (node.absoluteBoundingBox?.width ?? 0) * (node.absoluteBoundingBox?.height ?? 0);
+    if (node.type === 'COMPONENT_SET') {
+      const variantCount = node.children?.filter((child) => child.type === 'COMPONENT').length ?? 0;
+      components.push({
+        key: node.id,
+        name: node.name,
+        pageName: page.name,
+        description: `${variantCount} variants`,
+        nodeId: node.id,
+        type: 'COMPONENT_SET'
+      });
+      return;
+    }
+
     if (node.type === 'COMPONENT') {
-      componentCount += 1;
-      if (area > largestComponentArea) {
-        largestComponentNodeId = node.id;
-        largestComponentArea = area;
-      }
-    } else if (node.type === 'COMPONENT_SET') {
-      componentSetCount += 1;
-      if (area > largestComponentSetArea) {
-        largestComponentSetNodeId = node.id;
-        largestComponentSetArea = area;
-      }
+      components.push({
+        key: node.id,
+        name: node.name,
+        pageName: page.name,
+        description: 'Component',
+        nodeId: node.id,
+        type: 'COMPONENT'
+      });
+      return;
     }
 
     for (const child of node.children ?? []) {
@@ -125,11 +127,23 @@ function summarizePage(page: FigmaNode): {
     visit(child);
   }
 
-  return {
-    componentCount,
-    componentSetCount,
-    previewNodeId: largestComponentSetNodeId || largestComponentNodeId
-  };
+  return components;
+}
+
+async function fetchPreviews(fileKey: string, nodeIds: string[], token: string): Promise<Record<string, string | null>> {
+  const batches: string[][] = [];
+  for (let index = 0; index < nodeIds.length; index += imageBatchSize) {
+    batches.push(nodeIds.slice(index, index + imageBatchSize));
+  }
+
+  const responses = await Promise.all(batches.map((batch) =>
+    fetchFigmaJson<FigmaImages>(
+      `https://api.figma.com/v1/images/${encodeURIComponent(fileKey)}?ids=${batch.map(encodeURIComponent).join(',')}&format=png&scale=0.5`,
+      token
+    )
+  ));
+
+  return Object.assign({}, ...responses.map((response) => response.images ?? {}));
 }
 
 async function syncComponents(fileKey: string, token: string, force = false): Promise<void> {
@@ -146,7 +160,9 @@ async function syncComponents(fileKey: string, token: string, force = false): Pr
     ? (JSON.parse(fs.readFileSync(outputPath, 'utf8')) as Partial<FigmaComponentCatalog>)
     : undefined;
   const previewsAreLocal = previousCatalog?.components?.every((component) =>
-    component.thumbnailUrl.startsWith('/figma/components/')
+    component.thumbnailUrl.startsWith('/figma/components/') &&
+    (component.type === 'COMPONENT' || component.type === 'COMPONENT_SET') &&
+    typeof component.pageName === 'string'
   );
   if (
     !force &&
@@ -168,27 +184,19 @@ async function syncComponents(fileKey: string, token: string, force = false): Pr
 
   const components = pages
     .filter((page) => page.type === 'CANVAS')
-    .map((page) => ({ page, summary: summarizePage(page) }))
-    .filter(({ summary }) => summary.componentCount + summary.componentSetCount > 0);
-
-  const previewNodeIds = components.map(({ summary }) => summary.previewNodeId).filter(Boolean);
-  const previews = previewNodeIds.length > 0
-    ? await fetchFigmaJson<FigmaImages>(
-      `https://api.figma.com/v1/images/${encodeURIComponent(fileKey)}?ids=${previewNodeIds.map(encodeURIComponent).join(',')}&format=png&scale=0.25`,
-      token
-    )
-    : { images: {} };
+    .flatMap((page) => collectComponents(page));
+  const previews = await fetchPreviews(fileKey, components.map((component) => component.nodeId), token);
 
   fs.mkdirSync(previewDirectory, { recursive: true });
-  const entries = await Promise.all(components.map(async ({ page, summary }) => {
-    const previewUrl = summary.previewNodeId ? previews.images?.[summary.previewNodeId] : undefined;
-    const safeNodeId = page.id.replace(/[^a-zA-Z0-9_-]/g, '-');
+  const entries = await Promise.all(components.map(async (component) => {
+    const previewUrl = previews[component.nodeId];
+    const safeNodeId = component.nodeId.replace(/[^a-zA-Z0-9_-]/g, '-');
     let thumbnailUrl = '';
 
     if (previewUrl) {
       const response = await fetch(previewUrl);
       if (!response.ok) {
-        throw new Error(`Figma preview download failed (${response.status} ${response.statusText}) for "${page.name}".`);
+        throw new Error(`Figma preview download failed (${response.status} ${response.statusText}) for "${component.name}".`);
       }
 
       fs.writeFileSync(path.join(previewDirectory, `${safeNodeId}.png`), Buffer.from(await response.arrayBuffer()));
@@ -196,15 +204,12 @@ async function syncComponents(fileKey: string, token: string, force = false): Pr
     }
 
     return {
-      key: page.id,
-      name: page.name,
-      description: `${summary.componentCount} components · ${summary.componentSetCount} component sets`,
-      nodeId: page.id,
+      ...component,
       thumbnailUrl
     };
   }));
 
-  const currentKeys = new Set(components.map(({ page }) => page.id));
+  const currentKeys = new Set(components.map((component) => component.key));
   const previousComponents = previousCatalog?.components ?? [];
   for (const component of previousComponents) {
     if (!currentKeys.has(component.key) && component.thumbnailUrl.startsWith('/figma/components/')) {
@@ -220,7 +225,7 @@ async function syncComponents(fileKey: string, token: string, force = false): Pr
 
   fs.mkdirSync(path.dirname(outputPath), { recursive: true });
   fs.writeFileSync(outputPath, `${JSON.stringify(catalog, null, 2)}\n`, 'utf8');
-  console.log(`Synced ${catalog.components.length} component pages from ${file.name} to ${outputPath}`);
+  console.log(`Synced ${catalog.components.length} components from ${file.name} to ${outputPath}`);
 }
 
 async function main(): Promise<void> {

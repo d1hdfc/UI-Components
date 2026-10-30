@@ -1,0 +1,93 @@
+/* Standalone CSS for Container */
+.ui-container {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+  outline: none;
+}
+
+.ui-container__content {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ui-container__spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: ui-container-spin 0.75s linear infinite;
+}
+
+.ui-container--small {
+  font-size: 13px;
+  line-height: 16px;
+  padding: 31px 31px;
+}
+
+.ui-container--medium {
+  font-size: 14px;
+  line-height: 20px;
+  padding: 44px 44px;
+}
+
+.ui-container--large {
+  font-size: 16px;
+  line-height: 24px;
+  padding: 57px 57px;
+}
+
+.ui-container--primary {
+  background-color: #0c2340;
+  color: #ffffff;
+  border-color: transparent;
+}
+
+.ui-container--primary:hover:not(.ui-container--disabled) {
+  background-color: #1d4076;
+}
+
+.ui-container--secondary {
+  background-color: transparent;
+  color: #0c2340;
+  border-color: #d1d5db;
+}
+
+.ui-container--secondary:hover:not(.ui-container--disabled) {
+  background-color: rgba(12, 35, 64, 0.05);
+}
+
+.ui-container--outlined {
+  background-color: transparent;
+  color: #0c2340;
+  border: 1.5px solid currentColor;
+}
+
+.ui-container--full-width {
+  width: 100%;
+  display: flex;
+}
+
+.ui-container--disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+@keyframes ui-container-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}

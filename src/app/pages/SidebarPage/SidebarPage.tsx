@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
+import { componentDocumentation } from '../ComponentPage/componentRegistry';
 import './SidebarPage.scss';
 
 const componentLinks = [
-  { slug: 'button', name: 'Button' },
-  { slug: 'textfield', name: 'Text field' },
-  { slug: 'textarea', name: 'Text area' }
+  ...componentDocumentation.map(({ routeSlug, title }) => ({ slug: routeSlug, name: title })),
+  { slug: 'figma-components', name: 'Figma catalog' }
 ];
 
 export function SidebarPage({ currentPage }: { currentPage: string }) {

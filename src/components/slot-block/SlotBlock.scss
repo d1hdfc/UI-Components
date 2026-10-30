@@ -1,0 +1,108 @@
+@use 'sass:color';
+
+.ui-slot-block {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-sizing: border-box;
+  font-family: inherit;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+  outline: none;
+
+  &__content {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  &__spinner {
+    width: 14px;
+    height: 14px;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: ui-slot-block-spin 0.75s linear infinite;
+  }
+
+  &--small {
+    font-size: 13px;
+    line-height: 16px;
+    padding: 7px 11px;
+  }
+
+  &--medium {
+    font-size: 14px;
+    line-height: 20px;
+    padding: 10px 16px;
+  }
+
+  &--large {
+    font-size: 16px;
+    line-height: 24px;
+    padding: 13px 21px;
+  }
+
+  &--primary {
+    background-color: var(--color-interactive-primary, #0c2340);
+    color: #ffffff;
+    border-color: transparent;
+
+    &:hover:not(.ui-slot-block--disabled) {
+      background-color: var(--color-interactive-primary-hover, #1d4076);
+    }
+  }
+
+  &--secondary {
+    background-color: transparent;
+    color: var(--color-interactive-primary, #0c2340);
+    border-color: var(--color-border-subtle, #d1d5db);
+
+    &:hover:not(.ui-slot-block--disabled) {
+      background-color: rgba(12, 35, 64, 0.05);
+    }
+  }
+
+  &--tertiary {
+    background-color: transparent;
+    color: var(--color-interactive-primary, #0c2340);
+    border-color: transparent;
+
+    &:hover:not(.ui-slot-block--disabled) {
+      background-color: rgba(12, 35, 64, 0.08);
+    }
+  }
+
+  &--outlined {
+    background-color: transparent;
+    color: var(--color-interactive-primary, #0c2340);
+    border: 1.5px solid currentColor;
+
+    &:hover:not(.ui-slot-block--disabled) {
+      background-color: rgba(12, 35, 64, 0.05);
+    }
+  }
+
+  &--full-width {
+    width: 100%;
+    display: flex;
+  }
+
+  &--disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+}
+
+@keyframes ui-slot-block-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
