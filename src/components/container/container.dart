@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum UIContainerVariant { primary, secondary, tertiary, outlined }
+enum UIContainerVariant { primary, secondary, tertiary }
 enum UIContainerSize { small, medium, large }
 
 /// Auto-generated Flutter widget for [Container] from Figma.
@@ -18,7 +18,7 @@ class UIContainer extends StatelessWidget {
 
   const UIContainer({
     Key? key,
-    this.label = 'Component',
+    this.label = 'Container',
     this.child,
     this.onPressed,
     this.variant = UIContainerVariant.primary,
@@ -33,12 +33,12 @@ class UIContainer extends StatelessWidget {
   EdgeInsets _getPadding() {
     switch (size) {
       case UIContainerSize.small:
-        return const EdgeInsets.symmetric(horizontal: 31, vertical: 31);
+        return const EdgeInsets.symmetric(horizontal: 11, vertical: 7);
       case UIContainerSize.large:
-        return const EdgeInsets.symmetric(horizontal: 57, vertical: 57);
+        return const EdgeInsets.symmetric(horizontal: 21, vertical: 13);
       case UIContainerSize.medium:
       default:
-        return const EdgeInsets.symmetric(horizontal: 44.0, vertical: 44.0);
+        return const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0);
     }
   }
 

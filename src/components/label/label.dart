@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum UILabelVariant { primary, secondary, tertiary, outlined }
+enum UILabelVariant { primary, secondary, tertiary }
 enum UILabelSize { small, medium, large }
 
 /// Auto-generated Flutter widget for [Label] from Figma.
@@ -18,7 +18,7 @@ class UILabel extends StatelessWidget {
 
   const UILabel({
     Key? key,
-    this.label = 'Component',
+    this.label = 'Label',
     this.child,
     this.onPressed,
     this.variant = UILabelVariant.primary,

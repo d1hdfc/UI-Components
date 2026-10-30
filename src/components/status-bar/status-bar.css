@@ -1,7 +1,7 @@
 /* Standalone CSS for StatusBar */
 .ui-status-bar {
   display: inline-flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
   justify-content: center;
   gap: 8px;
@@ -35,19 +35,19 @@
 .ui-status-bar--small {
   font-size: 13px;
   line-height: 16px;
-  padding: 6px 14px;
+  padding: 7px 11px;
 }
 
 .ui-status-bar--medium {
   font-size: 14px;
   line-height: 20px;
-  padding: 8px 20px;
+  padding: 10px 16px;
 }
 
 .ui-status-bar--large {
   font-size: 16px;
   line-height: 24px;
-  padding: 10px 26px;
+  padding: 13px 21px;
 }
 
 .ui-status-bar--primary {

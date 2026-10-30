@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum UIBottomsheetFooterVariant { primary, secondary, tertiary, outlined }
+enum UIBottomsheetFooterVariant { primary, secondary, tertiary }
 enum UIBottomsheetFooterSize { small, medium, large }
 
 /// Auto-generated Flutter widget for [BottomsheetFooter] from Figma.
@@ -18,7 +18,7 @@ class UIBottomsheetFooter extends StatelessWidget {
 
   const UIBottomsheetFooter({
     Key? key,
-    this.label = 'Component',
+    this.label = 'BottomsheetFooter',
     this.child,
     this.onPressed,
     this.variant = UIBottomsheetFooterVariant.primary,
@@ -107,15 +107,15 @@ class UIBottomsheetFooter extends StatelessWidget {
       opacity: effectiveEnabled ? 1.0 : 0.5,
       child: Material(
         color: _getBackgroundColor(context),
-        borderRadius: BorderRadius.circular(5.0),
+        borderRadius: BorderRadius.circular(8.0),
         child: InkWell(
           onTap: effectiveEnabled ? onPressed : null,
-          borderRadius: BorderRadius.circular(5.0),
+          borderRadius: BorderRadius.circular(8.0),
           child: Container(
             padding: _getPadding(),
             decoration: BoxDecoration(
               border: Border.fromBorderSide(_getBorderSide(context)),
-              borderRadius: BorderRadius.circular(5.0),
+              borderRadius: BorderRadius.circular(8.0),
             ),
             child: content,
           ),

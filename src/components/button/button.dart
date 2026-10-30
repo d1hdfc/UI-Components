@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-enum UIButtonVariant { primary, secondary, tertiary, outlined, link, default, icon }
-enum UIButtonSize { small, medium, large, xsmall }
+enum UIButtonVariant { primary, secondary, tertiary }
+enum UIButtonSize { small, medium, large }
 
 /// Auto-generated Flutter widget for [Button] from Figma.
 class UIButton extends StatelessWidget {
@@ -107,15 +107,15 @@ class UIButton extends StatelessWidget {
       opacity: effectiveEnabled ? 1.0 : 0.5,
       child: Material(
         color: _getBackgroundColor(context),
-        borderRadius: BorderRadius.circular(5.0),
+        borderRadius: BorderRadius.circular(8.0),
         child: InkWell(
           onTap: effectiveEnabled ? onPressed : null,
-          borderRadius: BorderRadius.circular(5.0),
+          borderRadius: BorderRadius.circular(8.0),
           child: Container(
             padding: _getPadding(),
             decoration: BoxDecoration(
               border: Border.fromBorderSide(_getBorderSide(context)),
-              borderRadius: BorderRadius.circular(5.0),
+              borderRadius: BorderRadius.circular(8.0),
             ),
             child: content,
           ),

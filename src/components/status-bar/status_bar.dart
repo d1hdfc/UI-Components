@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum UIStatusBarVariant { primary, secondary, tertiary, outlined }
+enum UIStatusBarVariant { primary, secondary, tertiary }
 enum UIStatusBarSize { small, medium, large }
 
 /// Auto-generated Flutter widget for [StatusBar] from Figma.
@@ -18,7 +18,7 @@ class UIStatusBar extends StatelessWidget {
 
   const UIStatusBar({
     Key? key,
-    this.label = 'Component',
+    this.label = 'StatusBar',
     this.child,
     this.onPressed,
     this.variant = UIStatusBarVariant.primary,
@@ -33,12 +33,12 @@ class UIStatusBar extends StatelessWidget {
   EdgeInsets _getPadding() {
     switch (size) {
       case UIStatusBarSize.small:
-        return const EdgeInsets.symmetric(horizontal: 14, vertical: 6);
+        return const EdgeInsets.symmetric(horizontal: 11, vertical: 7);
       case UIStatusBarSize.large:
-        return const EdgeInsets.symmetric(horizontal: 26, vertical: 10);
+        return const EdgeInsets.symmetric(horizontal: 21, vertical: 13);
       case UIStatusBarSize.medium:
       default:
-        return const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0);
+        return const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0);
     }
   }
 

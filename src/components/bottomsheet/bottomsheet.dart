@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum UIBottomsheetVariant { primary, secondary, tertiary, outlined }
+enum UIBottomsheetVariant { primary, secondary, tertiary }
 enum UIBottomsheetSize { small, medium, large }
 
 /// Auto-generated Flutter widget for [Bottomsheet] from Figma.
@@ -18,7 +18,7 @@ class UIBottomsheet extends StatelessWidget {
 
   const UIBottomsheet({
     Key? key,
-    this.label = 'Component',
+    this.label = 'Bottomsheet',
     this.child,
     this.onPressed,
     this.variant = UIBottomsheetVariant.primary,

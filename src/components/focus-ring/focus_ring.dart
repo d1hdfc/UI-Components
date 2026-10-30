@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum UIFocusRingVariant { primary, secondary, tertiary, outlined }
+enum UIFocusRingVariant { primary, secondary, tertiary }
 enum UIFocusRingSize { small, medium, large }
 
 /// Auto-generated Flutter widget for [FocusRing] from Figma.
@@ -18,7 +18,7 @@ class UIFocusRing extends StatelessWidget {
 
   const UIFocusRing({
     Key? key,
-    this.label = 'Component',
+    this.label = 'FocusRing',
     this.child,
     this.onPressed,
     this.variant = UIFocusRingVariant.primary,

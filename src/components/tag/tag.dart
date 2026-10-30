@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum UITagVariant { primary, secondary, tertiary, outlined, success }
+enum UITagVariant { primary, secondary, tertiary }
 enum UITagSize { small, medium, large }
 
 /// Auto-generated Flutter widget for [Tag] from Figma.
@@ -18,7 +18,7 @@ class UITag extends StatelessWidget {
 
   const UITag({
     Key? key,
-    this.label = 'Component',
+    this.label = 'Tag',
     this.child,
     this.onPressed,
     this.variant = UITagVariant.primary,
@@ -107,15 +107,15 @@ class UITag extends StatelessWidget {
       opacity: effectiveEnabled ? 1.0 : 0.5,
       child: Material(
         color: _getBackgroundColor(context),
-        borderRadius: BorderRadius.circular(5.0),
+        borderRadius: BorderRadius.circular(8.0),
         child: InkWell(
           onTap: effectiveEnabled ? onPressed : null,
-          borderRadius: BorderRadius.circular(5.0),
+          borderRadius: BorderRadius.circular(8.0),
           child: Container(
             padding: _getPadding(),
             decoration: BoxDecoration(
               border: Border.fromBorderSide(_getBorderSide(context)),
-              borderRadius: BorderRadius.circular(5.0),
+              borderRadius: BorderRadius.circular(8.0),
             ),
             child: content,
           ),

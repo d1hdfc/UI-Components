@@ -1,7 +1,7 @@
 /* Standalone CSS for Container */
 .ui-container {
   display: inline-flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
   justify-content: center;
   gap: 8px;
@@ -35,19 +35,19 @@
 .ui-container--small {
   font-size: 13px;
   line-height: 16px;
-  padding: 31px 31px;
+  padding: 7px 11px;
 }
 
 .ui-container--medium {
   font-size: 14px;
   line-height: 20px;
-  padding: 44px 44px;
+  padding: 10px 16px;
 }
 
 .ui-container--large {
   font-size: 16px;
   line-height: 24px;
-  padding: 57px 57px;
+  padding: 13px 21px;
 }
 
 .ui-container--primary {

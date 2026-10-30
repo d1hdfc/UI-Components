@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum UIGrabberVariant { primary, secondary, tertiary, outlined }
+enum UIGrabberVariant { primary, secondary, tertiary }
 enum UIGrabberSize { small, medium, large }
 
 /// Auto-generated Flutter widget for [Grabber] from Figma.
@@ -18,7 +18,7 @@ class UIGrabber extends StatelessWidget {
 
   const UIGrabber({
     Key? key,
-    this.label = 'Component',
+    this.label = 'Grabber',
     this.child,
     this.onPressed,
     this.variant = UIGrabberVariant.primary,

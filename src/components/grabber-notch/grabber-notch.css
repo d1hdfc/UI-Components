@@ -1,7 +1,7 @@
 /* Standalone CSS for GrabberNotch */
 .ui-grabber-notch {
   display: inline-flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
   justify-content: center;
   gap: 8px;
@@ -35,19 +35,19 @@
 .ui-grabber-notch--small {
   font-size: 13px;
   line-height: 16px;
-  padding: 8px 11px;
+  padding: 7px 11px;
 }
 
 .ui-grabber-notch--medium {
   font-size: 14px;
   line-height: 20px;
-  padding: 12px 16px;
+  padding: 10px 16px;
 }
 
 .ui-grabber-notch--large {
   font-size: 16px;
   line-height: 24px;
-  padding: 16px 21px;
+  padding: 13px 21px;
 }
 
 .ui-grabber-notch--primary {

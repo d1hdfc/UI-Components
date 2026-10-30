@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum UIStyleVariant { primary, secondary, tertiary, outlined }
+enum UIStyleVariant { primary, secondary, tertiary }
 enum UIStyleSize { small, medium, large }
 
 /// Auto-generated Flutter widget for [Style] from Figma.
@@ -18,7 +18,7 @@ class UIStyle extends StatelessWidget {
 
   const UIStyle({
     Key? key,
-    this.label = 'Component',
+    this.label = 'Style',
     this.child,
     this.onPressed,
     this.variant = UIStyleVariant.primary,
@@ -33,12 +33,12 @@ class UIStyle extends StatelessWidget {
   EdgeInsets _getPadding() {
     switch (size) {
       case UIStyleSize.small:
-        return const EdgeInsets.symmetric(horizontal: 8, vertical: 14);
+        return const EdgeInsets.symmetric(horizontal: 11, vertical: 7);
       case UIStyleSize.large:
-        return const EdgeInsets.symmetric(horizontal: 7, vertical: 26);
+        return const EdgeInsets.symmetric(horizontal: 21, vertical: 13);
       case UIStyleSize.medium:
       default:
-        return const EdgeInsets.symmetric(horizontal: 5.0, vertical: 20.0);
+        return const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0);
     }
   }
 
@@ -107,15 +107,15 @@ class UIStyle extends StatelessWidget {
       opacity: effectiveEnabled ? 1.0 : 0.5,
       child: Material(
         color: _getBackgroundColor(context),
-        borderRadius: BorderRadius.circular(5.0),
+        borderRadius: BorderRadius.circular(8.0),
         child: InkWell(
           onTap: effectiveEnabled ? onPressed : null,
-          borderRadius: BorderRadius.circular(5.0),
+          borderRadius: BorderRadius.circular(8.0),
           child: Container(
             padding: _getPadding(),
             decoration: BoxDecoration(
               border: Border.fromBorderSide(_getBorderSide(context)),
-              borderRadius: BorderRadius.circular(5.0),
+              borderRadius: BorderRadius.circular(8.0),
             ),
             child: content,
           ),

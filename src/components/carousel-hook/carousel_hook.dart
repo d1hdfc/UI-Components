@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum UICarouselHookVariant { primary, secondary, tertiary, outlined }
+enum UICarouselHookVariant { primary, secondary, tertiary }
 enum UICarouselHookSize { small, medium, large }
 
 /// Auto-generated Flutter widget for [CarouselHook] from Figma.
@@ -18,7 +18,7 @@ class UICarouselHook extends StatelessWidget {
 
   const UICarouselHook({
     Key? key,
-    this.label = 'Component',
+    this.label = 'CarouselHook',
     this.child,
     this.onPressed,
     this.variant = UICarouselHookVariant.primary,

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum UIBadgeSizeVariant { primary, secondary, tertiary, outlined }
+enum UIBadgeSizeVariant { primary, secondary, tertiary }
 enum UIBadgeSizeSize { small, medium, large }
 
 /// Auto-generated Flutter widget for [BadgeSize] from Figma.
@@ -18,7 +18,7 @@ class UIBadgeSize extends StatelessWidget {
 
   const UIBadgeSize({
     Key? key,
-    this.label = 'Badge',
+    this.label = 'BadgeSize',
     this.child,
     this.onPressed,
     this.variant = UIBadgeSizeVariant.primary,
@@ -107,15 +107,15 @@ class UIBadgeSize extends StatelessWidget {
       opacity: effectiveEnabled ? 1.0 : 0.5,
       child: Material(
         color: _getBackgroundColor(context),
-        borderRadius: BorderRadius.circular(5.0),
+        borderRadius: BorderRadius.circular(8.0),
         child: InkWell(
           onTap: effectiveEnabled ? onPressed : null,
-          borderRadius: BorderRadius.circular(5.0),
+          borderRadius: BorderRadius.circular(8.0),
           child: Container(
             padding: _getPadding(),
             decoration: BoxDecoration(
               border: Border.fromBorderSide(_getBorderSide(context)),
-              borderRadius: BorderRadius.circular(5.0),
+              borderRadius: BorderRadius.circular(8.0),
             ),
             child: content,
           ),

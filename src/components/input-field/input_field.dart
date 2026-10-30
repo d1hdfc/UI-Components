@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum UIInputFieldVariant { primary, secondary, tertiary, outlined }
+enum UIInputFieldVariant { primary, secondary, tertiary }
 enum UIInputFieldSize { small, medium, large }
 
 /// Auto-generated Flutter widget for [InputField] from Figma.
@@ -18,7 +18,7 @@ class UIInputField extends StatelessWidget {
 
   const UIInputField({
     Key? key,
-    this.label = 'Component',
+    this.label = 'InputField',
     this.child,
     this.onPressed,
     this.variant = UIInputFieldVariant.primary,
@@ -107,15 +107,15 @@ class UIInputField extends StatelessWidget {
       opacity: effectiveEnabled ? 1.0 : 0.5,
       child: Material(
         color: _getBackgroundColor(context),
-        borderRadius: BorderRadius.circular(12.0),
+        borderRadius: BorderRadius.circular(8.0),
         child: InkWell(
           onTap: effectiveEnabled ? onPressed : null,
-          borderRadius: BorderRadius.circular(12.0),
+          borderRadius: BorderRadius.circular(8.0),
           child: Container(
             padding: _getPadding(),
             decoration: BoxDecoration(
               border: Border.fromBorderSide(_getBorderSide(context)),
-              borderRadius: BorderRadius.circular(12.0),
+              borderRadius: BorderRadius.circular(8.0),
             ),
             child: content,
           ),

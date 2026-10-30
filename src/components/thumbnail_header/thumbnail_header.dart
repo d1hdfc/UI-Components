@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum UIThumbnailHeaderVariant { primary, secondary, tertiary, outlined }
+enum UIThumbnailHeaderVariant { primary, secondary, tertiary }
 enum UIThumbnailHeaderSize { small, medium, large }
 
 /// Auto-generated Flutter widget for [ThumbnailHeader] from Figma.
@@ -18,7 +18,7 @@ class UIThumbnailHeader extends StatelessWidget {
 
   const UIThumbnailHeader({
     Key? key,
-    this.label = 'Component',
+    this.label = 'ThumbnailHeader',
     this.child,
     this.onPressed,
     this.variant = UIThumbnailHeaderVariant.primary,

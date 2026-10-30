@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum UIUsageGuidelineTagVariant { primary, secondary, tertiary, outlined }
+enum UIUsageGuidelineTagVariant { primary, secondary, tertiary }
 enum UIUsageGuidelineTagSize { small, medium, large }
 
 /// Auto-generated Flutter widget for [UsageGuidelineTag] from Figma.
@@ -18,7 +18,7 @@ class UIUsageGuidelineTag extends StatelessWidget {
 
   const UIUsageGuidelineTag({
     Key? key,
-    this.label = 'Component',
+    this.label = 'UsageGuidelineTag',
     this.child,
     this.onPressed,
     this.variant = UIUsageGuidelineTagVariant.primary,
@@ -33,12 +33,12 @@ class UIUsageGuidelineTag extends StatelessWidget {
   EdgeInsets _getPadding() {
     switch (size) {
       case UIUsageGuidelineTagSize.small:
-        return const EdgeInsets.symmetric(horizontal: 8, vertical: 7);
+        return const EdgeInsets.symmetric(horizontal: 11, vertical: 7);
       case UIUsageGuidelineTagSize.large:
-        return const EdgeInsets.symmetric(horizontal: 13, vertical: 13);
+        return const EdgeInsets.symmetric(horizontal: 21, vertical: 13);
       case UIUsageGuidelineTagSize.medium:
       default:
-        return const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0);
+        return const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0);
     }
   }
 

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum UIColorFallbackVariant { primary, secondary, tertiary, outlined }
+enum UIColorFallbackVariant { primary, secondary, tertiary }
 enum UIColorFallbackSize { small, medium, large }
 
 /// Auto-generated Flutter widget for [ColorFallback] from Figma.
@@ -18,7 +18,7 @@ class UIColorFallback extends StatelessWidget {
 
   const UIColorFallback({
     Key? key,
-    this.label = 'Component',
+    this.label = 'ColorFallback',
     this.child,
     this.onPressed,
     this.variant = UIColorFallbackVariant.primary,
@@ -33,12 +33,12 @@ class UIColorFallback extends StatelessWidget {
   EdgeInsets _getPadding() {
     switch (size) {
       case UIColorFallbackSize.small:
-        return const EdgeInsets.symmetric(horizontal: 8, vertical: 7);
+        return const EdgeInsets.symmetric(horizontal: 11, vertical: 7);
       case UIColorFallbackSize.large:
-        return const EdgeInsets.symmetric(horizontal: 13, vertical: 13);
+        return const EdgeInsets.symmetric(horizontal: 21, vertical: 13);
       case UIColorFallbackSize.medium:
       default:
-        return const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0);
+        return const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0);
     }
   }
 
@@ -107,15 +107,15 @@ class UIColorFallback extends StatelessWidget {
       opacity: effectiveEnabled ? 1.0 : 0.5,
       child: Material(
         color: _getBackgroundColor(context),
-        borderRadius: BorderRadius.circular(5.0),
+        borderRadius: BorderRadius.circular(8.0),
         child: InkWell(
           onTap: effectiveEnabled ? onPressed : null,
-          borderRadius: BorderRadius.circular(5.0),
+          borderRadius: BorderRadius.circular(8.0),
           child: Container(
             padding: _getPadding(),
             decoration: BoxDecoration(
               border: Border.fromBorderSide(_getBorderSide(context)),
-              borderRadius: BorderRadius.circular(5.0),
+              borderRadius: BorderRadius.circular(8.0),
             ),
             child: content,
           ),

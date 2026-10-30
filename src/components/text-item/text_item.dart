@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum UITextItemVariant { primary, secondary, tertiary, outlined }
+enum UITextItemVariant { primary, secondary, tertiary }
 enum UITextItemSize { small, medium, large }
 
 /// Auto-generated Flutter widget for [TextItem] from Figma.
@@ -18,7 +18,7 @@ class UITextItem extends StatelessWidget {
 
   const UITextItem({
     Key? key,
-    this.label = 'Component',
+    this.label = 'TextItem',
     this.child,
     this.onPressed,
     this.variant = UITextItemVariant.primary,

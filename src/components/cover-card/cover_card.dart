@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum UICoverCardVariant { primary, secondary, tertiary, outlined }
+enum UICoverCardVariant { primary, secondary, tertiary }
 enum UICoverCardSize { small, medium, large }
 
 /// Auto-generated Flutter widget for [CoverCard] from Figma.
@@ -18,7 +18,7 @@ class UICoverCard extends StatelessWidget {
 
   const UICoverCard({
     Key? key,
-    this.label = 'Component',
+    this.label = 'CoverCard',
     this.child,
     this.onPressed,
     this.variant = UICoverCardVariant.primary,

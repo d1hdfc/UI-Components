@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum UIRadioVariant { primary, secondary, tertiary, outlined }
+enum UIRadioVariant { primary, secondary, tertiary }
 enum UIRadioSize { small, medium, large }
 
 /// Auto-generated Flutter widget for [Radio] from Figma.
@@ -18,7 +18,7 @@ class UIRadio extends StatelessWidget {
 
   const UIRadio({
     Key? key,
-    this.label = 'Component',
+    this.label = 'Radio',
     this.child,
     this.onPressed,
     this.variant = UIRadioVariant.primary,
@@ -107,15 +107,15 @@ class UIRadio extends StatelessWidget {
       opacity: effectiveEnabled ? 1.0 : 0.5,
       child: Material(
         color: _getBackgroundColor(context),
-        borderRadius: BorderRadius.circular(5.0),
+        borderRadius: BorderRadius.circular(8.0),
         child: InkWell(
           onTap: effectiveEnabled ? onPressed : null,
-          borderRadius: BorderRadius.circular(5.0),
+          borderRadius: BorderRadius.circular(8.0),
           child: Container(
             padding: _getPadding(),
             decoration: BoxDecoration(
               border: Border.fromBorderSide(_getBorderSide(context)),
-              borderRadius: BorderRadius.circular(5.0),
+              borderRadius: BorderRadius.circular(8.0),
             ),
             child: content,
           ),

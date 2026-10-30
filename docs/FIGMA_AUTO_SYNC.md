@@ -126,3 +126,4 @@ To enable real-time canvas mutations (updates and deletions on the Figma canvas 
 3. Select `scripts/figma-plugin/manifest.json`.
 4. Run the plugin **HDFC UI Components Two-Way Auto-Sync**.
 5. The plugin connects to `ws://localhost:3055`. As you edit or delete component files in VS Code, the canvas updates in real time!
+

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum UITooltipVariant { primary, secondary, tertiary, outlined }
+enum UITooltipVariant { primary, secondary, tertiary }
 enum UITooltipSize { small, medium, large }
 
 /// Auto-generated Flutter widget for [Tooltip] from Figma.
@@ -18,7 +18,7 @@ class UITooltip extends StatelessWidget {
 
   const UITooltip({
     Key? key,
-    this.label = 'Component',
+    this.label = 'Tooltip',
     this.child,
     this.onPressed,
     this.variant = UITooltipVariant.primary,

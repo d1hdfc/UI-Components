@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum UIBrowserVariant { primary, secondary, tertiary, outlined }
+enum UIBrowserVariant { primary, secondary, tertiary }
 enum UIBrowserSize { small, medium, large }
 
 /// Auto-generated Flutter widget for [Browser] from Figma.
@@ -18,7 +18,7 @@ class UIBrowser extends StatelessWidget {
 
   const UIBrowser({
     Key? key,
-    this.label = 'Component',
+    this.label = 'Browser',
     this.child,
     this.onPressed,
     this.variant = UIBrowserVariant.primary,
@@ -107,15 +107,15 @@ class UIBrowser extends StatelessWidget {
       opacity: effectiveEnabled ? 1.0 : 0.5,
       child: Material(
         color: _getBackgroundColor(context),
-        borderRadius: BorderRadius.circular(5.0),
+        borderRadius: BorderRadius.circular(8.0),
         child: InkWell(
           onTap: effectiveEnabled ? onPressed : null,
-          borderRadius: BorderRadius.circular(5.0),
+          borderRadius: BorderRadius.circular(8.0),
           child: Container(
             padding: _getPadding(),
             decoration: BoxDecoration(
               border: Border.fromBorderSide(_getBorderSide(context)),
-              borderRadius: BorderRadius.circular(5.0),
+              borderRadius: BorderRadius.circular(8.0),
             ),
             child: content,
           ),

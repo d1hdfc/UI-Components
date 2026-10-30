@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum UIBrowserStatusbarVariant { primary, secondary, tertiary, outlined }
+enum UIBrowserStatusbarVariant { primary, secondary, tertiary }
 enum UIBrowserStatusbarSize { small, medium, large }
 
 /// Auto-generated Flutter widget for [BrowserStatusbar] from Figma.
@@ -18,7 +18,7 @@ class UIBrowserStatusbar extends StatelessWidget {
 
   const UIBrowserStatusbar({
     Key? key,
-    this.label = 'Component',
+    this.label = 'BrowserStatusbar',
     this.child,
     this.onPressed,
     this.variant = UIBrowserStatusbarVariant.primary,

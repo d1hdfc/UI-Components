@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum UITokenNameVariant { primary, secondary, tertiary, outlined }
+enum UITokenNameVariant { primary, secondary, tertiary }
 enum UITokenNameSize { small, medium, large }
 
 /// Auto-generated Flutter widget for [TokenName] from Figma.
@@ -18,7 +18,7 @@ class UITokenName extends StatelessWidget {
 
   const UITokenName({
     Key? key,
-    this.label = 'Component',
+    this.label = 'TokenName',
     this.child,
     this.onPressed,
     this.variant = UITokenNameVariant.primary,

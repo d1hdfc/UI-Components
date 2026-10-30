@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum UIFooterDownVariant { primary, secondary, tertiary, outlined }
+enum UIFooterDownVariant { primary, secondary, tertiary }
 enum UIFooterDownSize { small, medium, large }
 
 /// Auto-generated Flutter widget for [FooterDown] from Figma.
@@ -18,7 +18,7 @@ class UIFooterDown extends StatelessWidget {
 
   const UIFooterDown({
     Key? key,
-    this.label = 'Component',
+    this.label = 'FooterDown',
     this.child,
     this.onPressed,
     this.variant = UIFooterDownVariant.primary,
@@ -33,12 +33,12 @@ class UIFooterDown extends StatelessWidget {
   EdgeInsets _getPadding() {
     switch (size) {
       case UIFooterDownSize.small:
-        return const EdgeInsets.symmetric(horizontal: 45, vertical: 22);
+        return const EdgeInsets.symmetric(horizontal: 11, vertical: 7);
       case UIFooterDownSize.large:
-        return const EdgeInsets.symmetric(horizontal: 83, vertical: 42);
+        return const EdgeInsets.symmetric(horizontal: 21, vertical: 13);
       case UIFooterDownSize.medium:
       default:
-        return const EdgeInsets.symmetric(horizontal: 64.0, vertical: 32.0);
+        return const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0);
     }
   }
 

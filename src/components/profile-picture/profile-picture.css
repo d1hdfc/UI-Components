@@ -1,7 +1,7 @@
 /* Standalone CSS for ProfilePicture */
 .ui-profile-picture {
   display: inline-flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
   justify-content: center;
   gap: 8px;
@@ -11,7 +11,7 @@
   text-decoration: none;
   cursor: pointer;
   border: 1px solid transparent;
-  border-radius: 5px;
+  border-radius: 8px;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   user-select: none;
   outline: none;
@@ -35,19 +35,19 @@
 .ui-profile-picture--small {
   font-size: 13px;
   line-height: 16px;
-  padding: 14px 14px;
+  padding: 7px 11px;
 }
 
 .ui-profile-picture--medium {
   font-size: 14px;
   line-height: 20px;
-  padding: 20px 20px;
+  padding: 10px 16px;
 }
 
 .ui-profile-picture--large {
   font-size: 16px;
   line-height: 24px;
-  padding: 26px 26px;
+  padding: 13px 21px;
 }
 
 .ui-profile-picture--primary {

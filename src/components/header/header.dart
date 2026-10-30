@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum UIHeaderVariant { primary, secondary, tertiary, outlined, central_aligned, left_aligned }
+enum UIHeaderVariant { primary, secondary, tertiary }
 enum UIHeaderSize { small, medium, large }
 
 /// Auto-generated Flutter widget for [Header] from Figma.
@@ -18,7 +18,7 @@ class UIHeader extends StatelessWidget {
 
   const UIHeader({
     Key? key,
-    this.label = 'Component',
+    this.label = 'Header',
     this.child,
     this.onPressed,
     this.variant = UIHeaderVariant.primary,
@@ -33,12 +33,12 @@ class UIHeader extends StatelessWidget {
   EdgeInsets _getPadding() {
     switch (size) {
       case UIHeaderSize.small:
-        return const EdgeInsets.symmetric(horizontal: 8, vertical: 7);
+        return const EdgeInsets.symmetric(horizontal: 11, vertical: 7);
       case UIHeaderSize.large:
-        return const EdgeInsets.symmetric(horizontal: 13, vertical: 13);
+        return const EdgeInsets.symmetric(horizontal: 21, vertical: 13);
       case UIHeaderSize.medium:
       default:
-        return const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0);
+        return const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0);
     }
   }
 
@@ -107,15 +107,15 @@ class UIHeader extends StatelessWidget {
       opacity: effectiveEnabled ? 1.0 : 0.5,
       child: Material(
         color: _getBackgroundColor(context),
-        borderRadius: BorderRadius.circular(5.0),
+        borderRadius: BorderRadius.circular(8.0),
         child: InkWell(
           onTap: effectiveEnabled ? onPressed : null,
-          borderRadius: BorderRadius.circular(5.0),
+          borderRadius: BorderRadius.circular(8.0),
           child: Container(
             padding: _getPadding(),
             decoration: BoxDecoration(
               border: Border.fromBorderSide(_getBorderSide(context)),
-              borderRadius: BorderRadius.circular(5.0),
+              borderRadius: BorderRadius.circular(8.0),
             ),
             child: content,
           ),

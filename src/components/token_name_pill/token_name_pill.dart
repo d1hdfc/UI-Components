@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum UITokenNamePillVariant { primary, secondary, tertiary, outlined }
+enum UITokenNamePillVariant { primary, secondary, tertiary }
 enum UITokenNamePillSize { small, medium, large }
 
 /// Auto-generated Flutter widget for [TokenNamePill] from Figma.
@@ -18,7 +18,7 @@ class UITokenNamePill extends StatelessWidget {
 
   const UITokenNamePill({
     Key? key,
-    this.label = 'input-field/text-color/placeholder',
+    this.label = 'TokenNamePill',
     this.child,
     this.onPressed,
     this.variant = UITokenNamePillVariant.primary,
@@ -33,12 +33,12 @@ class UITokenNamePill extends StatelessWidget {
   EdgeInsets _getPadding() {
     switch (size) {
       case UITokenNamePillSize.small:
-        return const EdgeInsets.symmetric(horizontal: 8, vertical: 4);
+        return const EdgeInsets.symmetric(horizontal: 11, vertical: 7);
       case UITokenNamePillSize.large:
-        return const EdgeInsets.symmetric(horizontal: 16, vertical: 5);
+        return const EdgeInsets.symmetric(horizontal: 21, vertical: 13);
       case UITokenNamePillSize.medium:
       default:
-        return const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0);
+        return const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0);
     }
   }
 

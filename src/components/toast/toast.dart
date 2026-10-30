@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum UIToastVariant { primary, secondary, tertiary, outlined, warning }
+enum UIToastVariant { primary, secondary, tertiary }
 enum UIToastSize { small, medium, large }
 
 /// Auto-generated Flutter widget for [Toast] from Figma.
@@ -18,7 +18,7 @@ class UIToast extends StatelessWidget {
 
   const UIToast({
     Key? key,
-    this.label = 'Component',
+    this.label = 'Toast',
     this.child,
     this.onPressed,
     this.variant = UIToastVariant.primary,
@@ -107,15 +107,15 @@ class UIToast extends StatelessWidget {
       opacity: effectiveEnabled ? 1.0 : 0.5,
       child: Material(
         color: _getBackgroundColor(context),
-        borderRadius: BorderRadius.circular(5.0),
+        borderRadius: BorderRadius.circular(8.0),
         child: InkWell(
           onTap: effectiveEnabled ? onPressed : null,
-          borderRadius: BorderRadius.circular(5.0),
+          borderRadius: BorderRadius.circular(8.0),
           child: Container(
             padding: _getPadding(),
             decoration: BoxDecoration(
               border: Border.fromBorderSide(_getBorderSide(context)),
-              borderRadius: BorderRadius.circular(5.0),
+              borderRadius: BorderRadius.circular(8.0),
             ),
             child: content,
           ),

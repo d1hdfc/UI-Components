@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum UIGrabberNotchVariant { primary, secondary, tertiary, outlined }
+enum UIGrabberNotchVariant { primary, secondary, tertiary }
 enum UIGrabberNotchSize { small, medium, large }
 
 /// Auto-generated Flutter widget for [GrabberNotch] from Figma.
@@ -18,7 +18,7 @@ class UIGrabberNotch extends StatelessWidget {
 
   const UIGrabberNotch({
     Key? key,
-    this.label = 'Component',
+    this.label = 'GrabberNotch',
     this.child,
     this.onPressed,
     this.variant = UIGrabberNotchVariant.primary,
@@ -33,12 +33,12 @@ class UIGrabberNotch extends StatelessWidget {
   EdgeInsets _getPadding() {
     switch (size) {
       case UIGrabberNotchSize.small:
-        return const EdgeInsets.symmetric(horizontal: 11, vertical: 8);
+        return const EdgeInsets.symmetric(horizontal: 11, vertical: 7);
       case UIGrabberNotchSize.large:
-        return const EdgeInsets.symmetric(horizontal: 21, vertical: 16);
+        return const EdgeInsets.symmetric(horizontal: 21, vertical: 13);
       case UIGrabberNotchSize.medium:
       default:
-        return const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0);
+        return const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0);
     }
   }
 

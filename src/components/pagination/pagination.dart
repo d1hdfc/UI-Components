@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum UIPaginationVariant { primary, secondary, tertiary, outlined }
+enum UIPaginationVariant { primary, secondary, tertiary }
 enum UIPaginationSize { small, medium, large }
 
 /// Auto-generated Flutter widget for [Pagination] from Figma.
@@ -18,7 +18,7 @@ class UIPagination extends StatelessWidget {
 
   const UIPagination({
     Key? key,
-    this.label = 'Component',
+    this.label = 'Pagination',
     this.child,
     this.onPressed,
     this.variant = UIPaginationVariant.primary,
@@ -107,15 +107,15 @@ class UIPagination extends StatelessWidget {
       opacity: effectiveEnabled ? 1.0 : 0.5,
       child: Material(
         color: _getBackgroundColor(context),
-        borderRadius: BorderRadius.circular(5.0),
+        borderRadius: BorderRadius.circular(8.0),
         child: InkWell(
           onTap: effectiveEnabled ? onPressed : null,
-          borderRadius: BorderRadius.circular(5.0),
+          borderRadius: BorderRadius.circular(8.0),
           child: Container(
             padding: _getPadding(),
             decoration: BoxDecoration(
               border: Border.fromBorderSide(_getBorderSide(context)),
-              borderRadius: BorderRadius.circular(5.0),
+              borderRadius: BorderRadius.circular(8.0),
             ),
             child: content,
           ),

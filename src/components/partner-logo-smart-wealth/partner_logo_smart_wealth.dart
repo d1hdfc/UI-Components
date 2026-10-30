@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum UIPartnerLogoSmartwealthVariant { primary, secondary, tertiary, outlined, main, reverse }
+enum UIPartnerLogoSmartwealthVariant { primary, secondary, tertiary }
 enum UIPartnerLogoSmartwealthSize { small, medium, large }
 
 /// Auto-generated Flutter widget for [PartnerLogoSmartwealth] from Figma.
@@ -18,7 +18,7 @@ class UIPartnerLogoSmartwealth extends StatelessWidget {
 
   const UIPartnerLogoSmartwealth({
     Key? key,
-    this.label = 'Component',
+    this.label = 'PartnerLogoSmartwealth',
     this.child,
     this.onPressed,
     this.variant = UIPartnerLogoSmartwealthVariant.primary,
@@ -33,12 +33,12 @@ class UIPartnerLogoSmartwealth extends StatelessWidget {
   EdgeInsets _getPadding() {
     switch (size) {
       case UIPartnerLogoSmartwealthSize.small:
-        return const EdgeInsets.symmetric(horizontal: 11, vertical: 11);
+        return const EdgeInsets.symmetric(horizontal: 11, vertical: 7);
       case UIPartnerLogoSmartwealthSize.large:
-        return const EdgeInsets.symmetric(horizontal: 21, vertical: 21);
+        return const EdgeInsets.symmetric(horizontal: 21, vertical: 13);
       case UIPartnerLogoSmartwealthSize.medium:
       default:
-        return const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0);
+        return const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0);
     }
   }
 
@@ -107,15 +107,15 @@ class UIPartnerLogoSmartwealth extends StatelessWidget {
       opacity: effectiveEnabled ? 1.0 : 0.5,
       child: Material(
         color: _getBackgroundColor(context),
-        borderRadius: BorderRadius.circular(5.0),
+        borderRadius: BorderRadius.circular(8.0),
         child: InkWell(
           onTap: effectiveEnabled ? onPressed : null,
-          borderRadius: BorderRadius.circular(5.0),
+          borderRadius: BorderRadius.circular(8.0),
           child: Container(
             padding: _getPadding(),
             decoration: BoxDecoration(
               border: Border.fromBorderSide(_getBorderSide(context)),
-              borderRadius: BorderRadius.circular(5.0),
+              borderRadius: BorderRadius.circular(8.0),
             ),
             child: content,
           ),

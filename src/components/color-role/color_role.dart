@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum UIColorRoleVariant { primary, secondary, tertiary, outlined }
+enum UIColorRoleVariant { primary, secondary, tertiary }
 enum UIColorRoleSize { small, medium, large }
 
 /// Auto-generated Flutter widget for [ColorRole] from Figma.
@@ -18,7 +18,7 @@ class UIColorRole extends StatelessWidget {
 
   const UIColorRole({
     Key? key,
-    this.label = 'Component',
+    this.label = 'ColorRole',
     this.child,
     this.onPressed,
     this.variant = UIColorRoleVariant.primary,

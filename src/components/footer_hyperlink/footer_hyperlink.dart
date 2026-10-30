@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum UIFooterHyperlinkVariant { primary, secondary, tertiary, outlined }
+enum UIFooterHyperlinkVariant { primary, secondary, tertiary }
 enum UIFooterHyperlinkSize { small, medium, large }
 
 /// Auto-generated Flutter widget for [FooterHyperlink] from Figma.
@@ -18,7 +18,7 @@ class UIFooterHyperlink extends StatelessWidget {
 
   const UIFooterHyperlink({
     Key? key,
-    this.label = 'Component',
+    this.label = 'FooterHyperlink',
     this.child,
     this.onPressed,
     this.variant = UIFooterHyperlinkVariant.primary,
@@ -33,12 +33,12 @@ class UIFooterHyperlink extends StatelessWidget {
   EdgeInsets _getPadding() {
     switch (size) {
       case UIFooterHyperlinkSize.small:
-        return const EdgeInsets.symmetric(horizontal: 45, vertical: 45);
+        return const EdgeInsets.symmetric(horizontal: 11, vertical: 7);
       case UIFooterHyperlinkSize.large:
-        return const EdgeInsets.symmetric(horizontal: 83, vertical: 83);
+        return const EdgeInsets.symmetric(horizontal: 21, vertical: 13);
       case UIFooterHyperlinkSize.medium:
       default:
-        return const EdgeInsets.symmetric(horizontal: 64.0, vertical: 64.0);
+        return const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0);
     }
   }
 

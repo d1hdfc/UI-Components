@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum UIProgressBarLinearVariant { primary, secondary, tertiary, outlined }
+enum UIProgressBarLinearVariant { primary, secondary, tertiary }
 enum UIProgressBarLinearSize { small, medium, large }
 
 /// Auto-generated Flutter widget for [ProgressBarLinear] from Figma.
@@ -18,7 +18,7 @@ class UIProgressBarLinear extends StatelessWidget {
 
   const UIProgressBarLinear({
     Key? key,
-    this.label = 'Component',
+    this.label = 'ProgressBarLinear',
     this.child,
     this.onPressed,
     this.variant = UIProgressBarLinearVariant.primary,
@@ -33,12 +33,12 @@ class UIProgressBarLinear extends StatelessWidget {
   EdgeInsets _getPadding() {
     switch (size) {
       case UIProgressBarLinearSize.small:
-        return const EdgeInsets.symmetric(horizontal: 14, vertical: 16);
+        return const EdgeInsets.symmetric(horizontal: 11, vertical: 7);
       case UIProgressBarLinearSize.large:
-        return const EdgeInsets.symmetric(horizontal: 26, vertical: 30);
+        return const EdgeInsets.symmetric(horizontal: 21, vertical: 13);
       case UIProgressBarLinearSize.medium:
       default:
-        return const EdgeInsets.symmetric(horizontal: 20.0, vertical: 23.0);
+        return const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0);
     }
   }
 
@@ -107,15 +107,15 @@ class UIProgressBarLinear extends StatelessWidget {
       opacity: effectiveEnabled ? 1.0 : 0.5,
       child: Material(
         color: _getBackgroundColor(context),
-        borderRadius: BorderRadius.circular(5.0),
+        borderRadius: BorderRadius.circular(8.0),
         child: InkWell(
           onTap: effectiveEnabled ? onPressed : null,
-          borderRadius: BorderRadius.circular(5.0),
+          borderRadius: BorderRadius.circular(8.0),
           child: Container(
             padding: _getPadding(),
             decoration: BoxDecoration(
               border: Border.fromBorderSide(_getBorderSide(context)),
-              borderRadius: BorderRadius.circular(5.0),
+              borderRadius: BorderRadius.circular(8.0),
             ),
             child: content,
           ),

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum UIAliasRolesVariant { primary, secondary, tertiary, outlined }
+enum UIAliasRolesVariant { primary, secondary, tertiary }
 enum UIAliasRolesSize { small, medium, large }
 
 /// Auto-generated Flutter widget for [AliasRoles] from Figma.
@@ -18,7 +18,7 @@ class UIAliasRoles extends StatelessWidget {
 
   const UIAliasRoles({
     Key? key,
-    this.label = 'Component',
+    this.label = 'AliasRoles',
     this.child,
     this.onPressed,
     this.variant = UIAliasRolesVariant.primary,

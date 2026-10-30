@@ -1,7 +1,7 @@
 /* Standalone CSS for UsageGuidelinesTag */
 .ui-usage_guidelines_tag {
   display: inline-flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
   justify-content: center;
   gap: 8px;
@@ -35,19 +35,19 @@
 .ui-usage_guidelines_tag--small {
   font-size: 13px;
   line-height: 16px;
-  padding: 11px 11px;
+  padding: 7px 11px;
 }
 
 .ui-usage_guidelines_tag--medium {
   font-size: 14px;
   line-height: 20px;
-  padding: 16px 16px;
+  padding: 10px 16px;
 }
 
 .ui-usage_guidelines_tag--large {
   font-size: 16px;
   line-height: 24px;
-  padding: 21px 21px;
+  padding: 13px 21px;
 }
 
 .ui-usage_guidelines_tag--primary {

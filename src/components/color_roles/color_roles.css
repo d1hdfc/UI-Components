@@ -11,7 +11,7 @@
   text-decoration: none;
   cursor: pointer;
   border: 1px solid transparent;
-  border-radius: 16px;
+  border-radius: 8px;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   user-select: none;
   outline: none;
@@ -35,19 +35,19 @@
 .ui-color_roles--small {
   font-size: 13px;
   line-height: 16px;
-  padding: 4px 8px;
+  padding: 7px 11px;
 }
 
 .ui-color_roles--medium {
   font-size: 14px;
   line-height: 20px;
-  padding: 4px 4px;
+  padding: 10px 16px;
 }
 
 .ui-color_roles--large {
   font-size: 16px;
   line-height: 24px;
-  padding: 5px 5px;
+  padding: 13px 21px;
 }
 
 .ui-color_roles--primary {

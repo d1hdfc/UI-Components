@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum UIComplianceVariant { primary, secondary, tertiary, outlined }
+enum UIComplianceVariant { primary, secondary, tertiary }
 enum UIComplianceSize { small, medium, large }
 
 /// Auto-generated Flutter widget for [Compliance] from Figma.
@@ -18,7 +18,7 @@ class UICompliance extends StatelessWidget {
 
   const UICompliance({
     Key? key,
-    this.label = '3.39',
+    this.label = 'Compliance',
     this.child,
     this.onPressed,
     this.variant = UIComplianceVariant.primary,
@@ -33,12 +33,12 @@ class UICompliance extends StatelessWidget {
   EdgeInsets _getPadding() {
     switch (size) {
       case UIComplianceSize.small:
-        return const EdgeInsets.symmetric(horizontal: 8, vertical: 4);
+        return const EdgeInsets.symmetric(horizontal: 11, vertical: 7);
       case UIComplianceSize.large:
-        return const EdgeInsets.symmetric(horizontal: 5, vertical: 3);
+        return const EdgeInsets.symmetric(horizontal: 21, vertical: 13);
       case UIComplianceSize.medium:
       default:
-        return const EdgeInsets.symmetric(horizontal: 4.0, vertical: 2.0);
+        return const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0);
     }
   }
 
@@ -107,15 +107,15 @@ class UICompliance extends StatelessWidget {
       opacity: effectiveEnabled ? 1.0 : 0.5,
       child: Material(
         color: _getBackgroundColor(context),
-        borderRadius: BorderRadius.circular(1440.0),
+        borderRadius: BorderRadius.circular(8.0),
         child: InkWell(
           onTap: effectiveEnabled ? onPressed : null,
-          borderRadius: BorderRadius.circular(1440.0),
+          borderRadius: BorderRadius.circular(8.0),
           child: Container(
             padding: _getPadding(),
             decoration: BoxDecoration(
               border: Border.fromBorderSide(_getBorderSide(context)),
-              borderRadius: BorderRadius.circular(1440.0),
+              borderRadius: BorderRadius.circular(8.0),
             ),
             child: content,
           ),

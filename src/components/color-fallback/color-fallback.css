@@ -1,7 +1,7 @@
 /* Standalone CSS for ColorFallback */
 .ui-color-fallback {
   display: inline-flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
   justify-content: center;
   gap: 8px;
@@ -11,7 +11,7 @@
   text-decoration: none;
   cursor: pointer;
   border: 1px solid transparent;
-  border-radius: 5px;
+  border-radius: 8px;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   user-select: none;
   outline: none;
@@ -35,19 +35,19 @@
 .ui-color-fallback--small {
   font-size: 13px;
   line-height: 16px;
-  padding: 7px 8px;
+  padding: 7px 11px;
 }
 
 .ui-color-fallback--medium {
   font-size: 14px;
   line-height: 20px;
-  padding: 10px 10px;
+  padding: 10px 16px;
 }
 
 .ui-color-fallback--large {
   font-size: 16px;
   line-height: 24px;
-  padding: 13px 13px;
+  padding: 13px 21px;
 }
 
 .ui-color-fallback--primary {

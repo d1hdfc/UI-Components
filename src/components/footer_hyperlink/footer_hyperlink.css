@@ -1,7 +1,7 @@
 /* Standalone CSS for FooterHyperlink */
 .ui-footer_hyperlink {
   display: inline-flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
   justify-content: center;
   gap: 8px;
@@ -35,19 +35,19 @@
 .ui-footer_hyperlink--small {
   font-size: 13px;
   line-height: 16px;
-  padding: 45px 45px;
+  padding: 7px 11px;
 }
 
 .ui-footer_hyperlink--medium {
   font-size: 14px;
   line-height: 20px;
-  padding: 64px 64px;
+  padding: 10px 16px;
 }
 
 .ui-footer_hyperlink--large {
   font-size: 16px;
   line-height: 24px;
-  padding: 83px 83px;
+  padding: 13px 21px;
 }
 
 .ui-footer_hyperlink--primary {
