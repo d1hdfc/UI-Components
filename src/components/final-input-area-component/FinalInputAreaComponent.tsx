@@ -17,12 +17,12 @@ export const FinalInputAreaComponent: React.FC<FinalInputAreaComponentProps> = (
   const isDisabled = disabled || loading;
 
   const combinedClasses = cx(
-    'ui-2-final-input-area-component',
-    `ui-2-final-input-area-component--${size}`,
-    `ui-2-final-input-area-component--${variant}`,
-    fullWidth && 'ui-2-final-input-area-component--full-width',
-    isDisabled && 'ui-2-final-input-area-component--disabled',
-    loading && 'ui-2-final-input-area-component--loading',
+    'ui-final-input-area-component',
+    `ui-final-input-area-component--${size}`,
+    `ui-final-input-area-component--${variant}`,
+    fullWidth && 'ui-final-input-area-component--full-width',
+    isDisabled && 'ui-final-input-area-component--disabled',
+    loading && 'ui-final-input-area-component--loading',
     className
   );
 
@@ -33,8 +33,8 @@ export const FinalInputAreaComponent: React.FC<FinalInputAreaComponentProps> = (
       aria-disabled={isDisabled || undefined}
       aria-busy={loading || undefined}
     >
-      {loading && <span className="ui-2-final-input-area-component__spinner" aria-hidden="true" />}
-      <span className="ui-2-final-input-area-component__content">{children}</span>
+      {loading && <span className="ui-final-input-area-component__spinner" aria-hidden="true" />}
+      <span className="ui-final-input-area-component__content">{children}</span>
     </div>
   );
 };

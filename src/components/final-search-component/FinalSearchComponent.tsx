@@ -17,12 +17,12 @@ export const FinalSearchComponent: React.FC<FinalSearchComponentProps> = ({
   const isDisabled = disabled || loading;
 
   const combinedClasses = cx(
-    'ui-1-final-search-component',
-    `ui-1-final-search-component--${size}`,
-    `ui-1-final-search-component--${variant}`,
-    fullWidth && 'ui-1-final-search-component--full-width',
-    isDisabled && 'ui-1-final-search-component--disabled',
-    loading && 'ui-1-final-search-component--loading',
+    'ui-final-search-component',
+    `ui-final-search-component--${size}`,
+    `ui-final-search-component--${variant}`,
+    fullWidth && 'ui-final-search-component--full-width',
+    isDisabled && 'ui-final-search-component--disabled',
+    loading && 'ui-final-search-component--loading',
     className
   );
 
@@ -33,8 +33,8 @@ export const FinalSearchComponent: React.FC<FinalSearchComponentProps> = ({
       aria-disabled={isDisabled || undefined}
       aria-busy={loading || undefined}
     >
-      {loading && <span className="ui-1-final-search-component__spinner" aria-hidden="true" />}
-      <span className="ui-1-final-search-component__content">{children}</span>
+      {loading && <span className="ui-final-search-component__spinner" aria-hidden="true" />}
+      <span className="ui-final-search-component__content">{children}</span>
     </div>
   );
 };

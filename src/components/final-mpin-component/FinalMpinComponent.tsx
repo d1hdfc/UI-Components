@@ -17,12 +17,12 @@ export const FinalMpinComponent: React.FC<FinalMpinComponentProps> = ({
   const isDisabled = disabled || loading;
 
   const combinedClasses = cx(
-    'ui-3-final-mpin-component',
-    `ui-3-final-mpin-component--${size}`,
-    `ui-3-final-mpin-component--${variant}`,
-    fullWidth && 'ui-3-final-mpin-component--full-width',
-    isDisabled && 'ui-3-final-mpin-component--disabled',
-    loading && 'ui-3-final-mpin-component--loading',
+    'ui-final-mpin-component',
+    `ui-final-mpin-component--${size}`,
+    `ui-final-mpin-component--${variant}`,
+    fullWidth && 'ui-final-mpin-component--full-width',
+    isDisabled && 'ui-final-mpin-component--disabled',
+    loading && 'ui-final-mpin-component--loading',
     className
   );
 
@@ -33,8 +33,8 @@ export const FinalMpinComponent: React.FC<FinalMpinComponentProps> = ({
       aria-disabled={isDisabled || undefined}
       aria-busy={loading || undefined}
     >
-      {loading && <span className="ui-3-final-mpin-component__spinner" aria-hidden="true" />}
-      <span className="ui-3-final-mpin-component__content">{children}</span>
+      {loading && <span className="ui-final-mpin-component__spinner" aria-hidden="true" />}
+      <span className="ui-final-mpin-component__content">{children}</span>
     </div>
   );
 };
