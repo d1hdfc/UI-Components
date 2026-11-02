@@ -1,6 +1,6 @@
 import React from 'react';
 import type { IconsLight20EssentialSortProps } from './IconsLight20EssentialSort.types';
-import './IconsLight20EssentialSort.scss';
+import './icons-light-20-essential-sort.scss';
 
 const cx = (...parts: Array<string | false | undefined>) => parts.filter(Boolean).join(' ');
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import type { FinalMpinComponentProps } from './FinalMpinComponent.types';
-import './FinalMpinComponent.scss';
+import './final-mpin-component.scss';
 
 const cx = (...parts: Array<string | false | undefined>) => parts.filter(Boolean).join(' ');
 

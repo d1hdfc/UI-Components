@@ -1,6 +1,6 @@
 import React from 'react';
 import type { SearchFieldProps } from './SearchField.types';
-import './SearchField.scss';
+import './search-field.scss';
 
 const cx = (...parts: Array<string | false | undefined>) => parts.filter(Boolean).join(' ');
 

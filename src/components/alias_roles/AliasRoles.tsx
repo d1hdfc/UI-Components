@@ -1,6 +1,6 @@
 import React from 'react';
 import type { AliasRolesProps } from './AliasRoles.types';
-import './AliasRoles.scss';
+import './alias_roles.scss';
 
 const cx = (...parts: Array<string | false | undefined>) => parts.filter(Boolean).join(' ');
 

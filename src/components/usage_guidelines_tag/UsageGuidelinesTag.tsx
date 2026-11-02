@@ -1,6 +1,6 @@
 import React from 'react';
 import type { UsageGuidelinesTagProps } from './UsageGuidelinesTag.types';
-import './UsageGuidelinesTag.scss';
+import './usage_guidelines_tag.scss';
 
 const cx = (...parts: Array<string | false | undefined>) => parts.filter(Boolean).join(' ');
 

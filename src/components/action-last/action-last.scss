@@ -1,35 +1,28 @@
 @use 'sass:map';
 
 // Size tokens
-$actionLast-sizes: (
-  small: (
-    font-size: 13px,
+$actionLast-sizes: (small: (font-size: 13px,
     line-height: 16px,
     padding: 7px 11px,
   ),
-  medium: (
-    font-size: 14px,
+  medium: (font-size: 14px,
     line-height: 20px,
     padding: 10px 16px,
   ),
-  large: (
-    font-size: 16px,
+  large: (font-size: 16px,
     line-height: 24px,
     padding: 13px 21px,
   ),
 );
 
 // Variant tokens
-$actionLast-variants: (
-  primary: (
-    background-color: #0c2340,
-    color: #ffffff,
+$actionLast-variants: (primary: (background-color: var(--color-interactive-primary),
+    color: var(--control-icon-color-default),
     border-color: transparent,
   ),
-  secondary: (
-    background-color: transparent,
-    color: #0c2340,
-    border-color: #d1d5db,
+  secondary: (background-color: transparent,
+    color: var(--color-interactive-primary),
+    border-color: var(--color-border-subtle),
   ),
 );
 
@@ -68,7 +61,8 @@ $actionLast-variants: (
 }
 
 // Size modifiers
-@each $size, $tokens in $actionLast-sizes {
+@each $size,
+$tokens in $actionLast-sizes {
   .ui-action-last--#{$size} {
     font-size: map.get($tokens, font-size);
     line-height: map.get($tokens, line-height);
@@ -77,25 +71,28 @@ $actionLast-variants: (
 }
 
 // Variant modifiers
-@each $variant, $tokens in $actionLast-variants {
+@each $variant,
+$tokens in $actionLast-variants {
   .ui-action-last--#{$variant} {
-    @each $property, $value in $tokens {
+
+    @each $property,
+    $value in $tokens {
       #{$property}: #{$value};
     }
   }
 }
 
 @keyframes ui-action-last-spin {
-  from { transform: rotate(0deg); }
+  from {
+    transform: rotate(0deg);
+  }
 
-
-to {
+  to {
     transform: rotate(360deg);
   }
 }
-
-ui-action-last--disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
-  pointer-events: none;
-}
+  ui-action-last--disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    pointer-events: none;
+  }

@@ -1,6 +1,6 @@
 import React from 'react';
 import type { ActionrightarrowProps } from './Actionrightarrow.types';
-import './Actionrightarrow.scss';
+import './action-right-arrow.scss';
 
 const cx = (...parts: Array<string | false | undefined>) => parts.filter(Boolean).join(' ');
 

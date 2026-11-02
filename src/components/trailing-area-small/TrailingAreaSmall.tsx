@@ -1,6 +1,6 @@
 import React from 'react';
 import type { TrailingAreaSmallProps } from './TrailingAreaSmall.types';
-import './TrailingAreaSmall.scss';
+import './trailing-area-small.scss';
 
 const cx = (...parts: Array<string | false | undefined>) => parts.filter(Boolean).join(' ');
 

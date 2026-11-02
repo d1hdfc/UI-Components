@@ -1,6 +1,6 @@
 import React from 'react';
 import type { ActionnextProps } from './Actionnext.types';
-import './Actionnext.scss';
+import './action-next.scss';
 
 const cx = (...parts: Array<string | false | undefined>) => parts.filter(Boolean).join(' ');
 

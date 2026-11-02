@@ -1,6 +1,6 @@
 import React from 'react';
 import type { BadgeSizeProps } from './BadgeSize.types';
-import './BadgeSize.scss';
+import './badge-size.scss';
 
 const cx = (...parts: Array<string | false | undefined>) => parts.filter(Boolean).join(' ');
 

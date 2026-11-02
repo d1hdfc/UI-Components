@@ -1,6 +1,6 @@
 import React from 'react';
 import type { ToggleSizeProps } from './ToggleSize.types';
-import './ToggleSize.scss';
+import './toggle-size.scss';
 
 const cx = (...parts: Array<string | false | undefined>) => parts.filter(Boolean).join(' ');
 

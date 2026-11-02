@@ -1,6 +1,6 @@
 import React from 'react';
 import type { TagSizeProps } from './TagSize.types';
-import './TagSize.scss';
+import './tag-size.scss';
 
 const cx = (...parts: Array<string | false | undefined>) => parts.filter(Boolean).join(' ');
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import type { LeadingAreaMediumProps } from './LeadingAreaMedium.types';
-import './LeadingAreaMedium.scss';
+import './leading-area-medium.scss';
 
 const cx = (...parts: Array<string | false | undefined>) => parts.filter(Boolean).join(' ');
 

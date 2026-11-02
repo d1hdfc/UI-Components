@@ -1,6 +1,6 @@
 import React from 'react';
 import type { FooterHyperlinkProps } from './FooterHyperlink.types';
-import './FooterHyperlink.scss';
+import './footer_hyperlink.scss';
 
 const cx = (...parts: Array<string | false | undefined>) => parts.filter(Boolean).join(' ');
 

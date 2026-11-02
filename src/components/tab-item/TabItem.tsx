@@ -1,6 +1,6 @@
 import React from 'react';
 import type { TabItemProps } from './TabItem.types';
-import './TabItem.scss';
+import './tab-item.scss';
 
 const cx = (...parts: Array<string | false | undefined>) => parts.filter(Boolean).join(' ');
 

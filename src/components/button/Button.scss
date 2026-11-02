@@ -1,7 +1,7 @@
 @use 'sass:map';
 
 $button-sizes: (
-  xsmall: (
+  large: (
     height: var(--button-size-xsmall-height),
     padding: var(--button-size-xsmall-padding-x),
     radius: var(--button-size-xsmall-radius),
@@ -22,7 +22,7 @@ $button-sizes: (
     gap: var(--button-size-medium-gap),
     font-size: 15px
   ),
-  large: (
+  xsmall: (
     height: var(--button-size-large-height),
     padding: var(--button-size-large-padding-x),
     radius: var(--button-size-large-radius),

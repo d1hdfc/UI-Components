@@ -1,6 +1,6 @@
 import React from 'react';
 import type { ProfilePictureProps } from './ProfilePicture.types';
-import './ProfilePicture.scss';
+import './profile-picture.scss';
 
 const cx = (...parts: Array<string | false | undefined>) => parts.filter(Boolean).join(' ');
 

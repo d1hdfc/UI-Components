@@ -1,6 +1,6 @@
 import React from 'react';
 import type { FooterDownProps } from './FooterDown.types';
-import './FooterDown.scss';
+import './footer_down.scss';
 
 const cx = (...parts: Array<string | false | undefined>) => parts.filter(Boolean).join(' ');
 

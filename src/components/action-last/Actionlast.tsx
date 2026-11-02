@@ -1,6 +1,6 @@
 import React from 'react';
 import type { ActionlastProps } from './Actionlast.types';
-import './Actionlast.scss';
+import './action-last.scss';
 
 const cx = (...parts: Array<string | false | undefined>) => parts.filter(Boolean).join(' ');
 

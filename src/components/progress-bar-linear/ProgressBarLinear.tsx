@@ -1,6 +1,6 @@
 import React from 'react';
 import type { ProgressBarLinearProps } from './ProgressBarLinear.types';
-import './ProgressBarLinear.scss';
+import './progress-bar-linear.scss';
 
 const cx = (...parts: Array<string | false | undefined>) => parts.filter(Boolean).join(' ');
 

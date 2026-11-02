@@ -1,6 +1,6 @@
 import React from 'react';
 import type { ProgressBarCircularProps } from './ProgressBarCircular.types';
-import './ProgressBarCircular.scss';
+import './progress-bar-circular.scss';
 
 const cx = (...parts: Array<string | false | undefined>) => parts.filter(Boolean).join(' ');
 

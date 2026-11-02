@@ -1,6 +1,6 @@
 import React from 'react';
 import type { RightAreaProps } from './RightArea.types';
-import './RightArea.scss';
+import './right-area.scss';
 
 const cx = (...parts: Array<string | false | undefined>) => parts.filter(Boolean).join(' ');
 

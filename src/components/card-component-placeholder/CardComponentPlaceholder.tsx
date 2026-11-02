@@ -1,6 +1,6 @@
 import React from 'react';
 import type { CardComponentPlaceholderProps } from './CardComponentPlaceholder.types';
-import './CardComponentPlaceholder.scss';
+import './card-component-placeholder.scss';
 
 const cx = (...parts: Array<string | false | undefined>) => parts.filter(Boolean).join(' ');
 

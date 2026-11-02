@@ -1,6 +1,6 @@
 import React from 'react';
 import type { PartnerLogoPayzappProps } from './PartnerLogoPayzapp.types';
-import './PartnerLogoPayzapp.scss';
+import './partner-logo-payzapp.scss';
 
 const cx = (...parts: Array<string | false | undefined>) => parts.filter(Boolean).join(' ');
 

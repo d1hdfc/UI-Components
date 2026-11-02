@@ -1,47 +1,36 @@
 @use 'sass:map';
 
 // Size tokens
-$hdfcLogo-sizes: (
-  small: (
-    font-size: 13px,
+$hdfcLogo-sizes: (small: (font-size: 13px,
     line-height: 16px,
     padding: 7px 11px,
   ),
-  medium: (
-    font-size: 14px,
+  medium: (font-size: 14px,
     line-height: 20px,
     padding: 10px 16px,
   ),
-  large: (
-    font-size: 16px,
+  large: (font-size: 16px,
     line-height: 24px,
     padding: 13px 21px,
   ),
 );
 
 // Variant tokens
-$hdfcLogo-variants: (
-  primary: (
-    background-color: #0c2340,
-    color: #ffffff,
+$hdfcLogo-variants: (primary: (background-color: var(--color-interactive-primary),
+    color: var(--control-icon-color-default),
     border-color: transparent,
   ),
-  secondary: (
-    background-color: transparent,
-    color: #0c2340,
-    border-color: #d1d5db,
+  secondary: (background-color: transparent,
+    color: var(--color-interactive-primary),
+    border-color: var(--color-border-subtle),
   ),
 );
 
-// Base component styles
-.ui-hdfc-logo {
-}
 
-.ui-hdfc-logo__content {
-}
 
 // Size modifiers
-@each $size, $tokens in $hdfcLogo-sizes {
+@each $size,
+$tokens in $hdfcLogo-sizes {
   .ui-hdfc-logo--#{$size} {
     font-size: map.get($tokens, font-size);
     line-height: map.get($tokens, line-height);
@@ -50,13 +39,23 @@ $hdfcLogo-variants: (
 }
 
 // Variant modifiers
-@each $variant, $tokens in $hdfcLogo-variants {
+@each $variant,
+$tokens in $hdfcLogo-variants {
   .ui-hdfc-logo--#{$variant} {
-    @each $property, $value in $tokens {
+
+    @each $property,
+    $value in $tokens {
       #{$property}: #{$value};
     }
   }
 }
 
 @keyframes ui-hdfc_logo-spin {
-  from { transform: rotate(0deg); }
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}

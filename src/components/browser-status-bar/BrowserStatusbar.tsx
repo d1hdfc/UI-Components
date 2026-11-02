@@ -1,6 +1,6 @@
 import React from 'react';
 import type { BrowserStatusbarProps } from './BrowserStatusbar.types';
-import './BrowserStatusbar.scss';
+import './browser-status-bar.scss';
 
 const cx = (...parts: Array<string | false | undefined>) => parts.filter(Boolean).join(' ');
 

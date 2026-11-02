@@ -1,6 +1,6 @@
 import React from 'react';
 import type { RadioSizeProps } from './RadioSize.types';
-import './RadioSize.scss';
+import './radio-size.scss';
 
 const cx = (...parts: Array<string | false | undefined>) => parts.filter(Boolean).join(' ');
 

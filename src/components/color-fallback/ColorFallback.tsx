@@ -1,6 +1,6 @@
 import React from 'react';
 import type { ColorFallbackProps } from './ColorFallback.types';
-import './ColorFallback.scss';
+import './color-fallback.scss';
 
 const cx = (...parts: Array<string | false | undefined>) => parts.filter(Boolean).join(' ');
 

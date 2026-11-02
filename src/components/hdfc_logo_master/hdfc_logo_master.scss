@@ -1,47 +1,36 @@
 @use 'sass:map';
 
 // Size tokens
-$hdfcLogoMaster-sizes: (
-  small: (
-    font-size: 13px,
+$hdfcLogoMaster-sizes: (small: (font-size: 13px,
     line-height: 16px,
     padding: 7px 11px,
   ),
-  medium: (
-    font-size: 14px,
+  medium: (font-size: 14px,
     line-height: 20px,
     padding: 10px 16px,
   ),
-  large: (
-    font-size: 16px,
+  large: (font-size: 16px,
     line-height: 24px,
     padding: 13px 21px,
   ),
 );
 
 // Variant tokens
-$hdfcLogoMaster-variants: (
-  primary: (
-    background-color: #0c2340,
-    color: #ffffff,
+$hdfcLogoMaster-variants: (primary: (background-color: var(--color-interactive-primary),
+    color: var(--control-icon-color-default),
     border-color: transparent,
   ),
-  secondary: (
-    background-color: transparent,
-    color: #0c2340,
-    border-color: #d1d5db,
+  secondary: (background-color: transparent,
+    color: var(--color-interactive-primary),
+    border-color: var(--color-border-subtle),
   ),
 );
 
-// Base component styles
-.ui-hdfc-logo-master {
-}
 
-.ui-hdfc-logo-master__content {
-}
 
 // Size modifiers
-@each $size, $tokens in $hdfcLogoMaster-sizes {
+@each $size,
+$tokens in $hdfcLogoMaster-sizes {
   .ui-hdfc-logo-master--#{$size} {
     font-size: map.get($tokens, font-size);
     line-height: map.get($tokens, line-height);
@@ -50,13 +39,23 @@ $hdfcLogoMaster-variants: (
 }
 
 // Variant modifiers
-@each $variant, $tokens in $hdfcLogoMaster-variants {
+@each $variant,
+$tokens in $hdfcLogoMaster-variants {
   .ui-hdfc-logo-master--#{$variant} {
-    @each $property, $value in $tokens {
+
+    @each $property,
+    $value in $tokens {
       #{$property}: #{$value};
     }
   }
 }
 
 @keyframes ui-hdfc_logo_master-spin {
-  from { transform: rotate(0deg); }
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}

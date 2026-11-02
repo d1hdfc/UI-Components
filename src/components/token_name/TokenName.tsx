@@ -1,6 +1,6 @@
 import React from 'react';
 import type { TokenNameProps } from './TokenName.types';
-import './TokenName.scss';
+import './token_name.scss';
 
 const cx = (...parts: Array<string | false | undefined>) => parts.filter(Boolean).join(' ');
 

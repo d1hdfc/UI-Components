@@ -1,6 +1,6 @@
 import React from 'react';
 import type { HdfcLogoProps } from './HdfcLogo.types';
-import './HdfcLogo.scss';
+import './hdfc_logo.scss';
 
 const cx = (...parts: Array<string | false | undefined>) => parts.filter(Boolean).join(' ');
 

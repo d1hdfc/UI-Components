@@ -51,8 +51,8 @@
   }
 
   &--primary {
-    background-color: var(--color-interactive-primary, #0c2340);
-    color: #ffffff;
+    background-color: var(--color-interactive-primary);
+    color: var(--control-icon-color-default);
     border-color: transparent;
 
     &:hover:not(.ui-base--disabled) {
@@ -62,8 +62,8 @@
 
   &--secondary {
     background-color: transparent;
-    color: var(--color-interactive-primary, #0c2340);
-    border-color: var(--color-border-subtle, #d1d5db);
+    color: var(--color-interactive-primary);
+    border-color: var(--color-border-subtle, var(--color-border-subtle));
 
     &:hover:not(.ui-base--disabled) {
       background-color: rgba(12, 35, 64, 0.05);
@@ -72,7 +72,7 @@
 
   &--tertiary {
     background-color: transparent;
-    color: var(--color-interactive-primary, #0c2340);
+    color: var(--color-interactive-primary);
     border-color: transparent;
 
     &:hover:not(.ui-base--disabled) {
@@ -82,7 +82,7 @@
 
   &--outlined {
     background-color: transparent;
-    color: var(--color-interactive-primary, #0c2340);
+    color: var(--color-interactive-primary);
     border: 1.5px solid currentColor;
 
     &:hover:not(.ui-base--disabled) {
@@ -103,6 +103,9 @@
 }
 
 @keyframes ui-base-spin {
-  from { transform: rotate(0deg); }
+  from {
+    transform: rotate(0deg);
+  }
+
   to { transform: rotate(360deg); }
 }

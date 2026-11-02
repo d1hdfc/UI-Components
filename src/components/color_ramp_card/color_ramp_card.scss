@@ -22,23 +22,18 @@ $colorRampCard-sizes: (
 // Variant tokens
 $colorRampCard-variants: (
   primary: (
-    background-color: #0c2340,
-    color: #ffffff,
+    background-color: var(--color-interactive-primary),
+    color: var(--control-icon-color-default),
     border-color: transparent,
   ),
   secondary: (
     background-color: transparent,
-    color: #0c2340,
-    border-color: #d1d5db,
+    color: var(--color-interactive-primary),
+    border-color: var(--color-border-subtle),
   ),
 );
 
-// Base component styles
-.ui-color-ramp-card {
-}
 
-.ui-color-ramp-card__content {
-}
 
 // Size modifiers
 @each $size, $tokens in $colorRampCard-sizes {
@@ -59,4 +54,10 @@ $colorRampCard-variants: (
 }
 
 @keyframes ui-color_ramp_card-spin {
-  from { transform: rotate(0deg); }
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  } }

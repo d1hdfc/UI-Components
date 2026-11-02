@@ -1,6 +1,6 @@
 import React from 'react';
 import type { FinalSearchComponentProps } from './FinalSearchComponent.types';
-import './FinalSearchComponent.scss';
+import './final-search-component.scss';
 
 const cx = (...parts: Array<string | false | undefined>) => parts.filter(Boolean).join(' ');
 

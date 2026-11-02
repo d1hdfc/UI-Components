@@ -2,9 +2,9 @@
 import { componentDocumentation } from '../ComponentPage/componentRegistry';
 import { ComponentPage } from '../ComponentPage/ComponentPage';
 
-export const componentSlug = "1-final-search-component";
+export const componentSlug = "final-mpin-component";
 
-export default function Comp1FinalSearchComponentComponentDocsPage() {
+export default function FinalMpinComponentComponentDocsPage() {
   const component = componentDocumentation.find((entry) => entry.slug === componentSlug);
   return component ? <ComponentPage component={component} /> : null;
 }

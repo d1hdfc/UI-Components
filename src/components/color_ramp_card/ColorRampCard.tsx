@@ -1,6 +1,6 @@
 import React from 'react';
 import type { ColorRampCardProps } from './ColorRampCard.types';
-import './ColorRampCard.scss';
+import './color_ramp_card.scss';
 
 const cx = (...parts: Array<string | false | undefined>) => parts.filter(Boolean).join(' ');
 

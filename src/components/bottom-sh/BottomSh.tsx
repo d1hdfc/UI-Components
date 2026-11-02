@@ -1,6 +1,6 @@
 import React from 'react';
 import type { BottomShProps } from './BottomSh.types';
-import './BottomSh.scss';
+import './bottom-sh.scss';
 
 const cx = (...parts: Array<string | false | undefined>) => parts.filter(Boolean).join(' ');
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import type { TrailingAreaMediumProps } from './TrailingAreaMedium.types';
-import './TrailingAreaMedium.scss';
+import './trailing-area-medium.scss';
 
 const cx = (...parts: Array<string | false | undefined>) => parts.filter(Boolean).join(' ');
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import type { CarouselHookProps } from './CarouselHook.types';
-import './CarouselHook.scss';
+import './carousel-hook.scss';
 
 const cx = (...parts: Array<string | false | undefined>) => parts.filter(Boolean).join(' ');
 

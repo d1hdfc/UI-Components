@@ -1,6 +1,6 @@
 import React from 'react';
 import type { ColorRoleProps } from './ColorRole.types';
-import './ColorRole.scss';
+import './color-role.scss';
 
 const cx = (...parts: Array<string | false | undefined>) => parts.filter(Boolean).join(' ');
 

@@ -220,17 +220,20 @@ export type { LeadingAreaMediumProps } from './leading-area-medium/LeadingAreaMe
 export { TrailingAreaMedium } from './trailing-area-medium/TrailingAreaMedium'
 export type { TrailingAreaMediumProps } from './trailing-area-medium/TrailingAreaMedium.types'
 
-export { FinalInputAreaComponent } from './2-final-input-area-component/FinalInputAreaComponent'
+export { FinalInputAreaComponent } from './final-input-area-component/FinalInputAreaComponent'
+export type { FinalInputAreaComponentProps } from './final-input-area-component/FinalInputAreaComponent.types'
 
 export { IconsLight20EssentialSort } from './icons-light-20-essential-sort/IconsLight20EssentialSort'
 export type { IconsLight20EssentialSortProps } from './icons-light-20-essential-sort/IconsLight20EssentialSort.types'
 
-export { FinalMpinComponent } from './3-final-mpin-component/FinalMpinComponent'
+export { FinalMpinComponent } from './final-mpin-component/FinalMpinComponent'
+export type { FinalMpinComponentProps } from './final-mpin-component/FinalMpinComponent.types'
 
 export { MpinTypes46 } from './mpin-types-4-6/MpinTypes46'
 export type { MpinTypes46Props } from './mpin-types-4-6/MpinTypes46.types'
 
-export { FinalSearchComponent } from './1-final-search-component/FinalSearchComponent'
+export { FinalSearchComponent } from './final-search-component/FinalSearchComponent'
+export type { FinalSearchComponentProps } from './final-search-component/FinalSearchComponent.types'
 
 export { RightArea } from './right-area/RightArea'
 export type { RightAreaProps } from './right-area/RightArea.types'

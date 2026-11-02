@@ -2,9 +2,9 @@
 import { componentDocumentation } from '../ComponentPage/componentRegistry';
 import { ComponentPage } from '../ComponentPage/ComponentPage';
 
-export const componentSlug = "3-final-mpin-component";
+export const componentSlug = "final-input-area-component";
 
-export default function Comp3FinalMpinComponentComponentDocsPage() {
+export default function FinalInputAreaComponentComponentDocsPage() {
   const component = componentDocumentation.find((entry) => entry.slug === componentSlug);
   return component ? <ComponentPage component={component} /> : null;
 }

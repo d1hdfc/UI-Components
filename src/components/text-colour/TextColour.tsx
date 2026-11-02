@@ -1,6 +1,6 @@
 import React from 'react';
 import type { TextColourProps } from './TextColour.types';
-import './TextColour.scss';
+import './text-colour.scss';
 
 const cx = (...parts: Array<string | false | undefined>) => parts.filter(Boolean).join(' ');
 

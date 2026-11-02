@@ -1,6 +1,6 @@
 import React from 'react';
 import type { GradientButtonProps } from './GradientButton.types';
-import './GradientButton.scss';
+import './gradient-button.scss';
 
 const cx = (...parts: Array<string | false | undefined>) => parts.filter(Boolean).join(' ');
 

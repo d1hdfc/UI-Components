@@ -1,6 +1,6 @@
 import React from 'react';
 import type { PartnerLogoMasterProps } from './PartnerLogoMaster.types';
-import './PartnerLogoMaster.scss';
+import './partner-logo_master.scss';
 
 const cx = (...parts: Array<string | false | undefined>) => parts.filter(Boolean).join(' ');
 

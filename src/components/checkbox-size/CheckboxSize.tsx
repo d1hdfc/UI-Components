@@ -1,6 +1,6 @@
 import React from 'react';
 import type { CheckboxSizeProps } from './CheckboxSize.types';
-import './CheckboxSize.scss';
+import './checkbox-size.scss';
 
 const cx = (...parts: Array<string | false | undefined>) => parts.filter(Boolean).join(' ');
 

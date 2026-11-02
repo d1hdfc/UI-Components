@@ -1,6 +1,6 @@
 import React from 'react';
 import type { GrabberNotchProps } from './GrabberNotch.types';
-import './GrabberNotch.scss';
+import './grabber-notch.scss';
 
 const cx = (...parts: Array<string | false | undefined>) => parts.filter(Boolean).join(' ');
 

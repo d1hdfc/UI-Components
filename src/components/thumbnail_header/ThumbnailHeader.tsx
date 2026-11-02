@@ -1,6 +1,6 @@
 import React from 'react';
 import type { ThumbnailHeaderProps } from './ThumbnailHeader.types';
-import './ThumbnailHeader.scss';
+import './thumbnail_header.scss';
 
 const cx = (...parts: Array<string | false | undefined>) => parts.filter(Boolean).join(' ');
 

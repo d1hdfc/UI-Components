@@ -288,7 +288,13 @@ function generateScss(pascalName, kebabName, meta) {
 }
 
 @keyframes ui-${kebabName}-spin {
-  from { transform: rotate(0deg); }
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  } }
   to { transform: rotate(360deg); }
 }
 `;
@@ -561,7 +567,13 @@ function generateVanillaCss(pascalName, kebabName, meta) {
 }
 
 @keyframes ui-${kebabName}-spin {
-  from { transform: rotate(0deg); }
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  } }
   to { transform: rotate(360deg); }
 }
 `;

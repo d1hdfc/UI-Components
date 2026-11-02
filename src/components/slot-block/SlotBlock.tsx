@@ -1,6 +1,6 @@
 import React from 'react';
 import type { SlotBlockProps } from './SlotBlock.types';
-import './SlotBlock.scss';
+import './slot-block.scss';
 
 const cx = (...parts: Array<string | false | undefined>) => parts.filter(Boolean).join(' ');
 

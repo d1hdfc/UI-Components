@@ -1,6 +1,6 @@
 import React from 'react';
 import type { PartnerLogoSmartwealthProps } from './PartnerLogoSmartwealth.types';
-import './PartnerLogoSmartwealth.scss';
+import './partner-logo-smart-wealth.scss';
 
 const cx = (...parts: Array<string | false | undefined>) => parts.filter(Boolean).join(' ');
 

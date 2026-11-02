@@ -1,6 +1,6 @@
 import React from 'react';
 import type { ActionleftarrowProps } from './Actionleftarrow.types';
-import './Actionleftarrow.scss';
+import './action-left-arrow.scss';
 
 const cx = (...parts: Array<string | false | undefined>) => parts.filter(Boolean).join(' ');
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import type { TextItemProps } from './TextItem.types';
-import './TextItem.scss';
+import './text-item.scss';
 
 const cx = (...parts: Array<string | false | undefined>) => parts.filter(Boolean).join(' ');
 

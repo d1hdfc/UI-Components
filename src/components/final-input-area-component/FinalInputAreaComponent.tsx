@@ -1,6 +1,6 @@
 import React from 'react';
 import type { FinalInputAreaComponentProps } from './FinalInputAreaComponent.types';
-import './FinalInputAreaComponent.scss';
+import './final-input-area-component.scss';
 
 const cx = (...parts: Array<string | false | undefined>) => parts.filter(Boolean).join(' ');
 

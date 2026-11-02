@@ -1,6 +1,6 @@
 import React from 'react';
 import type { CoverCardProps } from './CoverCard.types';
-import './CoverCard.scss';
+import './cover-card.scss';
 
 const cx = (...parts: Array<string | false | undefined>) => parts.filter(Boolean).join(' ');
 
