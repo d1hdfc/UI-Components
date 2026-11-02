@@ -1,0 +1,62 @@
+@use 'sass:map';
+
+// Size tokens
+$thumbnailHeader-sizes: (
+  small: (
+    font-size: 13px,
+    line-height: 16px,
+    padding: 7px 11px,
+  ),
+  medium: (
+    font-size: 14px,
+    line-height: 20px,
+    padding: 10px 16px,
+  ),
+  large: (
+    font-size: 16px,
+    line-height: 24px,
+    padding: 13px 21px,
+  ),
+);
+
+// Variant tokens
+$thumbnailHeader-variants: (
+  primary: (
+    background-color: #0c2340,
+    color: #ffffff,
+    border-color: transparent,
+  ),
+  secondary: (
+    background-color: transparent,
+    color: #0c2340,
+    border-color: #d1d5db,
+  ),
+);
+
+// Base component styles
+.ui-thumbnail-header {
+}
+
+.ui-thumbnail-header__content {
+}
+
+// Size modifiers
+@each $size, $tokens in $thumbnailHeader-sizes {
+  .ui-thumbnail-header--#{$size} {
+    font-size: map.get($tokens, font-size);
+    line-height: map.get($tokens, line-height);
+    padding: map.get($tokens, padding);
+  }
+}
+
+// Variant modifiers
+@each $variant, $tokens in $thumbnailHeader-variants {
+  .ui-thumbnail-header--#{$variant} {
+    @each $property, $value in $tokens {
+      #{$property}: #{$value};
+    }
+  }
+}
+
+@keyframes ui-thumbnail_header-spin {
+  from { transform: rotate(0deg); }

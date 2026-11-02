@@ -1,0 +1,101 @@
+@use 'sass:map';
+
+// Size tokens
+$rightArea-sizes: (
+  small: (
+    font-size: 13px,
+    line-height: 16px,
+    padding: 7px 11px,
+  ),
+  medium: (
+    font-size: 14px,
+    line-height: 20px,
+    padding: 10px 16px,
+  ),
+  large: (
+    font-size: 16px,
+    line-height: 24px,
+    padding: 13px 21px,
+  ),
+);
+
+// Variant tokens
+$rightArea-variants: (
+  primary: (
+    background-color: #0c2340,
+    color: #ffffff,
+    border-color: transparent,
+  ),
+  secondary: (
+    background-color: transparent,
+    color: #0c2340,
+    border-color: #d1d5db,
+  ),
+);
+
+// Base component styles
+.ui-right-area {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+  outline: none;
+}
+
+.ui-right-area__content {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ui-right-area__spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: ui-right-area-spin 0.75s linear infinite;
+}
+
+// Size modifiers
+@each $size, $tokens in $rightArea-sizes {
+  .ui-right-area--#{$size} {
+    font-size: map.get($tokens, font-size);
+    line-height: map.get($tokens, line-height);
+    padding: map.get($tokens, padding);
+  }
+}
+
+// Variant modifiers
+@each $variant, $tokens in $rightArea-variants {
+  .ui-right-area--#{$variant} {
+    @each $property, $value in $tokens {
+      #{$property}: #{$value};
+    }
+  }
+}
+
+@keyframes ui-right-area-spin {
+  from { transform: rotate(0deg); }
+
+
+to {
+    transform: rotate(360deg);
+  }
+}
+
+ui-right-area--disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  pointer-events: none;
+}

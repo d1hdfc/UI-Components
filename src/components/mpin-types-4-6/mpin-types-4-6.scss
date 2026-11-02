@@ -1,0 +1,62 @@
+@use 'sass:map';
+
+// Size tokens
+$mpinTypes46-sizes: (
+  small: (
+    font-size: 13px,
+    line-height: 16px,
+    padding: 7px 11px,
+  ),
+  medium: (
+    font-size: 14px,
+    line-height: 20px,
+    padding: 10px 16px,
+  ),
+  large: (
+    font-size: 16px,
+    line-height: 24px,
+    padding: 13px 21px,
+  ),
+);
+
+// Variant tokens
+$mpinTypes46-variants: (
+  primary: (
+    background-color: #0c2340,
+    color: #ffffff,
+    border-color: transparent,
+  ),
+  secondary: (
+    background-color: transparent,
+    color: #0c2340,
+    border-color: #d1d5db,
+  ),
+);
+
+// Base component styles
+.ui-mpin-types46 {
+}
+
+.ui-mpin-types46__content {
+}
+
+// Size modifiers
+@each $size, $tokens in $mpinTypes46-sizes {
+  .ui-mpin-types46--#{$size} {
+    font-size: map.get($tokens, font-size);
+    line-height: map.get($tokens, line-height);
+    padding: map.get($tokens, padding);
+  }
+}
+
+// Variant modifiers
+@each $variant, $tokens in $mpinTypes46-variants {
+  .ui-mpin-types46--#{$variant} {
+    @each $property, $value in $tokens {
+      #{$property}: #{$value};
+    }
+  }
+}
+
+@keyframes ui-mpin-types-4-6-spin {
+  from { transform: rotate(0deg); }

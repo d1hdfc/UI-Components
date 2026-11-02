@@ -6,7 +6,7 @@ import './ButtonPage.scss';
 const buttonSourceUrl = 'https://github.com/d1hdfc/UI-Components/tree/main/src/components/button';
 const installCode = `npm install @d1hdfc/ui-components@main`;
 const importCode = `import { Button } from '@d1hdfc/ui-components';
-import '@d1hdfc/ui-components/style.css';`;
+import '@d1hdfc/ui-components/style.scss';`;
 
 function CodeExample({
   id,

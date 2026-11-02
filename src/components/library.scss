@@ -33,3 +33,20 @@
 @use './status-bar/StatusBar';
 @use './browser-bar/BrowserBar';
 @use './carousel/Carousel';
+
+// Auto-generated component styles
+@use './action-first/action-first';
+@use './action-last/action-last';
+@use './action-next/action-next';
+@use './action-previous/action-previous';
+@use './action-left-arrow/action-left-arrow';
+@use './action-right-arrow/action-right-arrow';
+@use './progress-bar-circular/progress-bar-circular';
+@use './progress-bar-linear/progress-bar-linear';
+@use './tab-item/tab-item';
+@use './input-field/input-field';
+@use './search-field/search-field';
+@use './text-item/text-item';
+@use './tag-size/tag-size';
+@use './badge-size/badge-size';
+@use './grabber-notch/grabber-notch';

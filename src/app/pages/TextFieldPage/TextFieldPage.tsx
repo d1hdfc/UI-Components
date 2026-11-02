@@ -5,7 +5,7 @@ import './TextFieldPage.scss';
 
 const installCode = 'npm install @d1hdfc/ui-components@main';
 const importCode = `import { TextField } from '@d1hdfc/ui-components';
-import '@d1hdfc/ui-components/style.css';`;
+import '@d1hdfc/ui-components/style.scss';`;
 
 function ExampleCard({
   title,

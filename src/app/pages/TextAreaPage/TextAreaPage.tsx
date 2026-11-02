@@ -60,7 +60,7 @@ export function TextAreaPage() {
         <div className="textarea-install-grid">
           <pre><code>npm install @d1hdfc/ui-components@main</code></pre>
           <pre><code>{`import { TextArea } from '@d1hdfc/ui-components';
-import '@d1hdfc/ui-components/style.css';`}</code></pre>
+import '@d1hdfc/ui-components/style.scss';`}</code></pre>
         </div>
       </section>
 

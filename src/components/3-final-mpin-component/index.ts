@@ -1,2 +1,2 @@
-export { 3FinalMpinComponent } from './3FinalMpinComponent';
-export * from './3FinalMpinComponent.types';
+export { FinalMpinComponent } from './FinalMpinComponent';
+export * from './FinalMpinComponent.types';

@@ -220,20 +220,17 @@ export type { LeadingAreaMediumProps } from './leading-area-medium/LeadingAreaMe
 export { TrailingAreaMedium } from './trailing-area-medium/TrailingAreaMedium'
 export type { TrailingAreaMediumProps } from './trailing-area-medium/TrailingAreaMedium.types'
 
-export { 2FinalInputAreaComponent } from './2-final-input-area-component/2FinalInputAreaComponent'
-export type { 2FinalInputAreaComponentProps } from './2-final-input-area-component/2FinalInputAreaComponent.types'
+export { FinalInputAreaComponent } from './2-final-input-area-component/FinalInputAreaComponent'
 
 export { IconsLight20EssentialSort } from './icons-light-20-essential-sort/IconsLight20EssentialSort'
 export type { IconsLight20EssentialSortProps } from './icons-light-20-essential-sort/IconsLight20EssentialSort.types'
 
-export { 3FinalMpinComponent } from './3-final-mpin-component/3FinalMpinComponent'
-export type { 3FinalMpinComponentProps } from './3-final-mpin-component/3FinalMpinComponent.types'
+export { FinalMpinComponent } from './3-final-mpin-component/FinalMpinComponent'
 
 export { MpinTypes46 } from './mpin-types-4-6/MpinTypes46'
 export type { MpinTypes46Props } from './mpin-types-4-6/MpinTypes46.types'
 
-export { 1FinalSearchComponent } from './1-final-search-component/1FinalSearchComponent'
-export type { 1FinalSearchComponentProps } from './1-final-search-component/1FinalSearchComponent.types'
+export { FinalSearchComponent } from './1-final-search-component/FinalSearchComponent'
 
 export { RightArea } from './right-area/RightArea'
 export type { RightAreaProps } from './right-area/RightArea.types'
@@ -271,8 +268,6 @@ export type { ActionleftarrowProps } from './action-left-arrow/Actionleftarrow.t
 export { Actionrightarrow } from './action-right-arrow/Actionrightarrow'
 export type { ActionrightarrowProps } from './action-right-arrow/Actionrightarrow.types'
 
-export { TabItem } from './tab-item/TabItem'
-export type { TabItemProps } from './tab-item/TabItem.types'
 
 export { BottomSh } from './bottom-sh/BottomSh'
 export type { BottomShProps } from './bottom-sh/BottomSh.types'

@@ -1,0 +1,62 @@
+@use 'sass:map';
+
+// Size tokens
+$aliasRoles-sizes: (
+  small: (
+    font-size: 13px,
+    line-height: 16px,
+    padding: 7px 11px,
+  ),
+  medium: (
+    font-size: 14px,
+    line-height: 20px,
+    padding: 10px 16px,
+  ),
+  large: (
+    font-size: 16px,
+    line-height: 24px,
+    padding: 13px 21px,
+  ),
+);
+
+// Variant tokens
+$aliasRoles-variants: (
+  primary: (
+    background-color: #0c2340,
+    color: #ffffff,
+    border-color: transparent,
+  ),
+  secondary: (
+    background-color: transparent,
+    color: #0c2340,
+    border-color: #d1d5db,
+  ),
+);
+
+// Base component styles
+.ui-alias-roles {
+}
+
+.ui-alias-roles__content {
+}
+
+// Size modifiers
+@each $size, $tokens in $aliasRoles-sizes {
+  .ui-alias-roles--#{$size} {
+    font-size: map.get($tokens, font-size);
+    line-height: map.get($tokens, line-height);
+    padding: map.get($tokens, padding);
+  }
+}
+
+// Variant modifiers
+@each $variant, $tokens in $aliasRoles-variants {
+  .ui-alias-roles--#{$variant} {
+    @each $property, $value in $tokens {
+      #{$property}: #{$value};
+    }
+  }
+}
+
+@keyframes ui-alias_roles-spin {
+  from { transform: rotate(0deg); }

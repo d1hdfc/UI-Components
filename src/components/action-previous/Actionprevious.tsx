@@ -1,6 +1,6 @@
 import React from 'react';
 import type { ActionpreviousProps } from './Actionprevious.types';
-import './Actionprevious.scss';
+import './action-previous.scss';
 
 const cx = (...parts: Array<string | false | undefined>) => parts.filter(Boolean).join(' ');
 

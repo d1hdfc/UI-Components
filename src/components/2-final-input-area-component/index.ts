@@ -1,2 +1,2 @@
-export { 2FinalInputAreaComponent } from './2FinalInputAreaComponent';
-export * from './2FinalInputAreaComponent.types';
+export { FinalInputAreaComponent } from './FinalInputAreaComponent';
+export * from './FinalInputAreaComponent.types';

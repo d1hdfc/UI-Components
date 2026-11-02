@@ -1,2 +1,2 @@
-export { 1FinalSearchComponent } from './1FinalSearchComponent';
-export * from './1FinalSearchComponent.types';
+export { FinalSearchComponent } from './FinalSearchComponent';
+export * from './FinalSearchComponent.types';

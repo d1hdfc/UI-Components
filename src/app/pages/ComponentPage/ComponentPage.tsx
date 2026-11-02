@@ -67,7 +67,7 @@ export function ComponentPage({ component }: { component: ComponentDocumentation
   const [copyStatus, setCopyStatus] = useState('Copy');
 
   const installCode = 'npm install @d1hdfc/ui-components@main';
-  const importCode = `import { ${component.name} } from '@d1hdfc/ui-components';\nimport '@d1hdfc/ui-components/style.css';`;
+  const importCode = `import { ${component.name} } from '@d1hdfc/ui-components';\nimport '@d1hdfc/ui-components/style.scss';`;
   const exampleCode = getExampleCode(component);
   const flutterCode = getFlutterCode(component);
   const htmlCode = getHtmlCode(component);
