@@ -1,7 +1,7 @@
 @use 'sass:map';
 
 // Size tokens
-$2FinalInputAreaComponent-sizes: (
+$FinalMpinComponent-sizes: (
   small: (
     font-size: 13px,
     line-height: 16px,
@@ -20,7 +20,7 @@ $2FinalInputAreaComponent-sizes: (
 );
 
 // Variant tokens
-$2FinalInputAreaComponent-variants: (
+$FinalMpinComponent-variants: (
   primary: (
     background-color: #0c2340,
     color: #ffffff,
@@ -34,7 +34,7 @@ $2FinalInputAreaComponent-variants: (
 );
 
 // Base component styles
-.ui-2-final-input-area-component {
+.ui-3-final-mpin-component {
   display: inline-flex;
   flex-direction: column;
   align-items: center;
@@ -52,24 +52,24 @@ $2FinalInputAreaComponent-variants: (
   outline: none;
 }
 
-.ui-2-final-input-area-component__content {
+.ui-3-final-mpin-component__content {
   display: inline-flex;
   align-items: center;
   gap: 6px;
 }
 
-.ui-2-final-input-area-component__spinner {
+.ui-3-final-mpin-component__spinner {
   width: 14px;
   height: 14px;
   border: 2px solid currentColor;
   border-right-color: transparent;
   border-radius: 50%;
-  animation: ui-2-final-input-area-component-spin 0.75s linear infinite;
+  animation: ui-3-final-mpin-component-spin 0.75s linear infinite;
 }
 
 // Size modifiers
-@each $size, $tokens in $2FinalInputAreaComponent-sizes {
-  .ui-2-final-input-area-component--#{$size} {
+@each $size, $tokens in $FinalMpinComponent-sizes {
+  .ui-3-final-mpin-component--#{$size} {
     font-size: map.get($tokens, font-size);
     line-height: map.get($tokens, line-height);
     padding: map.get($tokens, padding);
@@ -77,15 +77,15 @@ $2FinalInputAreaComponent-variants: (
 }
 
 // Variant modifiers
-@each $variant, $tokens in $2FinalInputAreaComponent-variants {
-  .ui-2-final-input-area-component--#{$variant} {
+@each $variant, $tokens in $FinalMpinComponent-variants {
+  .ui-3-final-mpin-component--#{$variant} {
     @each $property, $value in $tokens {
       #{$property}: #{$value};
     }
   }
 }
 
-@keyframes ui-2-final-input-area-component-spin {
+@keyframes ui-final-mpin-component-spin {
   from { transform: rotate(0deg); }
 
 
@@ -94,7 +94,7 @@ to {
   }
 }
 
-ui-2-final-input-area-component--disabled {
+ui-3-final-mpin-component--disabled {
   opacity: 0.55;
   cursor: not-allowed;
   pointer-events: none;

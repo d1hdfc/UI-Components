@@ -1,7 +1,7 @@
 @use 'sass:map';
 
 // Size tokens
-$3FinalMpinComponent-sizes: (
+$FinalSearchComponent-sizes: (
   small: (
     font-size: 13px,
     line-height: 16px,
@@ -20,7 +20,7 @@ $3FinalMpinComponent-sizes: (
 );
 
 // Variant tokens
-$3FinalMpinComponent-variants: (
+$FinalSearchComponent-variants: (
   primary: (
     background-color: #0c2340,
     color: #ffffff,
@@ -34,7 +34,7 @@ $3FinalMpinComponent-variants: (
 );
 
 // Base component styles
-.ui-3-final-mpin-component {
+.ui-final-search-component {
   display: inline-flex;
   flex-direction: column;
   align-items: center;
@@ -52,24 +52,24 @@ $3FinalMpinComponent-variants: (
   outline: none;
 }
 
-.ui-3-final-mpin-component__content {
+.ui-final-search-component__content {
   display: inline-flex;
   align-items: center;
   gap: 6px;
 }
 
-.ui-3-final-mpin-component__spinner {
+.ui-final-search-component__spinner {
   width: 14px;
   height: 14px;
   border: 2px solid currentColor;
   border-right-color: transparent;
   border-radius: 50%;
-  animation: ui-3-final-mpin-component-spin 0.75s linear infinite;
+  animation: ui-final-search-component-spin 0.75s linear infinite;
 }
 
 // Size modifiers
-@each $size, $tokens in $3FinalMpinComponent-sizes {
-  .ui-3-final-mpin-component--#{$size} {
+@each $size, $tokens in $FinalSearchComponent-sizes {
+  .ui-final-search-component--#{$size} {
     font-size: map.get($tokens, font-size);
     line-height: map.get($tokens, line-height);
     padding: map.get($tokens, padding);
@@ -77,15 +77,15 @@ $3FinalMpinComponent-variants: (
 }
 
 // Variant modifiers
-@each $variant, $tokens in $3FinalMpinComponent-variants {
-  .ui-3-final-mpin-component--#{$variant} {
+@each $variant, $tokens in $FinalSearchComponent-variants {
+  .ui-final-search-component--#{$variant} {
     @each $property, $value in $tokens {
       #{$property}: #{$value};
     }
   }
 }
 
-@keyframes ui-3-final-mpin-component-spin {
+@keyframes ui-final-search-component-spin {
   from { transform: rotate(0deg); }
 
 
@@ -94,7 +94,7 @@ to {
   }
 }
 
-ui-3-final-mpin-component--disabled {
+ui-final-search-component--disabled {
   opacity: 0.55;
   cursor: not-allowed;
   pointer-events: none;
