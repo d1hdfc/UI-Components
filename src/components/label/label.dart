@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum UILabelVariant { primary, secondary, tertiary }
+enum UILabelVariant { primary, secondary, tertiary, outlined }
 enum UILabelSize { small, medium, large }
 
 /// Auto-generated Flutter widget for [Label] from Figma.
@@ -33,12 +33,12 @@ class UILabel extends StatelessWidget {
   EdgeInsets _getPadding() {
     switch (size) {
       case UILabelSize.small:
-        return const EdgeInsets.symmetric(horizontal: 11, vertical: 7);
+        return const EdgeInsets.symmetric(horizontal: 8, vertical: 4);
       case UILabelSize.large:
-        return const EdgeInsets.symmetric(horizontal: 21, vertical: 13);
+        return const EdgeInsets.symmetric(horizontal: 5, vertical: 3);
       case UILabelSize.medium:
       default:
-        return const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0);
+        return const EdgeInsets.symmetric(horizontal: 4.0, vertical: 2.0);
     }
   }
 

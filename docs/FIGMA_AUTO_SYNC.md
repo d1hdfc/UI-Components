@@ -52,15 +52,16 @@ When a component, button, or component set is added, modified, or removed in Fig
 1. **Detection**:
    - **Figma Webhook**: The server listens at `POST /api/webhook` for `FILE_UPDATE`, `FILE_VERSION_UPDATE`, and `LIBRARY_PUBLISH` events.
    - **REST API Polling**: Background poller checks Figma file versions every 30 seconds (configurable via `SYNC_POLL_INTERVAL_MS`).
-   - **Figma Plugin**: Instant real-time push via WebSocket bridge from the Figma canvas.
+   - **Figma Plugin**: The **Push Selection to Code** action sends a signal over the WebSocket bridge that starts a Figma-to-code sync for the configured file. It does not generate code from only the selected node.
 2. **Multi-Framework Code Generation**:
-   - For every component detected:
+   - For each eligible component or component set detected (including nested components):
      - **React**: `<Component>.tsx`, `<Component>.types.ts`, `<Component>.scss`, and `index.ts`.
      - **Flutter**: `<component_name>.dart` (idiomatic `StatelessWidget` with typed variants and properties).
      - **HTML & CSS**: `<component-name>.html` and `<component-name>.css` (standalone semantic markup & styling).
+   - React components are placed in `src/components/<component>/`; their docs page folders are generated in `src/app/pages/<Component>Page/`.
    - Component additions and removals automatically update `src/components/index.ts`.
 3. **Automated Git Integration**:
-   - Changed files are automatically staged (`git add -A`), committed with a descriptive message and timestamp, and pushed directly to `origin main` (or `origin master`).
+   - A server-triggered sync automatically stages (`git add -A`), commits, and attempts to push changed files. Review your worktree before leaving the daemon running if you do not want unrelated local edits included in an automatic commit.
 
 ---
 
@@ -126,4 +127,3 @@ To enable real-time canvas mutations (updates and deletions on the Figma canvas 
 3. Select `scripts/figma-plugin/manifest.json`.
 4. Run the plugin **HDFC UI Components Two-Way Auto-Sync**.
 5. The plugin connects to `ws://localhost:3055`. As you edit or delete component files in VS Code, the canvas updates in real time!
-

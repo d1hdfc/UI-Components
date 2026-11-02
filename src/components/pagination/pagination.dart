@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum UIPaginationVariant { primary, secondary, tertiary }
+enum UIPaginationVariant { primary, secondary, tertiary, outlined }
 enum UIPaginationSize { small, medium, large }
 
 /// Auto-generated Flutter widget for [Pagination] from Figma.
@@ -18,7 +18,7 @@ class UIPagination extends StatelessWidget {
 
   const UIPagination({
     Key? key,
-    this.label = 'Pagination',
+    this.label = 'Component',
     this.child,
     this.onPressed,
     this.variant = UIPaginationVariant.primary,

@@ -2,6 +2,7 @@
 
 const fs = require('node:fs');
 const path = require('node:path');
+const appPageGenerator = require('./app-page-generator.cjs');
 
 const COMPONENTS_DIR = path.join(process.cwd(), 'src', 'components');
 const INDEX_FILE = path.join(COMPONENTS_DIR, 'index.ts');
@@ -642,6 +643,7 @@ function generateComponentFiles(figmaNode, options = {}) {
   const cssPath = path.join(componentDir, `${kebabName}.css`);
   fs.writeFileSync(htmlPath, generateHtmlSnippet(pascalName, kebabName, meta), 'utf8');
   fs.writeFileSync(cssPath, generateVanillaCss(pascalName, kebabName, meta), 'utf8');
+  appPageGenerator.syncAppComponentPages();
 
   console.log(`[CodeGenerator] Generated React, Flutter, and HTML/CSS for "${pascalName}" in ${componentDir}`);
 
@@ -671,6 +673,7 @@ function deleteComponentFiles(rawName) {
     fs.rmSync(componentDir, { recursive: true, force: true });
     console.log(`[CodeGenerator] Deleted component folder: ${componentDir}`);
     removeExportFromIndex(pascalName, kebabName);
+    appPageGenerator.syncAppComponentPages();
     return true;
   }
 
@@ -717,6 +720,8 @@ function generateForExistingComponents() {
 
     console.log(`[CodeGenerator] Added Flutter & HTML/CSS to existing component "${pascalName}" (${folder})`);
   }
+
+  appPageGenerator.syncAppComponentPages();
 }
 
 module.exports = {

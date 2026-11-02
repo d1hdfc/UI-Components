@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum UICheckboxVariant { primary, secondary, tertiary }
+enum UICheckboxVariant { primary, secondary, tertiary, outlined }
 enum UICheckboxSize { small, medium, large }
 
 /// Auto-generated Flutter widget for [Checkbox] from Figma.
@@ -18,7 +18,7 @@ class UICheckbox extends StatelessWidget {
 
   const UICheckbox({
     Key? key,
-    this.label = 'Checkbox',
+    this.label = 'Component',
     this.child,
     this.onPressed,
     this.variant = UICheckboxVariant.primary,

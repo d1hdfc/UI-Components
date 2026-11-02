@@ -140,11 +140,10 @@ export function ButtonPage() {
             id="variant-examples"
             title="Variants"
             description="Match the button emphasis to the importance of the action."
-            code={`<Button variant="primary">Save changes</Button>
-<Button variant="secondary">Cancel</Button>
-<Button variant="tertiary">More options</Button>
-<Button variant="link">Learn more</Button>`}
-          >
+            code={` <Button variant="primary">Save changes</Button>
+                    <Button variant="secondary">Cancel</Button>
+                    <Button variant="tertiary">More options</Button>
+                    <Button variant="link">Learn more</Button>`}>
             <div className="example-button-row">
               <ButtonComponent>Save changes</ButtonComponent>
               <ButtonComponent variant="secondary">Cancel</ButtonComponent>
@@ -157,11 +156,10 @@ export function ButtonPage() {
             id="size-examples"
             title="Sizes"
             description="Choose a size that fits the density and hierarchy of the interface."
-            code={`<Button size="large">Continue</Button>
-<Button size="medium">Continue</Button>
-<Button size="small">Continue</Button>
-<Button size="xsmall">Continue</Button>`}
-          >
+            code={` <Button size="large">Continue</Button>
+                    <Button size="medium">Continue</Button>
+                    <Button size="small">Continue</Button>
+                    <Button size="xsmall">Continue</Button>`}>
             <div className="example-button-row example-button-row--sizes">
               {(['large', 'medium', 'small', 'xsmall'] as const).map((size) => (
                 <ButtonComponent key={size} size={size}>{size}</ButtonComponent>
@@ -173,10 +171,9 @@ export function ButtonPage() {
             id="icon-examples"
             title="With icons"
             description="Use leading or trailing icons to add useful visual context."
-            code={`<Button leftIcon>Back</Button>
-<Button rightIcon>Continue</Button>
-<Button leftIcon rightIcon>Move</Button>`}
-          >
+            code={` <Button leftIcon>Back</Button>
+                    <Button rightIcon>Continue</Button>
+                    <Button leftIcon rightIcon>Move</Button>`}>
             <div className="example-button-row">
               <ButtonComponent leftIcon>Back</ButtonComponent>
               <ButtonComponent rightIcon>Continue</ButtonComponent>
@@ -188,7 +185,7 @@ export function ButtonPage() {
             id="state-examples"
             title="Loading and disabled"
             description="Show progress during work and disable actions that are unavailable."
-            code={`<Button loading>Saving</Button>
+            code={` <Button loading>Saving</Button>
 <Button disabled>Unavailable</Button>
 <Button variant="secondary" disabled>Cancel</Button>`}
           >
@@ -214,8 +211,7 @@ export function ButtonPage() {
             id="full-width-examples"
             title="Full width"
             description="Expand the button to fill the width of its parent container."
-            code={`<Button fullWidth>Continue</Button>`}
-          >
+            code={`<Button fullWidth>Continue</Button>`}>
             <div className="example-full-width">
               <ButtonComponent fullWidth>Continue</ButtonComponent>
             </div>

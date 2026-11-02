@@ -64,6 +64,25 @@ function isUIComponent(node, pageName) {
   return node.type === 'COMPONENT' || node.type === 'COMPONENT_SET';
 }
 
+function collectUIComponents(node, pageName, components) {
+  if (node.type === 'INSTANCE') return;
+
+  if (isUIComponent(node, pageName)) {
+    components.set(node.id, {
+      id: node.id,
+      name: node.name,
+      type: node.type,
+      pageName,
+      node
+    });
+    return;
+  }
+
+  for (const child of node.children || []) {
+    collectUIComponents(child, pageName, components);
+  }
+}
+
 function removeFromIndexTs(componentName) {
   const indexPath = path.join(process.cwd(), 'src', 'components', 'index.ts');
   if (!fs.existsSync(indexPath)) return;
@@ -119,8 +138,8 @@ async function syncFigmaToCode(options = {}) {
 
   const syncState = loadSyncState();
 
-  console.log('[FigmaToCode] Fetching top-level document structure from Figma REST API (depth=2)...');
-  const fileData = await figmaApi.getFile(fileKey, 2);
+  console.log('[FigmaToCode] Fetching document structure from Figma REST API...');
+  const fileData = await figmaApi.getFile(fileKey);
   const document = fileData.document;
 
   if (!document || !Array.isArray(document.children)) {
@@ -133,15 +152,7 @@ async function syncFigmaToCode(options = {}) {
   for (const page of document.children) {
     if (page.type === 'CANVAS' && !IGNORED_PAGES.has(page.name)) {
       for (const child of page.children || []) {
-        if (isUIComponent(child, page.name)) {
-          currentFigmaComponents.set(child.id, {
-            id: child.id,
-            name: child.name,
-            type: child.type,
-            pageName: page.name,
-            node: child
-          });
-        }
+        collectUIComponents(child, page.name, currentFigmaComponents);
       }
     }
   }

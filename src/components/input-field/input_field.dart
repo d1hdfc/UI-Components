@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum UIInputFieldVariant { primary, secondary, tertiary }
+enum UIInputFieldVariant { primary, secondary, tertiary, outlined }
 enum UIInputFieldSize { small, medium, large }
 
 /// Auto-generated Flutter widget for [InputField] from Figma.
@@ -18,7 +18,7 @@ class UIInputField extends StatelessWidget {
 
   const UIInputField({
     Key? key,
-    this.label = 'InputField',
+    this.label = 'Component',
     this.child,
     this.onPressed,
     this.variant = UIInputFieldVariant.primary,

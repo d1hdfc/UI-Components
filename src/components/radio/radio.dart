@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum UIRadioVariant { primary, secondary, tertiary }
+enum UIRadioVariant { primary, secondary, tertiary, outlined }
 enum UIRadioSize { small, medium, large }
 
 /// Auto-generated Flutter widget for [Radio] from Figma.
@@ -18,7 +18,7 @@ class UIRadio extends StatelessWidget {
 
   const UIRadio({
     Key? key,
-    this.label = 'Radio',
+    this.label = 'Component',
     this.child,
     this.onPressed,
     this.variant = UIRadioVariant.primary,

@@ -441,7 +441,623 @@
       "type": "COMPONENT",
       "pageName": "Components",
       "updatedAt": "2026-10-30T05:59:10.161Z"
+    },
+    "1860:25021": {
+      "id": "1860:25021",
+      "name": "HDFC_Logo",
+      "type": "COMPONENT_SET",
+      "pageName": "Logo",
+      "updatedAt": "2026-11-02T09:43:13.920Z"
+    },
+    "2126:16149": {
+      "id": "2126:16149",
+      "name": "HDFC_Logo_Master",
+      "type": "COMPONENT_SET",
+      "pageName": "Logo",
+      "updatedAt": "2026-11-02T09:43:15.975Z"
+    },
+    "1862:34679": {
+      "id": "1862:34679",
+      "name": "Partner Logo",
+      "type": "COMPONENT_SET",
+      "pageName": "Logo",
+      "updatedAt": "2026-11-02T09:43:18.818Z"
+    },
+    "1862:34716": {
+      "id": "1862:34716",
+      "name": "Partner Logo",
+      "type": "COMPONENT_SET",
+      "pageName": "Logo",
+      "updatedAt": "2026-11-02T09:43:20.033Z"
+    },
+    "6343:1205": {
+      "id": "6343:1205",
+      "name": "Button",
+      "type": "COMPONENT_SET",
+      "pageName": "button-hdfc",
+      "updatedAt": "2026-11-02T09:43:21.640Z"
+    },
+    "4104:3783": {
+      "id": "4104:3783",
+      "name": "Gradient Button",
+      "type": "COMPONENT_SET",
+      "pageName": "Button",
+      "updatedAt": "2026-11-02T09:43:22.847Z"
+    },
+    "3718:88340": {
+      "id": "3718:88340",
+      "name": "Input Field",
+      "type": "COMPONENT_SET",
+      "pageName": "Text-input",
+      "updatedAt": "2026-11-02T09:43:27.517Z"
+    },
+    "3810:20370": {
+      "id": "3810:20370",
+      "name": "Input Field",
+      "type": "COMPONENT_SET",
+      "pageName": "Text-input",
+      "updatedAt": "2026-11-02T09:43:30.348Z"
+    },
+    "3826:60237": {
+      "id": "3826:60237",
+      "name": "Helper Text | Small",
+      "type": "COMPONENT_SET",
+      "pageName": "Text-input",
+      "updatedAt": "2026-11-02T09:43:31.927Z"
+    },
+    "3826:61122": {
+      "id": "3826:61122",
+      "name": "Leading Area | Small",
+      "type": "COMPONENT_SET",
+      "pageName": "Text-input",
+      "updatedAt": "2026-11-02T09:43:32.535Z"
+    },
+    "2690:2503": {
+      "id": "2690:2503",
+      "name": "Input Field",
+      "type": "COMPONENT_SET",
+      "pageName": "Text-input",
+      "updatedAt": "2026-11-02T09:43:33.200Z"
+    },
+    "2690:2770": {
+      "id": "2690:2770",
+      "name": "Trailing Area | Small",
+      "type": "COMPONENT",
+      "pageName": "Text-input",
+      "updatedAt": "2026-11-02T09:43:34.605Z"
+    },
+    "2690:2773": {
+      "id": "2690:2773",
+      "name": "Label",
+      "type": "COMPONENT_SET",
+      "pageName": "Text-input",
+      "updatedAt": "2026-11-02T09:43:35.176Z"
+    },
+    "2690:2778": {
+      "id": "2690:2778",
+      "name": "Helper Text | Small",
+      "type": "COMPONENT_SET",
+      "pageName": "Text-input",
+      "updatedAt": "2026-11-02T09:43:37.238Z"
+    },
+    "2690:2797": {
+      "id": "2690:2797",
+      "name": "Helper Text | Medium",
+      "type": "COMPONENT_SET",
+      "pageName": "Text-input",
+      "updatedAt": "2026-11-02T09:43:39.048Z"
+    },
+    "2690:2834": {
+      "id": "2690:2834",
+      "name": "Leading Area | Small",
+      "type": "COMPONENT_SET",
+      "pageName": "Text-input",
+      "updatedAt": "2026-11-02T09:43:39.378Z"
+    },
+    "2690:3046": {
+      "id": "2690:3046",
+      "name": "Leading Area | Medium",
+      "type": "COMPONENT_SET",
+      "pageName": "Text-input",
+      "updatedAt": "2026-11-02T09:43:41.409Z"
+    },
+    "2690:3259": {
+      "id": "2690:3259",
+      "name": "Trailing Area | Medium",
+      "type": "COMPONENT",
+      "pageName": "Text-input",
+      "updatedAt": "2026-11-02T09:43:42.221Z"
+    },
+    "2922:5360": {
+      "id": "2922:5360",
+      "name": "2. Final Input Area Component",
+      "type": "COMPONENT_SET",
+      "pageName": "Input-Area",
+      "updatedAt": "2026-11-02T09:43:43.263Z"
+    },
+    "3198:12013": {
+      "id": "3198:12013",
+      "name": "Icons/Light/20/Essential/Sort",
+      "type": "COMPONENT",
+      "pageName": "Input-Area",
+      "updatedAt": "2026-11-02T09:43:44.550Z"
+    },
+    "2922:5494": {
+      "id": "2922:5494",
+      "name": "3. Final MPIN Component",
+      "type": "COMPONENT_SET",
+      "pageName": "MPIN-input",
+      "updatedAt": "2026-11-02T09:43:46.101Z"
+    },
+    "2922:5536": {
+      "id": "2922:5536",
+      "name": "MPIN | Types (4,6)",
+      "type": "COMPONENT_SET",
+      "pageName": "MPIN-input",
+      "updatedAt": "2026-11-02T09:43:46.615Z"
+    },
+    "3557:23845": {
+      "id": "3557:23845",
+      "name": "1. Final Search Component",
+      "type": "COMPONENT_SET",
+      "pageName": "Search bar",
+      "updatedAt": "2026-11-02T09:43:47.631Z"
+    },
+    "3557:23891": {
+      "id": "3557:23891",
+      "name": "right-area",
+      "type": "COMPONENT",
+      "pageName": "Search bar",
+      "updatedAt": "2026-11-02T09:43:48.850Z"
+    },
+    "3557:23895": {
+      "id": "3557:23895",
+      "name": "Search Field",
+      "type": "COMPONENT_SET",
+      "pageName": "Search bar",
+      "updatedAt": "2026-11-02T09:43:49.618Z"
+    },
+    "4285:41338": {
+      "id": "4285:41338",
+      "name": "Avatar",
+      "type": "COMPONENT_SET",
+      "pageName": "Avatar",
+      "updatedAt": "2026-11-02T09:43:50.529Z"
+    },
+    "4285:40975": {
+      "id": "4285:40975",
+      "name": "Avatar",
+      "type": "COMPONENT_SET",
+      "pageName": "Avatar",
+      "updatedAt": "2026-11-02T09:43:51.112Z"
+    },
+    "2999:10007": {
+      "id": "2999:10007",
+      "name": "checkbox/size",
+      "type": "COMPONENT_SET",
+      "pageName": "Controls",
+      "updatedAt": "2026-11-02T09:43:52.549Z"
+    },
+    "2999:10014": {
+      "id": "2999:10014",
+      "name": "checkbox",
+      "type": "COMPONENT_SET",
+      "pageName": "Controls",
+      "updatedAt": "2026-11-02T09:43:53.062Z"
+    },
+    "2999:10024": {
+      "id": "2999:10024",
+      "name": "radio/size",
+      "type": "COMPONENT_SET",
+      "pageName": "Controls",
+      "updatedAt": "2026-11-02T09:43:53.525Z"
+    },
+    "3219:4512": {
+      "id": "3219:4512",
+      "name": "radio",
+      "type": "COMPONENT_SET",
+      "pageName": "Controls",
+      "updatedAt": "2026-11-02T09:43:54.751Z"
+    },
+    "3225:4398": {
+      "id": "3225:4398",
+      "name": "toggle/size",
+      "type": "COMPONENT_SET",
+      "pageName": "Controls",
+      "updatedAt": "2026-11-02T09:43:55.417Z"
+    },
+    "3225:4419": {
+      "id": "3225:4419",
+      "name": "toggle",
+      "type": "COMPONENT_SET",
+      "pageName": "Controls",
+      "updatedAt": "2026-11-02T09:43:56.375Z"
+    },
+    "3234:12064": {
+      "id": "3234:12064",
+      "name": "controls",
+      "type": "COMPONENT_SET",
+      "pageName": "Controls",
+      "updatedAt": "2026-11-02T09:43:57.542Z"
+    },
+    "3557:23269": {
+      "id": "3557:23269",
+      "name": "actionPrevious",
+      "type": "COMPONENT_SET",
+      "pageName": "Pagination",
+      "updatedAt": "2026-11-02T09:43:58.443Z"
+    },
+    "3557:23276": {
+      "id": "3557:23276",
+      "name": "actionNext",
+      "type": "COMPONENT_SET",
+      "pageName": "Pagination",
+      "updatedAt": "2026-11-02T09:43:59.056Z"
+    },
+    "3557:23283": {
+      "id": "3557:23283",
+      "name": "base",
+      "type": "COMPONENT_SET",
+      "pageName": "Pagination",
+      "updatedAt": "2026-11-02T09:44:00.452Z"
+    },
+    "3928:1701": {
+      "id": "3928:1701",
+      "name": "Pagination",
+      "type": "COMPONENT_SET",
+      "pageName": "Pagination",
+      "updatedAt": "2026-11-02T09:44:00.976Z"
+    },
+    "3557:23387": {
+      "id": "3557:23387",
+      "name": "actionFirst",
+      "type": "COMPONENT_SET",
+      "pageName": "Pagination",
+      "updatedAt": "2026-11-02T09:44:03.502Z"
+    },
+    "3557:23404": {
+      "id": "3557:23404",
+      "name": "actionLast",
+      "type": "COMPONENT_SET",
+      "pageName": "Pagination",
+      "updatedAt": "2026-11-02T09:44:04.845Z"
+    },
+    "3557:23421": {
+      "id": "3557:23421",
+      "name": "actionLeftArrow",
+      "type": "COMPONENT_SET",
+      "pageName": "Pagination",
+      "updatedAt": "2026-11-02T09:44:06.557Z"
+    },
+    "3928:2199": {
+      "id": "3928:2199",
+      "name": "actionRightArrow",
+      "type": "COMPONENT_SET",
+      "pageName": "Pagination",
+      "updatedAt": "2026-11-02T09:44:08.919Z"
+    },
+    "3612:11201": {
+      "id": "3612:11201",
+      "name": "Tab item",
+      "type": "COMPONENT_SET",
+      "pageName": "Tabs",
+      "updatedAt": "2026-11-02T09:44:09.201Z"
+    },
+    "3278:15371": {
+      "id": "3278:15371",
+      "name": "Bottom Sh",
+      "type": "COMPONENT_SET",
+      "pageName": "bottomsheet",
+      "updatedAt": "2026-11-02T09:44:10.850Z"
+    },
+    "3333:28941": {
+      "id": "3333:28941",
+      "name": "OTP",
+      "type": "COMPONENT",
+      "pageName": "bottomsheet",
+      "updatedAt": "2026-11-02T09:44:11.445Z"
+    },
+    "3612:11322": {
+      "id": "3612:11322",
+      "name": "Carousel Hook",
+      "type": "COMPONENT_SET",
+      "pageName": "Carousel hook",
+      "updatedAt": "2026-11-02T09:44:13.463Z"
+    },
+    "3612:11335": {
+      "id": "3612:11335",
+      "name": "Arrow",
+      "type": "COMPONENT_SET",
+      "pageName": "Carousel hook",
+      "updatedAt": "2026-11-02T09:44:15.229Z"
+    },
+    "4276:37729": {
+      "id": "4276:37729",
+      "name": "Input Field",
+      "type": "COMPONENT_SET",
+      "pageName": "Testing",
+      "updatedAt": "2026-11-02T09:44:19.344Z"
+    },
+    "4276:3079": {
+      "id": "4276:3079",
+      "name": "Input Field",
+      "type": "COMPONENT_SET",
+      "pageName": "Testing",
+      "updatedAt": "2026-11-02T09:44:23.040Z"
+    },
+    "4614:63695": {
+      "id": "4614:63695",
+      "name": "Input Field",
+      "type": "COMPONENT_SET",
+      "pageName": "Testing",
+      "updatedAt": "2026-11-02T09:44:24.379Z"
+    },
+    "4276:7785": {
+      "id": "4276:7785",
+      "name": "Input Field",
+      "type": "COMPONENT_SET",
+      "pageName": "Testing",
+      "updatedAt": "2026-11-02T09:44:27.587Z"
+    },
+    "4614:63810": {
+      "id": "4614:63810",
+      "name": "Input Field",
+      "type": "COMPONENT_SET",
+      "pageName": "Testing",
+      "updatedAt": "2026-11-02T09:44:29.733Z"
+    },
+    "4278:40161": {
+      "id": "4278:40161",
+      "name": "Input Field",
+      "type": "COMPONENT_SET",
+      "pageName": "Testing",
+      "updatedAt": "2026-11-02T09:44:32.145Z"
+    },
+    "4278:40389": {
+      "id": "4278:40389",
+      "name": "Input Field",
+      "type": "COMPONENT_SET",
+      "pageName": "Testing",
+      "updatedAt": "2026-11-02T09:44:34.400Z"
+    },
+    "4278:40626": {
+      "id": "4278:40626",
+      "name": "Input Field",
+      "type": "COMPONENT_SET",
+      "pageName": "Testing",
+      "updatedAt": "2026-11-02T09:44:35.505Z"
+    },
+    "4278:40930": {
+      "id": "4278:40930",
+      "name": "Input Field",
+      "type": "COMPONENT_SET",
+      "pageName": "Testing",
+      "updatedAt": "2026-11-02T09:44:36.023Z"
+    },
+    "4278:41210": {
+      "id": "4278:41210",
+      "name": "Input Field",
+      "type": "COMPONENT_SET",
+      "pageName": "Testing",
+      "updatedAt": "2026-11-02T09:44:37.062Z"
+    },
+    "4278:41444": {
+      "id": "4278:41444",
+      "name": "Input Field",
+      "type": "COMPONENT_SET",
+      "pageName": "Testing",
+      "updatedAt": "2026-11-02T09:44:37.649Z"
+    },
+    "4278:41706": {
+      "id": "4278:41706",
+      "name": "Input Field",
+      "type": "COMPONENT_SET",
+      "pageName": "Testing",
+      "updatedAt": "2026-11-02T09:44:38.654Z"
+    },
+    "4278:41986": {
+      "id": "4278:41986",
+      "name": "Input Field",
+      "type": "COMPONENT_SET",
+      "pageName": "Testing",
+      "updatedAt": "2026-11-02T09:44:39.024Z"
+    },
+    "4278:42326": {
+      "id": "4278:42326",
+      "name": "Input Field",
+      "type": "COMPONENT_SET",
+      "pageName": "Testing",
+      "updatedAt": "2026-11-02T09:44:39.598Z"
+    },
+    "4278:42593": {
+      "id": "4278:42593",
+      "name": "Input Field",
+      "type": "COMPONENT_SET",
+      "pageName": "Testing",
+      "updatedAt": "2026-11-02T09:44:40.346Z"
+    },
+    "4278:42876": {
+      "id": "4278:42876",
+      "name": "Input Field",
+      "type": "COMPONENT_SET",
+      "pageName": "Testing",
+      "updatedAt": "2026-11-02T09:44:43.412Z"
+    },
+    "4278:43161": {
+      "id": "4278:43161",
+      "name": "Input Field",
+      "type": "COMPONENT_SET",
+      "pageName": "Testing",
+      "updatedAt": "2026-11-02T09:44:44.214Z"
+    },
+    "4278:43443": {
+      "id": "4278:43443",
+      "name": "Input Field",
+      "type": "COMPONENT_SET",
+      "pageName": "Testing",
+      "updatedAt": "2026-11-02T09:44:44.689Z"
+    },
+    "4278:43784": {
+      "id": "4278:43784",
+      "name": "Input Field",
+      "type": "COMPONENT_SET",
+      "pageName": "Testing",
+      "updatedAt": "2026-11-02T09:44:46.143Z"
+    },
+    "4278:44115": {
+      "id": "4278:44115",
+      "name": "Input Field",
+      "type": "COMPONENT_SET",
+      "pageName": "Testing",
+      "updatedAt": "2026-11-02T09:44:47.030Z"
+    },
+    "4278:44399": {
+      "id": "4278:44399",
+      "name": "Input Field",
+      "type": "COMPONENT_SET",
+      "pageName": "Testing",
+      "updatedAt": "2026-11-02T09:44:47.816Z"
+    },
+    "4278:44704": {
+      "id": "4278:44704",
+      "name": "Input Field",
+      "type": "COMPONENT_SET",
+      "pageName": "Testing",
+      "updatedAt": "2026-11-02T09:44:48.679Z"
+    },
+    "4278:45021": {
+      "id": "4278:45021",
+      "name": "Input Field",
+      "type": "COMPONENT_SET",
+      "pageName": "Testing",
+      "updatedAt": "2026-11-02T09:44:49.598Z"
+    },
+    "4278:45384": {
+      "id": "4278:45384",
+      "name": "Input Field",
+      "type": "COMPONENT_SET",
+      "pageName": "Testing",
+      "updatedAt": "2026-11-02T09:44:50.250Z"
+    },
+    "4278:45729": {
+      "id": "4278:45729",
+      "name": "Input Field",
+      "type": "COMPONENT_SET",
+      "pageName": "Testing",
+      "updatedAt": "2026-11-02T09:44:50.958Z"
+    },
+    "4278:46055": {
+      "id": "4278:46055",
+      "name": "Input Field",
+      "type": "COMPONENT_SET",
+      "pageName": "Testing",
+      "updatedAt": "2026-11-02T09:44:51.835Z"
+    },
+    "4278:46375": {
+      "id": "4278:46375",
+      "name": "Input Field",
+      "type": "COMPONENT_SET",
+      "pageName": "Testing",
+      "updatedAt": "2026-11-02T09:44:52.860Z"
+    },
+    "4278:46692": {
+      "id": "4278:46692",
+      "name": "Input Field",
+      "type": "COMPONENT_SET",
+      "pageName": "Testing",
+      "updatedAt": "2026-11-02T09:44:53.960Z"
+    },
+    "4278:47097": {
+      "id": "4278:47097",
+      "name": "Input Field",
+      "type": "COMPONENT_SET",
+      "pageName": "Testing",
+      "updatedAt": "2026-11-02T09:44:54.740Z"
+    },
+    "4278:47463": {
+      "id": "4278:47463",
+      "name": "Input Field",
+      "type": "COMPONENT_SET",
+      "pageName": "Testing",
+      "updatedAt": "2026-11-02T09:44:55.232Z"
+    },
+    "4278:47796": {
+      "id": "4278:47796",
+      "name": "Input Field",
+      "type": "COMPONENT_SET",
+      "pageName": "Testing",
+      "updatedAt": "2026-11-02T09:44:56.177Z"
+    },
+    "4278:48130": {
+      "id": "4278:48130",
+      "name": "Input Field",
+      "type": "COMPONENT_SET",
+      "pageName": "Testing",
+      "updatedAt": "2026-11-02T09:44:57.055Z"
+    },
+    "4278:48475": {
+      "id": "4278:48475",
+      "name": "Input Field",
+      "type": "COMPONENT_SET",
+      "pageName": "Testing",
+      "updatedAt": "2026-11-02T09:44:57.580Z"
+    },
+    "4278:48795": {
+      "id": "4278:48795",
+      "name": "Input Field",
+      "type": "COMPONENT_SET",
+      "pageName": "Testing",
+      "updatedAt": "2026-11-02T09:44:58.073Z"
+    },
+    "4278:49219": {
+      "id": "4278:49219",
+      "name": "Input Field",
+      "type": "COMPONENT_SET",
+      "pageName": "Testing",
+      "updatedAt": "2026-11-02T09:44:58.769Z"
+    },
+    "4278:49599": {
+      "id": "4278:49599",
+      "name": "Input Field",
+      "type": "COMPONENT_SET",
+      "pageName": "Testing",
+      "updatedAt": "2026-11-02T09:44:59.273Z"
+    },
+    "4278:49938": {
+      "id": "4278:49938",
+      "name": "Input Field",
+      "type": "COMPONENT_SET",
+      "pageName": "Testing",
+      "updatedAt": "2026-11-02T09:44:59.868Z"
+    },
+    "4278:33067": {
+      "id": "4278:33067",
+      "name": "Input Field",
+      "type": "COMPONENT_SET",
+      "pageName": "Testing",
+      "updatedAt": "2026-11-02T09:45:03.248Z"
+    },
+    "4276:35339": {
+      "id": "4276:35339",
+      "name": "Input Field",
+      "type": "COMPONENT_SET",
+      "pageName": "Testing",
+      "updatedAt": "2026-11-02T09:45:03.812Z"
+    },
+    "1268:2219": {
+      "id": "1268:2219",
+      "name": "row",
+      "type": "COMPONENT",
+      "pageName": "Components",
+      "updatedAt": "2026-11-02T09:45:06.452Z"
+    },
+    "1272:3783": {
+      "id": "1272:3783",
+      "name": "container",
+      "type": "COMPONENT",
+      "pageName": "Components",
+      "updatedAt": "2026-11-02T09:45:06.924Z"
     }
   },
-  "lastSync": "2026-10-30T11:54:41.516Z"
+  "lastSync": "2026-11-02T09:45:06.928Z"
 }

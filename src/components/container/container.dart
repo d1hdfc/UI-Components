@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum UIContainerVariant { primary, secondary, tertiary }
+enum UIContainerVariant { primary, secondary, tertiary, outlined }
 enum UIContainerSize { small, medium, large }
 
 /// Auto-generated Flutter widget for [Container] from Figma.
@@ -18,7 +18,7 @@ class UIContainer extends StatelessWidget {
 
   const UIContainer({
     Key? key,
-    this.label = 'Container',
+    this.label = 'Component',
     this.child,
     this.onPressed,
     this.variant = UIContainerVariant.primary,

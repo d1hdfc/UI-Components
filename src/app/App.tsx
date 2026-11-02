@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import type { ComponentType } from 'react';
 import { ButtonPage } from './pages/ButtonPage';
 import { TextFieldPage } from './pages/TextFieldPage';
 import { TextAreaPage } from './pages/TextAreaPage';
@@ -9,6 +10,14 @@ import { ComponentPage } from './pages/ComponentPage/ComponentPage';
 import { componentDocumentation } from './pages/ComponentPage/componentRegistry';
 import { SyncToast } from './components/SyncToast';
 import { useSyncWebSocket } from './hooks/useSyncWebSocket';
+
+const componentPageModules = import.meta.glob<{
+  componentSlug: string;
+  default: ComponentType;
+}>('./pages/*Page/ComponentDocsPage.tsx', { eager: true });
+const componentPages = new Map(
+  Object.values(componentPageModules).map(({ componentSlug, default: Page }) => [componentSlug, Page])
+);
 
 export default function App() {
   const { status: syncStatus, lastEvent } = useSyncWebSocket();
@@ -40,6 +49,9 @@ export default function App() {
       component.routeSlug === currentPage &&
       !['button', 'textfield', 'textarea'].includes(component.routeSlug)
   );
+  const DedicatedComponentPage = genericComponent
+    ? componentPages.get(genericComponent.slug)
+    : undefined;
 
   // Dynamic TOC links based on page
   const tocLinks = isFigmaComponentsPage
@@ -96,7 +108,11 @@ export default function App() {
         ) : isTextFieldPage ? (
           <TextFieldPage />
         ) : genericComponent ? (
-          <ComponentPage component={genericComponent} />
+          DedicatedComponentPage ? (
+            <DedicatedComponentPage />
+          ) : (
+            <ComponentPage component={genericComponent} />
+          )
         ) : (
           <ButtonPage />
         )}

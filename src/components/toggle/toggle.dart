@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum UIToggleVariant { primary, secondary, tertiary }
+enum UIToggleVariant { primary, secondary, tertiary, outlined }
 enum UIToggleSize { small, medium, large }
 
 /// Auto-generated Flutter widget for [Toggle] from Figma.
@@ -18,7 +18,7 @@ class UIToggle extends StatelessWidget {
 
   const UIToggle({
     Key? key,
-    this.label = 'Toggle',
+    this.label = 'Component',
     this.child,
     this.onPressed,
     this.variant = UIToggleVariant.primary,

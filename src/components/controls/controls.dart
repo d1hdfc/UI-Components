@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum UIControlsVariant { primary, secondary, tertiary }
+enum UIControlsVariant { primary, secondary, tertiary, outlined, checkbox, radio, toggle }
 enum UIControlsSize { small, medium, large }
 
 /// Auto-generated Flutter widget for [Controls] from Figma.
@@ -18,7 +18,7 @@ class UIControls extends StatelessWidget {
 
   const UIControls({
     Key? key,
-    this.label = 'Controls',
+    this.label = 'Component',
     this.child,
     this.onPressed,
     this.variant = UIControlsVariant.primary,

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-enum UIButtonVariant { primary, secondary, tertiary }
-enum UIButtonSize { small, medium, large }
+enum UIButtonVariant { primary, secondary, tertiary, outlined, link, default, white, gradient, icon }
+enum UIButtonSize { small, medium, large, xsmall }
 
 /// Auto-generated Flutter widget for [Button] from Figma.
 class UIButton extends StatelessWidget {
@@ -33,12 +33,12 @@ class UIButton extends StatelessWidget {
   EdgeInsets _getPadding() {
     switch (size) {
       case UIButtonSize.small:
-        return const EdgeInsets.symmetric(horizontal: 11, vertical: 7);
+        return const EdgeInsets.symmetric(horizontal: 14, vertical: 7);
       case UIButtonSize.large:
-        return const EdgeInsets.symmetric(horizontal: 21, vertical: 13);
+        return const EdgeInsets.symmetric(horizontal: 26, vertical: 13);
       case UIButtonSize.medium:
       default:
-        return const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0);
+        return const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0);
     }
   }
 
@@ -107,15 +107,15 @@ class UIButton extends StatelessWidget {
       opacity: effectiveEnabled ? 1.0 : 0.5,
       child: Material(
         color: _getBackgroundColor(context),
-        borderRadius: BorderRadius.circular(8.0),
+        borderRadius: BorderRadius.circular(12.0),
         child: InkWell(
           onTap: effectiveEnabled ? onPressed : null,
-          borderRadius: BorderRadius.circular(8.0),
+          borderRadius: BorderRadius.circular(12.0),
           child: Container(
             padding: _getPadding(),
             decoration: BoxDecoration(
               border: Border.fromBorderSide(_getBorderSide(context)),
-              borderRadius: BorderRadius.circular(8.0),
+              borderRadius: BorderRadius.circular(12.0),
             ),
             child: content,
           ),

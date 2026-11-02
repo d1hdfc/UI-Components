@@ -1,10 +1,11 @@
-@use '../tokens/variables/adaptive.scss';
-@use '../tokens/variables/alias.scss';
-@use '../tokens/variables/layout.scss';
-@use '../tokens/variables/platform.scss';
-@use '../tokens/variables/primitive-type.scss';
-@use '../tokens/variables/primitives.scss';
+@use '../tokens/variables/adaptive';
+@use '../tokens/variables/alias';
+@use '../tokens/variables/layout';
+@use '../tokens/variables/platform';
+@use '../tokens/variables/primitive-type';
+@use '../tokens/variables/primitives';
 @use '../tokens/variables/semantics';
+
 @use './button/Button';
 @use './text-field/TextField';
 @use './text-area/TextArea';

@@ -35,19 +35,19 @@
 .ui-label--small {
   font-size: 13px;
   line-height: 16px;
-  padding: 7px 11px;
+  padding: 4px 8px;
 }
 
 .ui-label--medium {
   font-size: 14px;
   line-height: 20px;
-  padding: 10px 16px;
+  padding: 2px 4px;
 }
 
 .ui-label--large {
   font-size: 16px;
   line-height: 24px;
-  padding: 13px 21px;
+  padding: 3px 5px;
 }
 
 .ui-label--primary {

@@ -411,6 +411,25 @@ wss.on('connection', socket => {
 // Server Start
 // ==========================================
 
+let startupErrorLogged = false;
+function handleStartupError(error) {
+  if (startupErrorLogged) return;
+  startupErrorLogged = true;
+
+  if (error.code === 'EADDRINUSE') {
+    console.error(
+      `[SyncServer] Port ${PORT} is already in use. The sync server may already be running. ` +
+      `Check http://localhost:${PORT}/health before starting another instance.`
+    );
+  } else {
+    console.error(`[SyncServer] Failed to start: ${error.message}`);
+  }
+  process.exitCode = 1;
+}
+
+wss.once('error', handleStartupError);
+server.once('error', handleStartupError);
+
 server.listen(PORT, HOST, () => {
   console.log('====================================================');
   console.log(`🚀 HDFC Two-Way Real-Time Auto-Sync Server Running`);
@@ -428,4 +447,3 @@ process.on('SIGINT', () => {
   wss.close();
   server.close(() => process.exit(0));
 });
-

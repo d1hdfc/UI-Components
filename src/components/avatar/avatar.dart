@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-enum UIAvatarVariant { primary, secondary, tertiary }
-enum UIAvatarSize { small, medium, large }
+enum UIAvatarVariant { primary, secondary, tertiary, outlined }
+enum UIAvatarSize { small, medium, large, xx_xlarge_72, x_xlarge_64, xlarge_56, large_48, medium_40, small_32, xsmall_24, xxxlarge_72, xxlarge_64 }
 
 /// Auto-generated Flutter widget for [Avatar] from Figma.
 class UIAvatar extends StatelessWidget {
@@ -18,7 +18,7 @@ class UIAvatar extends StatelessWidget {
 
   const UIAvatar({
     Key? key,
-    this.label = 'Avatar',
+    this.label = 'Component',
     this.child,
     this.onPressed,
     this.variant = UIAvatarVariant.primary,

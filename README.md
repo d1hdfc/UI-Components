@@ -120,16 +120,33 @@ under the ignored `public/figma/components/` directory; signed Figma image URLs
 are not written into the source manifest.
 
 The gallery is a Figma design preview/catalog, not generated React source.
-Figma changes do not create or delete implementation files under
-`src/components`; update those separately. Run `npm run figma:components:sync`
-for a one-time version check, or `npm run figma:components:sync -- --force` to
-refresh the catalog and previews regardless of the current file version.
+The catalog watcher only updates previews. Separately, `npm run sync:server`
+polls Figma and generates an initial React implementation for detected
+components under `src/components`; review and refine the generated code before
+using it as a production component. Run `npm run figma:components:sync` for a
+one-time catalog version check, or `npm run figma:components:sync -- --force`
+to refresh the catalog and previews regardless of the current file version.
 
 The docs sidebar also provides a dedicated page for each exported React
 component, with a live render from `src/components` beside its matching Figma
 design and a usage snippet. The Button, Text field, and Text area pages retain
 their detailed examples and include the same Figma/live-code comparison. Vite
 hot reload updates these previews as component source or styles change.
+
+Each generated React component also gets its own page folder under
+`src/app/pages/<ComponentName>Page/`, with a `ComponentDocsPage.tsx` entry that
+uses the shared documentation layout. `npm run dev` and `npm run build`
+reconcile these folders from `src/components`; Figma-to-code sync creates the
+page folder when it generates a new React component. Figma components nested
+inside frames are included in the sync scan as well.
+
+To use the local Figma plugin, import
+`scripts/figma-plugin/manifest.json` from Figma's **Plugins > Development >
+Import plugin from manifest...** menu. Keep `npm run sync:server` running for
+the WebSocket bridge. The plugin source is included in this repository; it
+must be imported into Figma before it is available in the Figma menu. Its
+**Push Selection to Code** action asks the server to run a Figma-to-code sync;
+it does not translate only the selected node.
 
 ## MCP integration
 

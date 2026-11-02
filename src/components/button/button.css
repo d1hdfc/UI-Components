@@ -11,7 +11,7 @@
   text-decoration: none;
   cursor: pointer;
   border: 1px solid transparent;
-  border-radius: 8px;
+  border-radius: 12px;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   user-select: none;
   outline: none;
@@ -35,19 +35,19 @@
 .ui-button--small {
   font-size: 13px;
   line-height: 16px;
-  padding: 7px 11px;
+  padding: 7px 14px;
 }
 
 .ui-button--medium {
   font-size: 14px;
   line-height: 20px;
-  padding: 10px 16px;
+  padding: 10px 20px;
 }
 
 .ui-button--large {
   font-size: 16px;
   line-height: 24px;
-  padding: 13px 21px;
+  padding: 13px 26px;
 }
 
 .ui-button--primary {
