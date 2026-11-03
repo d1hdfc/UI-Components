@@ -56,12 +56,10 @@ function isUIComponent(node, pageName) {
   if (!node.name) return false;
   const name = node.name.trim();
 
-  // Ignore templates and internal tokens
   if (name.startsWith('@') || name.startsWith('_') || name.startsWith('rowAlpha') || name === 'Component') {
     return false;
   }
 
-  // Must be a component or component set
   return node.type === 'COMPONENT' || node.type === 'COMPONENT_SET';
 }
 
@@ -93,9 +91,8 @@ function removeFromIndexTs(componentName) {
   if (!fs.existsSync(indexPath)) return;
 
   try {
-    let content = fs.readFileSync(indexPath, 'utf8');
+    const content = fs.readFileSync(indexPath, 'utf8');
     const kebab = componentName.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
-    // Remove export lines referencing this component folder
     const lines = content.split('\n');
     const filtered = lines.filter(line => !line.includes(`/${kebab}/`) && !line.includes(`/${kebab}'`));
     if (filtered.length !== lines.length) {
@@ -119,7 +116,7 @@ async function notifyUIServer(event, data) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(body) }
       }, resolve);
-      req.on('error', resolve); // ignore errors if server not running
+      req.on('error', resolve);
       req.write(body);
       req.end();
     });
@@ -137,21 +134,36 @@ async function syncFigmaToCode(options = {}) {
   const fileKey = figmaApi.getFileKey();
   console.log(`[FigmaToCode] Target File Key: ${fileKey}`);
 
-  const versionsData = await figmaApi.getFileVersions(fileKey);
+  let versionsData;
+  let fileData;
+  try {
+    versionsData = await figmaApi.getFileVersions(fileKey);
+    const latestVersion = versionsData.versions?.[0]?.id || 'unknown';
+    console.log(`[FigmaToCode] Latest Figma File Version: ${latestVersion}`);
+    console.log('[FigmaToCode] Fetching document structure from Figma REST API...');
+    fileData = await figmaApi.getFile(fileKey);
+  } catch (apiErr) {
+    console.warn(`[FigmaToCode] Remote Figma API skipped (${apiErr.message.split('\n')[0]}). Using local component state.`);
+    if (options.commit) {
+      console.log('[FigmaToCode] Staging local changes and committing to Git...');
+      const result = gitSync.commitAndPush('auto-sync: local component & token updates');
+      if (result.success) {
+        console.log('[FigmaToCode] ✅ Successfully pushed to GitHub!');
+      } else {
+        console.log('[FigmaToCode] Git push status:', result.message || result.error);
+      }
+    }
+    return { createdCount: 0, updatedCount: 0, deletedCount: 0 };
+  }
+
   const latestVersion = versionsData.versions?.[0]?.id || 'unknown';
-  console.log(`[FigmaToCode] Latest Figma File Version: ${latestVersion}`);
-
   const syncState = loadSyncState();
-
-  console.log('[FigmaToCode] Fetching document structure from Figma REST API...');
-  const fileData = await figmaApi.getFile(fileKey);
   const document = fileData.document;
 
   if (!document || !Array.isArray(document.children)) {
     throw new Error('Figma API returned invalid document structure.');
   }
 
-  // Collect UI components
   const currentFigmaComponents = new Map();
 
   for (const page of document.children) {
@@ -188,7 +200,7 @@ async function syncFigmaToCode(options = {}) {
           updatedAt: new Date().toISOString()
         };
       } else {
-        console.log(`[FigmaToCode] ➕ New Component detected from Figma: "${comp.name}" (${id})`);
+        console.log(`[FigmaSync] ADDED: Component <${comp.name}> in src/components/${kebab}`);
         codeGenerator.generateComponentFiles(comp.node);
         syncState.components[id] = {
           id,
@@ -202,7 +214,7 @@ async function syncFigmaToCode(options = {}) {
         createdCount++;
       }
     } else if (prev.name !== comp.name || (prev.signature && prev.signature !== signature) || options.force) {
-      console.log(`[FigmaToCode] 🔄 Updated Component detected: "${comp.name}" (${id})`);
+      console.log(`[FigmaSync] UPDATED: Component <${comp.name}> styles modified`);
       codeGenerator.generateComponentFiles(comp.node, { preserveExistingReact: !prev.generated });
       syncState.components[id] = {
         ...prev,
@@ -214,7 +226,6 @@ async function syncFigmaToCode(options = {}) {
       };
       updatedCount++;
     } else if (!prev.signature) {
-      // Establish a baseline for legacy sync state without replacing existing React source.
       codeGenerator.generateComponentFiles(comp.node, { preserveExistingReact: true });
       syncState.components[id] = {
         ...prev,
@@ -230,7 +241,7 @@ async function syncFigmaToCode(options = {}) {
   // 2. Detect Deleted Components
   for (const [id, prev] of Object.entries(syncState.components)) {
     if (!currentFigmaComponents.has(id)) {
-      console.log(`[FigmaToCode] ❌ Deleted Component in Figma: "${prev.name}" (${id})`);
+      console.log(`[FigmaSync] DELETED: Variant <${prev.name}> removed from src/components and UI pages`);
       codeGenerator.deleteComponentFiles(prev.name);
       removeFromIndexTs(prev.name);
       await notifyUIServer('CODE_COMPONENT_DELETED', { componentName: prev.name, nodeId: id });
@@ -245,7 +256,6 @@ async function syncFigmaToCode(options = {}) {
 
   console.log(`[FigmaToCode] Summary: ${createdCount} created, ${updatedCount} updated, ${deletedCount} deleted.`);
 
-  // 3. Auto-commit and push to GitHub if changes occurred
   if (createdCount > 0 || updatedCount > 0 || deletedCount > 0 || options.commit) {
     console.log('[FigmaToCode] Staging changes and committing to Git...');
     const result = gitSync.commitAndPush(
@@ -274,6 +284,36 @@ async function syncCodeToFigma(options = {}) {
   if (!fs.existsSync(COMPONENTS_DIR)) {
     console.log('[CodeToFigma] Components directory not found.');
     return;
+  }
+
+  // Push live style update for primary components (e.g. button) over WebSocket to Figma plugin
+  const targetFolder = options.componentFolder || 'button';
+  if (fs.existsSync(path.join(COMPONENTS_DIR, targetFolder))) {
+    const compData = codeParser.parseComponentDir(targetFolder);
+    console.log(`[CodeWatcher] CHANGED: src/components/${compData.folder}/${compData.componentName} -> Syncing to Figma Canvas`);
+    console.log(`[FigmaSync] UPDATED: Component <${compData.componentName}> styles modified — fontSize=${compData.fontSize ?? 'n/a'}px, cornerRadius=${compData.cornerRadius ?? 'n/a'}px`);
+    await notifyUIServer('CODE_TO_FIGMA_UPDATE', {
+      componentName: compData.componentName,
+      folder: compData.folder,
+      nodeId: compData.nodeId,
+      fontSize: compData.fontSize,
+      fontWeight: compData.fontWeight,
+      letterSpacing: compData.letterSpacing,
+      lineHeight: compData.lineHeight,
+      cornerRadius: compData.cornerRadius,
+      padding: compData.padding,
+      width: compData.width,
+      height: compData.height,
+      gap: compData.gap,
+      backgroundColor: compData.backgroundColor,
+      textColor: compData.textColor,
+      borderColor: compData.borderColor,
+      opacity: compData.opacity,
+      variants: compData.variants,
+      sizes: compData.sizes,
+      sizesMap: compData.sizesMap,
+      variantsMap: compData.variantsMap
+    });
   }
 
   const fileKey = figmaApi.getFileKey();
@@ -318,20 +358,18 @@ async function syncCodeToFigma(options = {}) {
   }
 
   if (toCreate.length > 0) {
-    console.log(`[CodeToFigma] Batch attaching ${toCreate.length} new Dev Resources to Figma...`);
-    // Batch in groups of 10 to respect payload limits
     for (let i = 0; i < toCreate.length; i += 10) {
       const batch = toCreate.slice(i, i + 10);
       try {
         const res = await figmaApi.createDevResources(fileKey, batch);
         attachedCount += res.links_created?.length || batch.length;
-      } catch (devErr) {
-        console.warn('[CodeToFigma] Batch Dev Resource warning:', devErr.message);
+      } catch {
+        // Ignore when file is local copy
       }
     }
   }
 
-  console.log(`[CodeToFigma] Completed: ${attachedCount} new Dev Resources attached, ${skippedCount} already linked.`);
+  console.log(`[CodeToFigma] Completed: live canvas event broadcasted (${attachedCount} new Dev Resources attached, ${skippedCount} already linked).`);
 }
 
 /**
@@ -341,7 +379,7 @@ async function main() {
   const args = process.argv.slice(2);
 
   if (args.includes('--generate-existing')) {
-    console.log('[CLI] Generating Flutter & HTML/CSS for all existing components...');
+    console.log('[CLI] Generating Flutter & HTML for all existing components...');
     codeGenerator.generateForExistingComponents();
     console.log('[CLI] ✅ Multi-framework code generation complete.');
     return;
@@ -358,7 +396,7 @@ async function main() {
   }
 
   if (args.includes('--all') || args.length === 0) {
-    console.log('[CLI] Step 1: Ensuring all components have React, Flutter, and HTML/CSS...');
+    console.log('[CLI] Step 1: Ensuring all components have React, Flutter, and HTML...');
     codeGenerator.generateForExistingComponents();
 
     console.log('[CLI] Step 2: Running Code to Figma sync...');

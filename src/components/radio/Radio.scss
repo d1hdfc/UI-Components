@@ -1,14 +1,14 @@
 .radio {
   display: inline-flex;
   align-items: flex-start;
-  gap: 10px;
-  color: var(--text-strong, #242424);
+  gap: var(--global-scale-125);
+  color: var(--text-strong);
   cursor: pointer;
 
   &-input {
     position: absolute;
-    width: 1px;
-    height: 1px;
+    width: var(--global-scale-12);
+    height: var(--global-scale-12);
     overflow: hidden;
     clip: rect(0, 0, 0, 0);
 
@@ -17,28 +17,28 @@
     }
 
     &:focus-visible + .radio-control {
-      outline: 2px solid var(--border-primary-default, #1c3fca);
-      outline-offset: 2px;
+      outline: var(--layout-border-md) solid var(--border-primary-default);
+      outline-offset: var(--layout-spacing-2xs);
     }
   }
 
   &-control {
     position: relative;
     display: grid;
-    width: var(--control-radio-size-medium-height, 24px);
-    height: var(--control-radio-size-medium-height, 24px);
-    flex: 0 0 var(--control-radio-size-medium-height, 24px);
+    width: var(--control-radio-size-medium-height);
+    height: var(--control-radio-size-medium-height);
+    flex: 0 0 var(--control-radio-size-medium-height);
     place-items: center;
-    border: 1px solid var(--forms-border-color-default, #aeb3bc);
-    border-radius: 50%;
-    background: var(--surface-root, #fff);
+    border: var(--layout-border-xs) solid var(--forms-border-color-default);
+    border-radius: var(--control-radio-size-radius);
+    background: var(--surface-root);
 
     &::after {
-      width: 10px;
-      height: 10px;
+      width: var(--global-scale-125);
+      height: var(--global-scale-125);
       transform: scale(0);
-      border-radius: 50%;
-      background: var(--surface-primary-base, #1c3fca);
+      border-radius: var(--control-radio-size-radius);
+      background: var(--surface-primary-base);
       content: '';
       transition: transform 0.12s ease;
     }
@@ -46,21 +46,21 @@
 
   &-copy {
     display: grid;
-    gap: 3px;
+    gap: var(--global-scale-37);
   }
 
   &-label {
-    font-size: 14px;
-    line-height: 1.4;
+    font-size: var(--font-size-paragraph-sm);
+    line-height: var(--font-line-height-normal);
   }
 
   &-helper {
-    color: var(--text-subtle, #626873);
-    font-size: 12px;
+    color: var(--text-subtle);
+    font-size: var(--font-size-paragraph-xsm);
   }
 
   &--disabled {
-    color: var(--forms-text-color-disabled, #aeb3bc);
+    color: var(--forms-text-color-disabled);
     cursor: not-allowed;
   }
 }

@@ -2,32 +2,36 @@
 
 $button-sizes: (
   large: (
-    height: var(--button-size-xsmall-height),
-    padding: var(--button-size-xsmall-padding-x),
-    radius: var(--button-size-xsmall-radius),
-    gap: var(--button-size-xsmall-gap),
-    font-size: 12px
-  ),
-  small: (
-    height: var(--button-size-small-height),
-    padding: var(--button-size-small-padding-x),
-    radius: var(--button-size-small-radius),
-    gap: var(--button-size-small-gap),
-    font-size: 14px
+    height: var(--button-size-large-height),
+    padding: var(--button-size-large-padding-x),
+    radius: var(--button-size-large-radius),
+    gap: var(--button-size-large-gap),
+    font-size: var(--button-size-large-font-size),
+    icon-size: var(--button-size-large-icon-size)
   ),
   medium: (
     height: var(--button-size-medium-height),
     padding: var(--button-size-medium-padding-x),
     radius: var(--button-size-medium-radius),
     gap: var(--button-size-medium-gap),
-    font-size: 15px
+    font-size: var(--button-size-medium-font-size),
+    icon-size: var(--button-size-medium-icon-size)
+  ),
+  small: (
+    height: var(--button-size-small-height),
+    padding: var(--button-size-small-padding-x),
+    radius: var(--button-size-small-radius),
+    gap: var(--button-size-small-gap),
+    font-size: var(--button-size-small-font-size),
+    icon-size: var(--button-size-small-icon-size)
   ),
   xsmall: (
-    height: var(--button-size-large-height),
-    padding: var(--button-size-large-padding-x),
-    radius: var(--button-size-large-radius),
-    gap: var(--button-size-large-gap),
-    font-size: 16px
+    height: var(--button-size-xsmall-height),
+    padding: var(--button-size-xsmall-padding-x),
+    radius: var(--button-size-xsmall-radius),
+    gap: var(--button-size-xsmall-gap),
+    font-size: var(--button-size-xsmall-font-size),
+    icon-size: var(--button-size-xsmall-icon-size)
   )
 );
 
@@ -35,16 +39,16 @@ $button-variants: (
   primary: (
     background: var(--button-primary-background-color-default),
     foreground: var(--button-primary-foreground-color-static),
-    border: transparent,
+    border: var(--surface-root-opacity),
     hover-background: var(--button-primary-background-color-hover),
     hover-foreground: var(--button-primary-foreground-color-static),
-    hover-border: transparent,
+    hover-border: var(--surface-root-opacity),
     active-background: var(--button-primary-background-color-pressed),
     active-foreground: var(--button-primary-foreground-color-static),
-    active-border: transparent,
+    active-border: var(--surface-root-opacity),
     disabled-background: var(--button-primary-background-color-disabled),
     disabled-foreground: var(--button-primary-foreground-color-disabled),
-    disabled-border: transparent
+    disabled-border: var(--surface-root-opacity)
   ),
   secondary: (
     background: var(--button-secondary-background-color-default),
@@ -63,30 +67,30 @@ $button-variants: (
   tertiary: (
     background: var(--button-tertiary-background-color-default),
     foreground: var(--button-tertiary-foreground-color-default),
-    border: transparent,
+    border: var(--surface-root-opacity),
     hover-background: var(--button-tertiary-background-color-hover),
     hover-foreground: var(--button-tertiary-foreground-color-hover),
-    hover-border: transparent,
+    hover-border: var(--surface-root-opacity),
     active-background: var(--button-tertiary-background-color-pressed),
     active-foreground: var(--button-tertiary-foreground-color-pressed),
-    active-border: transparent,
+    active-border: var(--surface-root-opacity),
     disabled-background: var(--button-tertiary-background-color-disabled),
     disabled-foreground: var(--button-tertiary-foreground-color-disabled),
-    disabled-border: transparent
+    disabled-border: var(--surface-root-opacity)
   ),
   link: (
-    background: transparent,
+    background: var(--surface-root-opacity),
     foreground: var(--button-link-foreground-color-default),
-    border: transparent,
-    hover-background: transparent,
+    border: var(--surface-root-opacity),
+    hover-background: var(--surface-root-opacity),
     hover-foreground: var(--button-link-foreground-color-hover),
-    hover-border: transparent,
-    active-background: transparent,
+    hover-border: var(--surface-root-opacity),
+    active-background: var(--surface-root-opacity),
     active-foreground: var(--button-link-foreground-color-pressed),
-    active-border: transparent,
-    disabled-background: transparent,
+    active-border: var(--surface-root-opacity),
+    disabled-background: var(--surface-root-opacity),
     disabled-foreground: var(--button-link-foreground-color-disabled),
-    disabled-border: transparent
+    disabled-border: var(--surface-root-opacity)
   )
 );
 
@@ -97,14 +101,14 @@ $button-variants: (
   min-width: max-content;
   border: var(--button-size-border-width) solid var(--btn-border);
   border-radius: var(--button-radius);
-  padding: 0 var(--button-padding);
+  padding: var(--global-scale-0) var(--button-padding);
   gap: var(--button-gap);
   background-color: var(--btn-background);
   color: var(--btn-foreground);
   font-family: var(--font-family-inter);
   font-size: var(--button-font-size);
-  font-weight: 600;
-  line-height: 1;
+  font-weight: var(--font-weight-600);
+  line-height: var(--font-line-height-none);
   cursor: pointer;
   transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 
@@ -124,7 +128,7 @@ $button-variants: (
 
   &:focus-visible {
     outline: var(--button-focus-border-width) solid var(--button-focus-brand);
-    outline-offset: 2px;
+    outline-offset: var(--layout-spacing-2xs);
   }
 
   &:disabled,
@@ -146,11 +150,10 @@ $button-variants: (
   &-icon {
     display: inline-flex;
     flex: 0 0 auto;
-    width: 24px;
-    height: 24px;
+    width: var(--button-icon-size);
+    height: var(--button-icon-size);
     align-items: center;
     justify-content: center;
-    font-size: 1.1em;
 
     &--left,
     &--right {
@@ -169,6 +172,7 @@ $button-variants: (
     --button-radius: #{map.get($tokens, radius)};
     --button-gap: #{map.get($tokens, gap)};
     --button-font-size: #{map.get($tokens, font-size)};
+    --button-icon-size: #{map.get($tokens, icon-size)};
 
     height: var(--button-height);
   }
@@ -183,11 +187,11 @@ $button-variants: (
 }
 
 .spinner {
-  width: 1em;
-  height: 1em;
-  border: 2px solid currentColor;
-  border-right-color: transparent;
-  border-radius: 50%;
+  width: var(--button-icon-size);
+  height: var(--button-icon-size);
+  border: var(--layout-border-md) solid currentColor;
+  border-right-color: var(--surface-root-opacity);
+  border-radius: var(--layout-radius-full);
   animation: button-spin 0.7s linear infinite;
 }
 

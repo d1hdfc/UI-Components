@@ -13,6 +13,7 @@ const PORT = Number(process.env.PORT || 3055);
 const HOST = process.env.HOST || '0.0.0.0';
 const POLL_INTERVAL_MS = Number(process.env.SYNC_POLL_INTERVAL_MS || 30_000);
 const COMPONENTS_DIR = path.join(process.cwd(), 'src', 'components');
+const TOKENS_VARIABLES_DIR = path.join(process.cwd(), 'src', 'tokens', 'variables');
 
 const channels = new Map();
 const joinedChannels = new WeakMap();
@@ -20,6 +21,7 @@ const joinedChannels = new WeakMap();
 let isFigmaSyncing = false;
 let lastKnownVersion = null;
 let lastFigmaSyncTime = null;
+let lastModifiedComponentFolder = 'button';
 
 // ==========================================
 // WebSocket & Messaging Helpers
@@ -94,6 +96,17 @@ function handleSocketMessage(socket, rawMessage) {
     if (payload?.event === 'FIGMA_SYNC_REQUEST' || payload?.event === 'FIGMA_SELECTION_PUSH') {
       console.log(`[Bridge] Figma sync requested${payload.event === 'FIGMA_SELECTION_PUSH' ? ` for ${payload.items?.length || 0} selected item(s)` : ''}`);
       triggerFigmaToCodeSync(payload.event === 'FIGMA_SYNC_REQUEST' ? 'plugin-request' : 'plugin-selection');
+      return;
+    }
+
+    if (payload?.event === 'CODE_TO_FIGMA_SYNC_REQUEST') {
+      const targetFolder = payload.componentFolder || lastModifiedComponentFolder || 'button';
+      console.log(`[Bridge] Code -> Figma sync requested from plugin for "${targetFolder}"`);
+      triggerCodeToFigmaSync(targetFolder, 'update');
+      if (targetFolder !== 'button' && fs.existsSync(path.join(COMPONENTS_DIR, 'button'))) {
+        triggerCodeToFigmaSync('button', 'update');
+      }
+      return;
     }
 
     broadcastToChannel(channelName, payload);
@@ -135,6 +148,7 @@ async function triggerFigmaToCodeSync(triggerSource = 'manual') {
 }
 
 async function triggerCodeToFigmaSync(componentFolder, action = 'update') {
+  lastModifiedComponentFolder = componentFolder;
   console.log(`\n[SyncServer] >>> Triggering Code to Figma Auto-Sync (${action}: ${componentFolder})`);
 
   const compData = codeParser.parseComponentDir(componentFolder);
@@ -151,7 +165,7 @@ async function triggerCodeToFigmaSync(componentFolder, action = 'update') {
   }
 
   console.log(`[CodeWatcher] CHANGED: src/components/${compData.folder}/${compData.componentName} -> Syncing to Figma Canvas`);
-  console.log(`[FigmaSync] UPDATED: Component <${compData.componentName}> styles modified — fontSize=${compData.fontSize ?? 'n/a'}, cornerRadius=${compData.cornerRadius ?? 'n/a'}, bg=${compData.backgroundColor ?? 'n/a'}`);
+  console.log(`[FigmaSync] UPDATED: Component <${compData.componentName}> styles modified — fontSize=${compData.fontSize ?? 'n/a'}px, cornerRadius=${compData.cornerRadius ?? 'n/a'}px, height=${compData.height ?? 'n/a'}px`);
 
   broadcastToChannel('figma-sync', {
     event: 'CODE_TO_FIGMA_UPDATE',
@@ -181,7 +195,7 @@ async function triggerCodeToFigmaSync(componentFolder, action = 'update') {
     variantsMap: compData.variantsMap
   });
 
-    // Also update Dev Resources via Figma REST API
+  // Also update Dev Resources via Figma REST API (best effort)
   if (compData.nodeId) {
     try {
       const fileKey = figmaApi.getFileKey();
@@ -191,9 +205,8 @@ async function triggerCodeToFigmaSync(componentFolder, action = 'update') {
         url: repoUrl,
         nodeId: compData.nodeId
       });
-      console.log(`[SyncServer] Attached Dev Resource on Figma node ${compData.nodeId}`);
     } catch {
-      // Ignore if dev resource exists
+      // Ignore if dev resource exists or file unavailable on REST API
     }
   }
 }
@@ -212,7 +225,6 @@ function setupCodeWatcher() {
   fs.watch(COMPONENTS_DIR, { recursive: true }, (eventType, filename) => {
     if (!filename) return;
 
-    // Ignore temporary, git, or system files
     if (filename.includes('.git') || filename.includes('node_modules') || filename.endsWith('.tmp')) {
       return;
     }
@@ -220,10 +232,8 @@ function setupCodeWatcher() {
     const parts = filename.split(/[/\\]/);
     const componentFolder = parts[0];
 
-    // Ignore root index.ts changes
     if (componentFolder === 'index.ts' || componentFolder.includes('.')) return;
 
-    // Debounce watcher events by 1.5 seconds
     if (debounceTimers.has(componentFolder)) {
       clearTimeout(debounceTimers.get(componentFolder));
     }
@@ -241,9 +251,25 @@ function setupCodeWatcher() {
         } else {
           triggerCodeToFigmaSync(componentFolder, 'update');
         }
-      }, 1500)
+      }, 800)
     );
   });
+
+  // Also watch src/tokens/variables/ so changing token SCSS variables immediately syncs to Figma
+  if (fs.existsSync(TOKENS_VARIABLES_DIR)) {
+    console.log(`[CodeWatcher] Watching for token variable changes in: ${TOKENS_VARIABLES_DIR}`);
+    let tokenTimer = null;
+    fs.watch(TOKENS_VARIABLES_DIR, { recursive: false }, (eventType, filename) => {
+      if (!filename || !filename.endsWith('.scss')) return;
+      if (tokenTimer) clearTimeout(tokenTimer);
+      tokenTimer = setTimeout(() => {
+        tokenTimer = null;
+        console.log(`[CodeWatcher] CHANGED: src/tokens/variables/${filename} -> Re-evaluating token variables & syncing to Figma`);
+        codeParser.invalidateTokenCache();
+        triggerCodeToFigmaSync(lastModifiedComponentFolder || 'button', 'update');
+      }, 800);
+    });
+  }
 }
 
 // ==========================================
@@ -273,15 +299,12 @@ function setupFigmaPoller() {
         lastKnownVersion = latest;
         await triggerFigmaToCodeSync('poller-version-change');
       }
-    } catch (err) {
-      console.warn('[FigmaPoller] Polling check failed:', err.message);
+    } catch {
+      // Silently skip when working on local copy or offline
     }
   }
 
-  // Initial check
   checkFigmaVersion();
-
-  // Periodic interval
   setInterval(checkFigmaVersion, POLL_INTERVAL_MS);
 }
 
@@ -324,14 +347,12 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
-  // Health check
   if (req.method === 'GET' && pathname === '/health') {
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ status: 'ok', uptime: process.uptime() }));
     return;
   }
 
-  // Sync Status
   if (req.method === 'GET' && pathname === '/api/sync/status') {
     const clientsCount = channels.get('figma-sync')?.size || 0;
     res.writeHead(200, { 'Content-Type': 'application/json' });
@@ -349,7 +370,6 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
-  // Manual Trigger Figma to Code
   if (req.method === 'POST' && pathname === '/api/sync/figma-to-code') {
     triggerFigmaToCodeSync('http-api');
     res.writeHead(200, { 'Content-Type': 'application/json' });
@@ -357,42 +377,43 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
-  // Figma Webhook Endpoint
+  if (req.method === 'POST' && pathname === '/api/sync/code-to-figma') {
+    const body = await parseBody(req);
+    const folder = body.componentFolder || lastModifiedComponentFolder || 'button';
+    triggerCodeToFigmaSync(folder, 'update');
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ message: `Code to Figma sync triggered for ${folder}` }));
+    return;
+  }
+
   if (req.method === 'POST' && (pathname === '/api/webhook' || pathname === '/api/figma-webhook')) {
     try {
       const payload = await parseBody(req);
       console.log(`[Webhook] Received Figma Webhook event: ${payload.event_type || 'UNKNOWN'}`);
 
-      // Handle PING verification from Figma
       if (payload.event_type === 'PING') {
-        console.log('[Webhook] Responding 200 OK to Figma PING verification');
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ status: 'pong', timestamp: new Date().toISOString() }));
         return;
       }
 
-      // Handle File Update / Library Publish
       if (payload.event_type === 'FILE_UPDATE' || payload.event_type === 'LIBRARY_PUBLISH') {
-        console.log(`[Webhook] Figma file updated: ${payload.file_name || payload.file_key}`);
         triggerFigmaToCodeSync(`webhook-${payload.event_type}`);
       }
 
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ status: 'received' }));
     } catch (err) {
-      console.error('[Webhook] Error processing webhook:', err.message);
       res.writeHead(400, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ error: err.message }));
     }
     return;
   }
 
-  // UI Notify — broadcast sync events to all WebSocket clients
   if (req.method === 'POST' && pathname === '/api/ui-notify') {
     try {
       const payload = await parseBody(req);
       broadcastToChannel('figma-sync', payload);
-      console.log(`[UINotify] Broadcasted event "${payload.event}" to ${channels.get('figma-sync')?.size || 0} client(s)`);
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ status: 'broadcasted' }));
     } catch (err) {

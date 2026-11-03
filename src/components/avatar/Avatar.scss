@@ -2,28 +2,32 @@
   position: relative;
   display: inline-flex;
   flex: 0 0 auto;
-  width: var(--avatar-size-medium, 40px);
-  height: var(--avatar-size-medium, 40px);
+  width: var(--avatar-size-medium);
+  height: var(--avatar-size-medium);
   align-items: center;
   justify-content: center;
   overflow: visible;
-  border-radius: 50%;
-  background: var(--surface-primary-lighter, #e8edff);
-  color: var(--surface-primary-base, #1c3fca);
-  font-size: 14px;
-  font-weight: 600;
-  line-height: 1;
+  border-radius: var(--avatar-border-radius);
+  background: var(--surface-primary-lighter);
+  color: var(--surface-primary-base);
+  font-size: var(--font-size-paragraph-sm);
+  font-weight: var(--font-weight-600);
+  line-height: var(--font-line-height-none);
 
   &--small {
-    width: var(--avatar-size-small, 32px);
-    height: var(--avatar-size-small, 32px);
-    font-size: 12px;
+    width: var(--avatar-size-small);
+    height: var(--avatar-size-small);
+    font-size: var(--font-size-paragraph-xsm);
   }
 
   &--large {
-    width: var(--avatar-size-large, 48px);
-    height: var(--avatar-size-large, 48px);
-    font-size: 18px;
+    width: var(--avatar-size-large);
+    height: var(--avatar-size-large);
+    font-size: var(--font-size-paragraph-md);
+  }
+
+  &--square {
+    border-radius: var(--layout-radius-md);
   }
 
   &-image {
@@ -33,26 +37,30 @@
     object-fit: cover;
   }
 
+  &-initials {
+    text-transform: uppercase;
+  }
+
   &-status {
     position: absolute;
-    right: 0;
-    bottom: 0;
-    width: 25%;
-    height: 25%;
-    border: 2px solid var(--surface-root, #fff);
-    border-radius: 50%;
-    background: var(--surface-neutral-base, #858b95);
-  }
+    right: var(--global-scale-0);
+    bottom: var(--global-scale-0);
+    width: var(--layout-size-sm);
+    height: var(--layout-size-sm);
+    border: var(--layout-border-md) solid var(--surface-root);
+    border-radius: var(--avatar-border-radius);
+    background: var(--surface-neutral-base);
 
-  &--online &-status {
-    background: var(--surface-success-base, #00815a);
-  }
+    &--online {
+      background: var(--surface-success-base);
+    }
 
-  &--busy &-status {
-    background: var(--surface-error-base, #d61c53);
-  }
+    &--busy {
+      background: var(--surface-error-base);
+    }
 
-  &--away &-status {
-    background: var(--surface-warning-base, #f8b600);
+    &--away {
+      background: var(--surface-warning-base);
+    }
   }
 }

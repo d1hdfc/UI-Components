@@ -2,15 +2,109 @@
 /**
  * code-parser.cjs — Enhanced SCSS/TSX parser for bi-directional sync.
  * Extracts: variants, sizes, fontSize, fontWeight, padding, cornerRadius,
- * backgroundColor, borderColor, opacity, and any CSS custom properties.
+ * backgroundColor, borderColor, opacity, and resolved token values.
  */
 
 const fs = require('node:fs');
 const path = require('node:path');
+let sass;
+try { sass = require('sass'); } catch { sass = null; }
 
 const COMPONENTS_DIR = path.join(process.cwd(), 'src', 'components');
 const CATALOG_PATH   = path.join(process.cwd(), 'src', 'figma', 'components.json');
 const MCP_CONFIG_PATH = path.join(process.cwd(), '.mcp', 'config.json');
+const TOKEN_VARIABLES_DIR = path.join(process.cwd(), 'src', 'tokens', 'variables');
+
+let tokenValueCache = null;
+let tokenCacheMtime = 0;
+
+function getTokenDirMtime() {
+  if (!fs.existsSync(TOKEN_VARIABLES_DIR)) return 0;
+  let maxMtime = 0;
+  for (const file of fs.readdirSync(TOKEN_VARIABLES_DIR)) {
+    if (!file.endsWith('.scss')) continue;
+    try {
+      const stat = fs.statSync(path.join(TOKEN_VARIABLES_DIR, file));
+      if (stat.mtimeMs > maxMtime) maxMtime = stat.mtimeMs;
+    } catch { /* ignore */ }
+  }
+  return maxMtime;
+}
+
+/**
+ * Read the generated token SCSS maps and CSS custom-property declarations.
+ * Code -> Figma must resolve var(--token) before sending numeric/color values.
+ */
+function loadTokenValues(forceReload = false) {
+  const currentMtime = getTokenDirMtime();
+  if (!forceReload && tokenValueCache && currentMtime === tokenCacheMtime) {
+    return tokenValueCache;
+  }
+
+  const values = {};
+  if (!fs.existsSync(TOKEN_VARIABLES_DIR)) return values;
+
+  for (const file of fs.readdirSync(TOKEN_VARIABLES_DIR)) {
+    if (!file.endsWith('.scss')) continue;
+    const fullPath = path.join(TOKEN_VARIABLES_DIR, file);
+    const source = fs.readFileSync(fullPath, 'utf8');
+    const mapPrefix = file === 'layout.scss' ? 'layout-' : '';
+
+    // Token maps use quoted keys, for example: "button-size-medium-height": var(--global-scale-1000),
+    const mapEntry = /["']([a-zA-Z0-9_-]+)["']\s*:\s*([^,\n)]+(?:\([^)]*\))?)/g;
+    let match;
+    while ((match = mapEntry.exec(source)) !== null) {
+      const val = match[2].trim();
+      values[match[1]] = val;
+      if (mapPrefix) values[`${mapPrefix}${match[1]}`] = val;
+    }
+
+    // Keep support for explicitly authored CSS custom properties as well.
+    const cssVariable = /--([a-zA-Z0-9_-]+)\s*:\s*([^;\n}]+)/g;
+    while ((match = cssVariable.exec(source)) !== null) {
+      if (!Object.prototype.hasOwnProperty.call(values, match[1])) {
+        values[match[1]] = match[2].trim();
+      }
+    }
+
+    // Compile token SCSS so loop-generated variables (colors/scales) are
+    // available to the parser with their concrete values.
+    if (sass) {
+      try {
+        const compiled = sass.compile(fullPath).css;
+        const compiledVariable = /--([a-zA-Z0-9_-]+)\s*:\s*([^;\n}]+)/g;
+        while ((match = compiledVariable.exec(compiled)) !== null) {
+          values[match[1]] = match[2].trim();
+        }
+      } catch {
+        // A token file may be intentionally partial; source-map values still work.
+      }
+    }
+  }
+
+  tokenValueCache = values;
+  tokenCacheMtime = currentMtime;
+  return values;
+}
+
+function invalidateTokenCache() {
+  tokenValueCache = null;
+  tokenCacheMtime = 0;
+}
+
+function resolveTokenValue(value, seen = new Set()) {
+  if (typeof value !== 'string') return value;
+  const tokens = loadTokenValues();
+  return value.replace(/var\(--([a-zA-Z0-9_-]+)(?:,\s*([^)]+))?\)/g, (full, name, fallback) => {
+    if (seen.has(name)) return fallback ? resolveTokenValue(fallback.trim(), seen) : full;
+    if (!Object.prototype.hasOwnProperty.call(tokens, name)) {
+      return fallback ? resolveTokenValue(fallback.trim(), seen) : full;
+    }
+    const nextSeen = new Set(seen);
+    nextSeen.add(name);
+    return resolveTokenValue(tokens[name], nextSeen);
+  });
+}
 
 // ─────────────────────────────────────────────────────────────
 // Figma node-id lookup
@@ -24,7 +118,7 @@ function findFigmaNodeId(componentName, folder) {
           c =>
             c.codeComponentName?.toLowerCase() === componentName.toLowerCase() ||
             c.figmaComponentName?.toLowerCase() === componentName.toLowerCase() ||
-            c.filePath?.includes(folder)
+            c.filePath?.includes(`/${folder}/`)
         );
         if (found?.nodeId) return found.nodeId;
       }
@@ -51,30 +145,75 @@ function findFigmaNodeId(componentName, folder) {
 // SCSS helpers
 // ─────────────────────────────────────────────────────────────
 
+function parsePxValue(raw) {
+  if (raw === null || raw === undefined) return null;
+  const resolved = resolveTokenValue(String(raw).trim());
+  const px = resolved.match(/-?(?:\d+(?:\.\d+)?)px\b/i);
+  if (px) return parseFloat(px[0]);
+  if (/^-?\d+(?:\.\d+)?$/.test(resolved)) return parseFloat(resolved);
+  return null;
+}
+
 /** Extract a single numeric px value from SCSS content for a given property */
 function extractPx(scss, property) {
-  const re = new RegExp(`(?:^|[^-])${property}:\\s*([0-9.]+)px`, 'mi');
-  const m = scss.match(re);
-  return m ? parseFloat(m[1]) : null;
+  const re = new RegExp(`(?:^|[^-\\w])${property}:\\s*([^;\\n}]+)`, 'gmi');
+  let m;
+  let lastValid = null;
+  while ((m = re.exec(scss)) !== null) {
+    const px = parsePxValue(m[1]);
+    if (px !== null) lastValid = px;
+  }
+  return lastValid;
 }
 
 /** Extract a raw value (px, em, rem, %, number) */
 function extractValue(scss, property) {
-  const re = new RegExp(`(?:^|[^-])${property}:\\s*([^;\\n]+)`, 'mi');
-  const m = scss.match(re);
-  return m ? m[1].trim() : null;
+  const re = new RegExp(`(?:^|[^-\\w])${property}:\\s*([^;\\n}]+)`, 'gmi');
+  let m;
+  let lastValid = null;
+  while ((m = re.exec(scss)) !== null) {
+    const resolved = resolveTokenValue(m[1].trim());
+    if (!resolved.startsWith('var(--')) {
+      lastValid = resolved;
+    }
+  }
+  return lastValid;
 }
 
-/** Convert hex color to Figma {r,g,b} (0–1) */
-function hexToFigmaRgb(hex) {
-  const h = hex.replace('#', '');
-  if (h.length !== 3 && h.length !== 6) return null;
-  const full = h.length === 3 ? h.split('').map(c => c + c).join('') : h;
-  return {
-    r: parseInt(full.slice(0, 2), 16) / 255,
-    g: parseInt(full.slice(2, 4), 16) / 255,
-    b: parseInt(full.slice(4, 6), 16) / 255,
-  };
+/** Convert #hex or rgb()/rgba() color to Figma {r,g,b} (0–1) */
+function colorToFigmaRgb(colorStr) {
+  if (!colorStr || typeof colorStr !== 'string') return null;
+  const resolved = resolveTokenValue(colorStr.trim());
+  if (resolved === 'transparent' || resolved === 'none') return null;
+
+  const hexMatch = resolved.match(/#([0-9a-fA-F]{3,8})\b/);
+  if (hexMatch) {
+    const h = hexMatch[1];
+    if (h.length === 3) {
+      return {
+        r: parseInt(h[0] + h[0], 16) / 255,
+        g: parseInt(h[1] + h[1], 16) / 255,
+        b: parseInt(h[2] + h[2], 16) / 255,
+      };
+    }
+    if (h.length >= 6) {
+      return {
+        r: parseInt(h.slice(0, 2), 16) / 255,
+        g: parseInt(h.slice(2, 4), 16) / 255,
+        b: parseInt(h.slice(4, 6), 16) / 255,
+      };
+    }
+  }
+
+  const rgbMatch = resolved.match(/rgba?\(\s*(\d+(?:\.\d+)?)\s*,\s*(\d+(?:\.\d+)?)\s*,\s*(\d+(?:\.\d+)?)/i);
+  if (rgbMatch) {
+    return {
+      r: Math.min(1, Math.max(0, parseFloat(rgbMatch[1]) / 255)),
+      g: Math.min(1, Math.max(0, parseFloat(rgbMatch[2]) / 255)),
+      b: Math.min(1, Math.max(0, parseFloat(rgbMatch[3]) / 255)),
+    };
+  }
+  return null;
 }
 
 /** Parse SCSS map blocks like $sizes: ( small: (font-size: 14px, ...), ... ) */
@@ -84,16 +223,37 @@ function parseSassMap(scss, mapName) {
   if (!mapMatch) return {};
 
   const result = {};
-  const entryRe = /(\w[\w-]*):\s*\(([^)]+)\)/g;
+  const entryRe = /(['"]?[\w-]+['"]?)\s*:\s*\(/g;
   let entry;
   while ((entry = entryRe.exec(mapMatch[1])) !== null) {
-    const key = entry[1];
-    const body = entry[2];
+    const key = entry[1].replace(/['"]/g, '');
+    const bodyStart = entryRe.lastIndex;
+    let depth = 1;
+    let index = bodyStart;
+    while (index < mapMatch[1].length && depth > 0) {
+      if (mapMatch[1][index] === '(') depth++;
+      if (mapMatch[1][index] === ')') depth--;
+      index++;
+    }
+    const body = mapMatch[1].slice(bodyStart, index - 1);
+    entryRe.lastIndex = index;
     result[key] = {};
-    const propRe = /([\w-]+)\s*:\s*([^,\n]+)/g;
+    const propRe = /([\w-]+)\s*:\s*([^,\n]+(?:\([^\n]*?\))?)/g;
     let prop;
     while ((prop = propRe.exec(body)) !== null) {
-      result[key][prop[1].trim()] = prop[2].trim();
+      const propName = prop[1].trim();
+      const rawVal = prop[2].trim();
+      const resolvedVal = resolveTokenValue(rawVal);
+      result[key][propName] = resolvedVal;
+
+      const pxVal = parsePxValue(resolvedVal);
+      if (pxVal !== null) {
+        result[key][`${propName}Px`] = pxVal;
+      }
+      const rgbVal = colorToFigmaRgb(resolvedVal);
+      if (rgbVal !== null) {
+        result[key][`${propName}Rgb`] = rgbVal;
+      }
     }
   }
   return result;
@@ -103,6 +263,8 @@ function parseSassMap(scss, mapName) {
 // Main parser
 // ─────────────────────────────────────────────────────────────
 function parseComponentDir(componentFolder) {
+  loadTokenValues(true);
+
   const dirPath = path.isAbsolute(componentFolder)
     ? componentFolder
     : path.join(COMPONENTS_DIR, componentFolder);
@@ -159,23 +321,37 @@ function parseComponentDir(componentFolder) {
   const scssFile = files.find(f => f.endsWith('.scss'));
   if (scssFile) {
     const scss = fs.readFileSync(path.join(dirPath, scssFile), 'utf8');
+    const resolvedScss = resolveTokenValue(scss);
+
+    // Strip out top-level Sass maps ($...-sizes: (...);) to inspect selector rules separately
+    const selectorScss = scss.replace(/\$[\w-]+\s*:\s*\([\s\S]*?^\);/gmi, '');
+    const resolvedSelectorScss = resolveTokenValue(selectorScss);
 
     // ── Sass maps ────────────────────────────────────────
-    const componentBase = componentName.replace(/([A-Z])/g, (_, c, i) => i === 0 ? c.toLowerCase() : `-${c.toLowerCase()}`);
-    const variantMapName  = `${componentBase.replace(/-/g,'')}-variants`.replace(/^-/, '');
-    const sizeMapName     = `${componentBase.replace(/-/g,'')}-sizes`.replace(/^-/, '');
-
-    // Try generic names too (button-variants, button-sizes)
     const folderBase = folder.replace(/-/g, '');
-    sizesMap    = parseSassMap(scss, `${folderBase}-sizes`)    || parseSassMap(scss, `${folderBase}Sizes`) || {};
-    variantsMap = parseSassMap(scss, `${folderBase}-variants`) || parseSassMap(scss, `${folderBase}Variants`) || {};
+    const compLower = componentName.toLowerCase();
+    const sMap1 = parseSassMap(scss, `${folderBase}-sizes`);
+    const sMap2 = parseSassMap(scss, `${compLower}-sizes`);
+    const sMap3 = parseSassMap(scss, 'sizes');
+    sizesMap = Object.keys(sMap1).length ? sMap1 : (Object.keys(sMap2).length ? sMap2 : sMap3);
 
-    // ── Direct property extraction ────────────────────────
-    const radiusVal = extractPx(scss, 'border-radius');
-    if (radiusVal !== null) cornerRadius = radiusVal;
+    const vMap1 = parseSassMap(scss, `${folderBase}-variants`);
+    const vMap2 = parseSassMap(scss, `${compLower}-variants`);
+    const vMap3 = parseSassMap(scss, 'variants');
+    variantsMap = Object.keys(vMap1).length ? vMap1 : (Object.keys(vMap2).length ? vMap2 : vMap3);
 
-    const fsVal = extractPx(scss, 'font-size');
-    if (fsVal !== null) fontSize = fsVal;
+    // ── Direct property extraction from selector rules ───
+    const selectorFontSize = extractPx(selectorScss, 'font-size');
+    const selectorRadius   = extractPx(selectorScss, 'border-radius');
+    const selectorGap      = extractPx(selectorScss, 'gap');
+    const selectorHeight   = extractPx(selectorScss, 'height');
+    const selectorWidth    = extractPx(selectorScss, 'width');
+
+    if (selectorRadius !== null) cornerRadius = selectorRadius;
+    if (selectorFontSize !== null) fontSize = selectorFontSize;
+    if (selectorGap !== null) gap = selectorGap;
+    if (selectorHeight !== null) height = selectorHeight;
+    if (selectorWidth !== null) width = selectorWidth;
 
     const fwVal = extractValue(scss, 'font-weight');
     if (fwVal !== null) fontWeight = isNaN(Number(fwVal)) ? fwVal : Number(fwVal);
@@ -186,59 +362,99 @@ function parseComponentDir(componentFolder) {
     const lhVal = extractValue(scss, 'line-height');
     if (lhVal !== null) lineHeight = lhVal;
 
-    const gapVal = extractPx(scss, 'gap');
-    if (gapVal !== null) gap = gapVal;
+    // Component maps provide per-size defaults and fallback top-level metrics
+    const preferredSize = sizesMap.medium || sizesMap.large || sizesMap.small || sizesMap.xsmall || Object.values(sizesMap)[0];
+    if (preferredSize) {
+      if (fontSize === null && preferredSize['font-sizePx'] !== undefined) {
+        fontSize = preferredSize['font-sizePx'];
+      }
+      if (gap === null && preferredSize.gapPx !== undefined) {
+        gap = preferredSize.gapPx;
+      }
+      if (selectorRadius === null && preferredSize.radiusPx !== undefined) {
+        cornerRadius = preferredSize.radiusPx;
+      }
+      if (height === null && preferredSize.heightPx !== undefined) {
+        height = preferredSize.heightPx;
+      }
+      if (preferredSize.paddingPx !== undefined) {
+        padding = {
+          top: 0,
+          bottom: 0,
+          left: preferredSize.paddingPx,
+          right: preferredSize.paddingPx,
+        };
+      }
+    }
 
-    const opacityVal = extractValue(scss, 'opacity');
-    if (opacityVal !== null) opacity = parseFloat(opacityVal);
+    // If a direct selector font-size override was set (e.g. .btn { font-size: 35px; }),
+    // propagate it to sizesMap so all variants on the Figma canvas reflect the override.
+    if (selectorFontSize !== null && Object.keys(sizesMap).length > 0) {
+      for (const sizeKey of Object.keys(sizesMap)) {
+        sizesMap[sizeKey]['font-sizePx'] = selectorFontSize;
+        sizesMap[sizeKey]['font-size'] = `${selectorFontSize}px`;
+      }
+    }
 
-    // ── Padding ───────────────────────────────────────────
-    // Try 4-value first, then 2-value
-    const p4 = scss.match(/padding:\s*([0-9]+)px\s+([0-9]+)px\s+([0-9]+)px\s+([0-9]+)px/);
-    const p2 = scss.match(/padding:\s*([0-9]+)px\s+([0-9]+)px/);
+    // Fallbacks if neither selector nor map had them
+    if (fontSize === null) fontSize = extractPx(scss, 'font-size');
+    if (gap === null) gap = extractPx(scss, 'gap');
+
+    const opacityVal = extractValue(selectorScss, 'opacity');
+    if (opacityVal !== null && !isNaN( parseFloat(opacityVal) )) {
+      opacity = parseFloat(opacityVal);
+    }
+
+    // ── Padding from selector rules ──────────────────────
+    const p4 = resolvedSelectorScss.match(/padding:\s*(-?\d+(?:\.\d+)?)px\s+(-?\d+(?:\.\d+)?)px\s+(-?\d+(?:\.\d+)?)px\s+(-?\d+(?:\.\d+)?)px/);
+    const p2 = resolvedSelectorScss.match(/padding:\s*(-?\d+(?:\.\d+)?)(?:px)?\s+(-?\d+(?:\.\d+)?)px/);
     if (p4) {
       padding = { top: +p4[1], right: +p4[2], bottom: +p4[3], left: +p4[4] };
     } else if (p2) {
       padding = { top: +p2[1], right: +p2[2], bottom: +p2[1], left: +p2[2] };
     } else {
-      // Try individual padding properties
-      const pt = extractPx(scss, 'padding-top');
-      const pr = extractPx(scss, 'padding-right');
-      const pb = extractPx(scss, 'padding-bottom');
-      const pl = extractPx(scss, 'padding-left');
+      const pt = extractPx(selectorScss, 'padding-top');
+      const pr = extractPx(selectorScss, 'padding-right');
+      const pb = extractPx(selectorScss, 'padding-bottom');
+      const pl = extractPx(selectorScss, 'padding-left');
       if (pt !== null) padding.top    = pt;
       if (pr !== null) padding.right  = pr;
       if (pb !== null) padding.bottom = pb;
       if (pl !== null) padding.left   = pl;
     }
 
-    // ── Dimensions ───────────────────────────────────────
-    const wVal = extractPx(scss, 'width');
-    if (wVal !== null) width = wVal;
-    const hVal = extractPx(scss, 'height');
-    if (hVal !== null) height = hVal;
-
     // ── Colors ────────────────────────────────────────────
-    const bgMatch = scss.match(/background(?:-color)?:\s*(#[0-9a-fA-F]{3,6}|rgb[^;]+)/);
-    if (bgMatch) {
-      const hex = bgMatch[1];
-      if (hex.startsWith('#')) backgroundColor = hexToFigmaRgb(hex);
+    const preferredVariant = variantsMap.primary || variantsMap.default || variantsMap.filled || Object.values(variantsMap)[0];
+    if (preferredVariant) {
+      if (preferredVariant.backgroundRgb) backgroundColor = preferredVariant.backgroundRgb;
+      if (preferredVariant.foregroundRgb) textColor = preferredVariant.foregroundRgb;
+      if (preferredVariant.borderRgb) borderColor = preferredVariant.borderRgb;
     }
 
-    const colorMatch = scss.match(/(?:^|[^-])color:\s*(#[0-9a-fA-F]{3,6})/m);
-    if (colorMatch) textColor = hexToFigmaRgb(colorMatch[1]);
+    const bgMatch = resolvedSelectorScss.match(/background(?:-color)?:\s*(#[0-9a-fA-F]{3,8}|rgba?\([^)]+\))/);
+    if (bgMatch) {
+      const rgb = colorToFigmaRgb(bgMatch[1]);
+      if (rgb) backgroundColor = rgb;
+    }
 
-    const borderMatch = scss.match(/border(?:-color)?:\s*.*?(#[0-9a-fA-F]{3,6})/);
-    if (borderMatch) borderColor = hexToFigmaRgb(borderMatch[1]);
+    const colorMatch = resolvedSelectorScss.match(/(?:^|[^-\w])color:\s*(#[0-9a-fA-F]{3,8}|rgba?\([^)]+\))/m);
+    if (colorMatch) {
+      const rgb = colorToFigmaRgb(colorMatch[1]);
+      if (rgb) textColor = rgb;
+    }
+
+    const borderMatch = resolvedSelectorScss.match(/border(?:-color)?:\s*[^;\n]*?(#[0-9a-fA-F]{3,8}|rgba?\([^)]+\))/);
+    if (borderMatch) {
+      const rgb = colorToFigmaRgb(borderMatch[1]);
+      if (rgb) borderColor = rgb;
+    }
   }
 
   // ── Parse TSX for additional hints ───────────────────────
   if (tsxFile) {
     const tsx = fs.readFileSync(path.join(dirPath, tsxFile), 'utf8');
-    // Check if component has children (text nodes)
     const hasChildren = tsx.includes('children');
     const hasText = tsx.includes('<span') || tsx.includes('<p ') || tsx.includes('<label');
-    // Extract default variant/size from destructuring
     const defaultVariant = (tsx.match(/variant\s*=\s*['"](\w+)['"]/) || [])[1] || null;
     const defaultSize    = (tsx.match(/size\s*=\s*['"](\w+)['"]/) || [])[1] || null;
 
@@ -298,4 +514,4 @@ function parseComponentDir(componentFolder) {
   };
 }
 
-module.exports = { findFigmaNodeId, parseComponentDir };
+module.exports = { findFigmaNodeId, parseComponentDir, invalidateTokenCache, loadTokenValues, resolveTokenValue };

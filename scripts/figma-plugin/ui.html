@@ -60,6 +60,12 @@
     .btn:hover {
       background: #1d4076;
     }
+    .btn-primary-sync {
+      background: #1245c8;
+    }
+    .btn-primary-sync:hover {
+      background: #0c2f8f;
+    }
     .btn-secondary {
       background: #fff;
       color: #0c2340;
@@ -75,7 +81,7 @@
       font-size: 11px;
       padding: 8px;
       border-radius: 6px;
-      height: 180px;
+      height: 210px;
       overflow-y: auto;
       white-space: pre-wrap;
       word-break: break-all;
@@ -92,7 +98,8 @@
     <div style="font-size: 12px; color: #666; margin-bottom: 8px;">
       Connected to Local Sync Server: <b>ws://localhost:3055</b>
     </div>
-    <button id="syncNowBtn" class="btn">Sync Figma File to VS Code</button>
+    <button id="syncCodeToFigmaBtn" class="btn btn-primary-sync">Sync VS Code ➔ Figma Canvas</button>
+    <button id="syncNowBtn" class="btn">Sync Figma File ➔ VS Code</button>
     <button id="reconnectBtn" class="btn btn-secondary">Reconnect Bridge</button>
   </div>
 
@@ -102,6 +109,7 @@
   <script>
     const statusBadge = document.getElementById('statusBadge');
     const logBox = document.getElementById('logBox');
+    const syncCodeToFigmaBtn = document.getElementById('syncCodeToFigmaBtn');
     const syncNowBtn = document.getElementById('syncNowBtn');
     const reconnectBtn = document.getElementById('reconnectBtn');
 
@@ -111,6 +119,19 @@
     function log(msg) {
       const time = new Date().toLocaleTimeString();
       logBox.textContent = `[${time}] ${msg}\n` + logBox.textContent;
+    }
+
+    function requestCodeToFigmaSync() {
+      if (!socket || socket.readyState !== WebSocket.OPEN) {
+        log('Cannot sync: the local sync server is disconnected.');
+        return;
+      }
+      socket.send(JSON.stringify({
+        type: 'message',
+        channel: 'figma-sync',
+        message: { event: 'CODE_TO_FIGMA_SYNC_REQUEST', componentFolder: 'button' }
+      }));
+      log('Requested VS Code ➔ Figma Canvas sync...');
     }
 
     function connect() {
@@ -126,6 +147,12 @@
           statusBadge.textContent = 'Live Connected';
           log('Connected to sync server!');
           socket.send(JSON.stringify({ type: 'join', channel: 'figma-sync' }));
+          // Automatically sync latest VS Code state to Figma when plugin opens/connects
+          setTimeout(() => {
+            if (socket && socket.readyState === WebSocket.OPEN) {
+              requestCodeToFigmaSync();
+            }
+          }, 400);
         };
 
         socket.onmessage = (event) => {
@@ -147,7 +174,7 @@
                   }
                 }, '*');
               } else if (payload.event === 'CODE_TO_FIGMA_UPDATE') {
-                log(`Received code update for: ${payload.componentName}`);
+                log(`Received code update for: ${payload.componentName} (fontSize=${payload.fontSize ?? 'map'}px)`);
                 parent.postMessage({
                   pluginMessage: {
                     type: 'ACTION_UPDATE_COMPONENT',
@@ -214,6 +241,10 @@
           }));
         }
       }
+    };
+
+    syncCodeToFigmaBtn.onclick = () => {
+      requestCodeToFigmaSync();
     };
 
     syncNowBtn.onclick = () => {

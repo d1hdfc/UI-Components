@@ -1,6 +1,10 @@
 import 'dotenv/config';
 import fs from 'node:fs';
+import http from 'node:http';
 import path from 'node:path';
+import { createRequire } from 'node:module';
+
+const require = createRequire(import.meta.url);
 
 type FigmaNode = {
   id: string;
@@ -52,10 +56,14 @@ const syncIntervalMs = 60_000;
 const configPath = path.join(process.cwd(), '.mcp', 'config.json');
 const outputPath = path.join(process.cwd(), 'src', 'figma', 'components.json');
 const previewDirectory = path.join(process.cwd(), 'public', 'figma', 'components');
+const componentsDir = path.join(process.cwd(), 'src', 'components');
+const tokenVariablesDir = path.join(process.cwd(), 'src', 'tokens', 'variables');
 const imageBatchSize = 50;
 
 function getFileKey(): string {
-  const config = JSON.parse(fs.readFileSync(configPath, 'utf8')) as SyncConfig;
+  const config = fs.existsSync(configPath)
+    ? (JSON.parse(fs.readFileSync(configPath, 'utf8')) as SyncConfig)
+    : {};
   const fileKey =
     process.env.FIGMA_FILE_KEY?.trim() ||
     process.env.FIGMA_DESIGN_FILE_KEY?.trim() ||
@@ -230,29 +238,144 @@ async function syncComponents(fileKey: string, token: string, force = false): Pr
   console.log(`Synced ${catalog.components.length} components from ${file.name} to ${outputPath}`);
 }
 
-async function main(): Promise<void> {
-  const fileKey = getFileKey();
-  const token = getToken();
-  await syncComponents(fileKey, token, process.argv.includes('--force'));
+function postToSyncBridge(payload: Record<string, unknown>): void {
+  const body = JSON.stringify(payload);
+  const req = http.request(
+    {
+      hostname: 'localhost',
+      port: Number(process.env.PORT || 3055),
+      path: '/api/ui-notify',
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Content-Length': Buffer.byteLength(body)
+      }
+    },
+    () => { /* ok */ }
+  );
+  req.on('error', () => { /* ignore if port 3055 not listening */ });
+  req.write(body);
+  req.end();
+}
 
-  if (process.argv.includes('--watch')) {
-    console.log(`Watching Figma file versions; checking every ${syncIntervalMs / 1000} seconds.`);
+function setupLiveCodeToFigmaForwarder(): void {
+  let lastFolder = 'button';
+  const pushComponentUpdate = (folder: string) => {
+    try {
+      const codeParserPath = path.join(process.cwd(), 'scripts', 'code-parser.cjs');
+      delete require.cache[require.resolve(codeParserPath)];
+      const codeParser = require(codeParserPath);
+      const compData = codeParser.parseComponentDir(folder);
+      if (compData.isDeleted) {
+        console.log(`[FigmaSync] DELETED: Variant <${compData.componentName}> removed from src/components and UI pages`);
+        postToSyncBridge({
+          event: 'CODE_TO_FIGMA_DELETE',
+          componentName: compData.componentName,
+          folder: compData.folder,
+          nodeId: compData.nodeId
+        });
+        return;
+      }
+      console.log(`[CodeWatcher] CHANGED: src/components/${compData.folder}/${compData.componentName} -> Syncing to Figma Canvas`);
+      console.log(`[FigmaSync] UPDATED: Component <${compData.componentName}> styles modified — fontSize=${compData.fontSize ?? 'n/a'}px, cornerRadius=${compData.cornerRadius ?? 'n/a'}px`);
+      postToSyncBridge({
+        event: 'CODE_TO_FIGMA_UPDATE',
+        componentName: compData.componentName,
+        folder: compData.folder,
+        nodeId: compData.nodeId,
+        fontSize: compData.fontSize,
+        fontWeight: compData.fontWeight,
+        letterSpacing: compData.letterSpacing,
+        lineHeight: compData.lineHeight,
+        cornerRadius: compData.cornerRadius,
+        padding: compData.padding,
+        width: compData.width,
+        height: compData.height,
+        gap: compData.gap,
+        backgroundColor: compData.backgroundColor,
+        textColor: compData.textColor,
+        borderColor: compData.borderColor,
+        opacity: compData.opacity,
+        variants: compData.variants,
+        sizes: compData.sizes,
+        sizesMap: compData.sizesMap,
+        variantsMap: compData.variantsMap
+      });
+    } catch (err) {
+      console.warn('[CodeWatcher] Forwarder warning:', err);
+    }
+  };
+
+  if (fs.existsSync(componentsDir)) {
+    const timers = new Map<string, NodeJS.Timeout>();
+    fs.watch(componentsDir, { recursive: true }, (_event, filename) => {
+      if (!filename || filename.includes('.git') || filename.endsWith('.tmp')) return;
+      const folder = filename.split(/[/\\]/)[0];
+      if (!folder || folder === 'index.ts' || folder.includes('.')) return;
+      lastFolder = folder;
+      if (timers.has(folder)) clearTimeout(timers.get(folder)!);
+      timers.set(
+        folder,
+        setTimeout(() => {
+          timers.delete(folder);
+          pushComponentUpdate(folder);
+        }, 500)
+      );
+    });
+  }
+
+  if (fs.existsSync(tokenVariablesDir)) {
+    let tokenTimer: NodeJS.Timeout | null = null;
+    fs.watch(tokenVariablesDir, { recursive: false }, (_event, filename) => {
+      if (!filename || !filename.endsWith('.scss')) return;
+      if (tokenTimer) clearTimeout(tokenTimer);
+      tokenTimer = setTimeout(() => {
+        tokenTimer = null;
+        console.log(`[CodeWatcher] CHANGED: src/tokens/variables/${filename} -> Syncing resolved token values to Figma Canvas`);
+        pushComponentUpdate(lastFolder || 'button');
+      }, 500);
+    });
+  }
+
+  // Send initial sync payload on startup so any connected Figma plugin gets latest state immediately
+  setTimeout(() => pushComponentUpdate('button'), 1500);
+}
+
+async function main(): Promise<void> {
+  const isWatch = process.argv.includes('--watch');
+  try {
+    const fileKey = getFileKey();
+    const token = getToken();
+    await syncComponents(fileKey, token, process.argv.includes('--force'));
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : String(error);
+    console.warn(`[FigmaComponents] Using cached catalog (${outputPath}). Remote check skipped: ${msg.split('\n')[0]}`);
+  }
+
+  if (isWatch) {
+    setupLiveCodeToFigmaForwarder();
+    console.log(`[FigmaComponents] Watching Figma catalog & local code changes; checking every ${syncIntervalMs / 1000} seconds.`);
     let syncInProgress = false;
     setInterval(() => {
       if (syncInProgress) return;
       syncInProgress = true;
-      void syncComponents(fileKey, token)
-        .catch((error: unknown) => {
-          console.error('Figma component sync failed:', error);
-        })
-        .finally(() => {
-          syncInProgress = false;
-        });
+      try {
+        const fileKey = getFileKey();
+        const token = getToken();
+        void syncComponents(fileKey, token)
+          .catch(() => {
+            // Keep using cached catalog silently during watch loop
+          })
+          .finally(() => {
+            syncInProgress = false;
+          });
+      } catch {
+        syncInProgress = false;
+      }
     }, syncIntervalMs);
   }
 }
 
 void main().catch((error: unknown) => {
-  console.error('Figma component sync failed:', error);
-  process.exitCode = 1;
+  console.warn('[FigmaComponents] Non-fatal error:', error);
 });

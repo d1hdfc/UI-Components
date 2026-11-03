@@ -1,44 +1,44 @@
 @use 'sass:list';
 
 $chips-tones: (
-  'blue': (var(--chips-filled-background-color-blue, #1c3fca), var(--chips-filled-foreground-color-blue, #fff), var(--chips-accent-background-color-blue, #e8edff), var(--chips-accent-foreground-color-blue, #1735ad), var(--chips-outline-foreground-color-blue, #1c3fca)),
-  'warning': (var(--chips-filled-background-color-warning, #f8b600), var(--chips-filled-foreground-color-warning, #222), var(--chips-accent-background-color-warning, #fff4d6), var(--chips-accent-foreground-color-warning, #986c00), var(--chips-outline-foreground-color-warning, #986c00)),
-  'destructive': (var(--chips-filled-background-color-destructive, #d61c53), var(--chips-filled-foreground-color-destructive, #fff), var(--chips-accent-background-color-destructive, #fde7ee), var(--chips-accent-foreground-color-destructive, #b31443), var(--chips-outline-foreground-color-destructive, #b31443)),
-  'success': (var(--chips-filled-background-color-success, #00815a), var(--chips-filled-foreground-color-success, #fff), var(--chips-accent-background-color-success, #e3f5ef), var(--chips-accent-foreground-color-success, #006b4b), var(--chips-outline-foreground-color-success, #006b4b)),
-  'neutral': (var(--chips-filled-background-color-neutral, #50555d), var(--chips-filled-foreground-color-neutral, #fff), var(--chips-accent-background-color-neutral, #f1f2f4), var(--chips-accent-foreground-color-neutral, #50555d), var(--chips-outline-foreground-color-neutral, #50555d)),
-  'info': (#0878bd, #fff, #e4f4ff, #08649e, #08649e),
-  'rust': (#a94d2b, #fff, #f8eae4, #843b20, #843b20),
-  'yellow': (#f2c500, #242424, #fff8cc, #856c00, #856c00),
-  'violet': (#6941c6, #fff, #eee8ff, #5931b0, #5931b0),
-  'purple': (#7a3db8, #fff, #f3e8ff, #612d95, #612d95)
+  'blue': (var(--chips-filled-background-color-blue), var(--chips-filled-foreground-color-blue), var(--chips-accent-background-color-blue), var(--chips-accent-foreground-color-blue), var(--chips-outline-foreground-color-blue)),
+  'warning': (var(--chips-filled-background-color-warning), var(--chips-filled-foreground-color-warning), var(--chips-accent-background-color-warning), var(--chips-accent-foreground-color-warning), var(--chips-outline-foreground-color-warning)),
+  'destructive': (var(--chips-filled-background-color-destructive), var(--chips-filled-foreground-color-destructive), var(--chips-accent-background-color-destructive), var(--chips-accent-foreground-color-destructive), var(--chips-outline-foreground-color-destructive)),
+  'success': (var(--chips-filled-background-color-success), var(--chips-filled-foreground-color-success), var(--chips-accent-background-color-success), var(--chips-accent-foreground-color-success), var(--chips-outline-foreground-color-success)),
+  'neutral': (var(--chips-filled-background-color-neutral), var(--chips-filled-foreground-color-neutral), var(--chips-accent-background-color-neutral), var(--chips-accent-foreground-color-neutral), var(--chips-outline-foreground-color-neutral)),
+  'info': (var(--chips-filled-background-color-info), var(--chips-filled-foreground-color-info), var(--chips-accent-background-color-info), var(--chips-accent-foreground-color-info), var(--chips-outline-foreground-color-info)),
+  'rust': (var(--chips-filled-background-color-rust), var(--chips-filled-foreground-color-rust), var(--chips-accent-background-color-rust), var(--chips-accent-foreground-color-rust), var(--chips-outline-foreground-color-rust)),
+  'yellow': (var(--chips-filled-background-color-yellow), var(--chips-filled-foreground-color-yellow), var(--chips-accent-background-color-yellow), var(--chips-accent-foreground-color-yellow), var(--chips-outline-foreground-color-yellow)),
+  'violet': (var(--chips-filled-background-color-violet), var(--chips-filled-foreground-color-violet), var(--chips-accent-background-color-violet), var(--chips-accent-foreground-color-violet), var(--chips-outline-foreground-color-violet)),
+  'purple': (var(--chips-filled-background-color-purple), var(--chips-filled-foreground-color-purple), var(--chips-accent-background-color-purple), var(--chips-accent-foreground-color-purple), var(--chips-outline-foreground-color-purple))
 );
 
 .chips {
-  --chips-height: var(--chips-size-medium-height, 40px);
-  --chips-padding-x: var(--chips-size-medium-padding-x, 12px);
-  --chips-padding-y: var(--chips-size-medium-padding-y, 8px);
-  --chips-gap: var(--chips-size-medium-gap, 4px);
-  --chips-radius: var(--chips-size-medium-radius-default, 6px);
-  --chips-fill: var(--surface-primary-base, #1c3fca);
-  --chips-fill-text: #fff;
-  --chips-accent: var(--surface-primary-lighter, #e8edff);
-  --chips-accent-text: var(--surface-primary-interactive-darkest, #1735ad);
-  --chips-outline-text: var(--surface-primary-base, #1c3fca);
+  --chips-height: var(--chips-size-medium-height);
+  --chips-padding-x: var(--chips-size-medium-padding-x);
+  --chips-padding-y: var(--chips-size-medium-padding-y);
+  --chips-gap: var(--chips-size-medium-gap);
+  --chips-radius: var(--chips-size-medium-radius-default);
+  --chips-fill: var(--surface-primary-base);
+  --chips-fill-text: var(--surface-static-white);
+  --chips-accent: var(--surface-primary-lighter);
+  --chips-accent-text: var(--surface-primary-interactive-darkest);
+  --chips-outline-text: var(--surface-primary-base);
 
   display: inline-flex;
-  min-width: 0;
+  min-width: var(--global-scale-0);
   height: var(--chips-height);
   align-items: center;
   justify-content: center;
   gap: var(--chips-gap);
-  border: var(--chips-size-border-width, 1px) solid transparent;
+  border: var(--chips-size-border-width) solid var(--surface-root-opacity);
   border-radius: var(--chips-radius);
   padding: var(--chips-padding-y) var(--chips-padding-x);
   background: var(--chips-accent);
   color: var(--chips-accent-text);
   font: inherit;
-  font-size: 14px;
-  line-height: 1;
+  font-size: var(--chips-size-medium-font-size);
+  line-height: var(--font-line-height-none);
   white-space: nowrap;
   cursor: pointer;
   transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
@@ -54,23 +54,23 @@ $chips-tones: (
   }
 
   &--small {
-    --chips-height: var(--chips-size-small-height, 32px);
-    --chips-padding-x: var(--chips-size-small-padding-x, 6px);
-    --chips-padding-y: var(--chips-size-small-padding-y, 4px);
-    --chips-gap: var(--chips-size-small-gap, 4px);
-    font-size: 12px;
+    --chips-height: var(--chips-size-small-height);
+    --chips-padding-x: var(--chips-size-small-padding-x);
+    --chips-padding-y: var(--chips-size-small-padding-y);
+    --chips-gap: var(--chips-size-small-gap);
+    font-size: var(--chips-size-small-font-size);
   }
 
   &--large {
-    --chips-height: var(--chips-size-large-height, 48px);
-    --chips-padding-x: var(--chips-size-large-padding-x, 16px);
-    --chips-padding-y: var(--chips-size-large-padding-y, 10px);
-    --chips-gap: var(--chips-size-large-gap, 4px);
-    font-size: 16px;
+    --chips-height: var(--chips-size-large-height);
+    --chips-padding-x: var(--chips-size-large-padding-x);
+    --chips-padding-y: var(--chips-size-large-padding-y);
+    --chips-gap: var(--chips-size-large-gap);
+    font-size: var(--chips-size-large-font-size);
   }
 
   &--round {
-    --chips-radius: var(--chips-size-radius, 999px);
+    --chips-radius: var(--chips-size-radius);
   }
 
   &--filled {
@@ -80,7 +80,7 @@ $chips-tones: (
 
   &--outline {
     border-color: currentColor;
-    background: transparent;
+    background: var(--surface-root-opacity);
     color: var(--chips-outline-text);
   }
 
@@ -89,8 +89,8 @@ $chips-tones: (
   }
 
   &:focus-visible {
-    outline: 2px solid var(--border-primary-default, #1c3fca);
-    outline-offset: 2px;
+    outline: var(--layout-border-md) solid var(--border-primary-default);
+    outline-offset: var(--layout-spacing-2xs);
   }
 
   &:disabled,
@@ -100,7 +100,7 @@ $chips-tones: (
   }
 
   &--selected:not(:disabled) {
-    box-shadow: inset 0 0 0 1px currentColor;
+    box-shadow: inset 0 0 0 var(--layout-border-xs) currentColor;
   }
 
   &-label {
@@ -111,8 +111,8 @@ $chips-tones: (
   &-icon {
     display: inline-flex;
     flex: 0 0 auto;
-    width: 16px;
-    height: 16px;
+    width: var(--chips-size-small-icon-size);
+    height: var(--chips-size-small-icon-size);
     align-items: center;
     justify-content: center;
   }

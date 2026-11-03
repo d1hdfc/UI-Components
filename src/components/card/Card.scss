@@ -1,32 +1,32 @@
 .card {
-  min-width: 0;
-  border: 1px solid var(--border-neutral-subtle, #e2e4e8);
-  border-radius: var(--layout-radius-md, 8px);
-  background: var(--surface-root, #fff);
-  color: var(--text-strong, #242424);
+  min-width: var(--global-scale-0);
+  border: var(--layout-border-xs) solid var(--border-neutral-subtle);
+  border-radius: var(--layout-radius-md);
+  background: var(--surface-root);
+  color: var(--text-strong);
 
   &--outlined {
-    border-color: var(--border-neutral-subtle, #e2e4e8);
+    border-color: var(--border-neutral-subtle);
   }
 
   &--elevated {
-    border-color: transparent;
-    box-shadow: var(--elevation-moderate-x, 0) var(--elevation-moderate-y, 2px) var(--elevation-moderate-blur, 4px) var(--elevation-moderate-spread, 0) var(--elevation-moderate-color-dark, rgb(20 30 55 / 10%));
+    border-color: var(--surface-root-opacity);
+    box-shadow: var(--elevation-moderate-x) var(--elevation-moderate-y) var(--elevation-moderate-blur) var(--elevation-moderate-spread) var(--elevation-moderate-color-dark);
   }
 
   &--padding-none {
-    padding: 0;
+    padding: var(--global-scale-0);
   }
 
   &--padding-small {
-    padding: 12px;
+    padding: var(--layout-spacing-md);
   }
 
   &--padding-medium {
-    padding: 20px;
+    padding: var(--layout-spacing-xl);
   }
 
   &--padding-large {
-    padding: 24px;
+    padding: var(--layout-spacing-2xl);
   }
 }

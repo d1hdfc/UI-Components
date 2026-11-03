@@ -9,7 +9,11 @@ $primitive-type-tokens: (
     "medium-500": "Medium",
     "semibold-600": "Semi bold",
     "bold-700": "Bold",
-    "italic-400": "Italic"
+    "italic-400": "Italic",
+    "400": 400,
+    "500": 500,
+    "600": 600,
+    "700": 700
   ),
   "letter-spacing": (
     "regular-400": "0",
@@ -35,7 +39,9 @@ $primitive-type-tokens: (
       "lg": var(--global-scale-225),
       "md": var(--global-scale-200),
       "sm": var(--global-scale-175),
-      "xsm": var(--global-scale-150)
+      "xs": var(--global-scale-162),
+      "xsm": var(--global-scale-150),
+      "2xs": var(--global-scale-137)
     )
   ),
   "paragraph-spacing": (
@@ -45,6 +51,11 @@ $primitive-type-tokens: (
     "xsm": var(--global-scale-100)
   ),
   "line-height": (
+    "none": 1,
+    "tight": 1.25,
+    "snug": 1.35,
+    "normal": 1.4,
+    "relaxed": 1.45,
     "display": (
       "lg": var(--global-scale-700),
       "md": var(--global-scale-650),

@@ -1,19 +1,19 @@
 .carousel {
   position: relative;
-  min-width: 0;
+  min-width: var(--global-scale-0);
 
   &-viewport {
-    min-width: 0;
+    min-width: var(--global-scale-0);
     overflow: hidden;
   }
 
   &-slide {
-    min-width: 0;
+    min-width: var(--global-scale-0);
   }
 
   &-controls {
     position: absolute;
-    inset: 50% 12px auto;
+    inset: 50% var(--layout-spacing-md) auto;
     display: flex;
     justify-content: space-between;
     transform: translateY(-50%);
@@ -21,14 +21,14 @@
 
     button {
       display: grid;
-      width: 36px;
-      height: 36px;
+      width: var(--layout-size-4xl);
+      height: var(--layout-size-4xl);
       place-items: center;
-      border: 1px solid var(--border-neutral-subtle, #e2e4e8);
-      border-radius: 50%;
-      background: var(--surface-root, #fff);
-      color: var(--text-strong, #242424);
-      font-size: 22px;
+      border: var(--layout-border-xs) solid var(--border-neutral-subtle);
+      border-radius: var(--layout-radius-full);
+      background: var(--surface-root);
+      color: var(--text-strong);
+      font-size: var(--global-scale-275);
       cursor: pointer;
       pointer-events: auto;
     }
@@ -37,21 +37,21 @@
   &-indicators {
     display: flex;
     justify-content: center;
-    gap: 8px;
-    margin-top: 12px;
+    gap: var(--layout-spacing-sm);
+    margin-top: var(--layout-spacing-md);
   }
 
   &-indicator {
-    width: 8px;
-    height: 8px;
-    border: 0;
-    border-radius: 50%;
-    padding: 0;
-    background: var(--surface-neutral-light, #c8cbd1);
+    width: var(--layout-size-xs);
+    height: var(--layout-size-xs);
+    border: var(--global-scale-0);
+    border-radius: var(--layout-radius-full);
+    padding: var(--global-scale-0);
+    background: var(--surface-neutral-light);
     cursor: pointer;
 
     &[aria-current='true'] {
-      background: var(--surface-primary-base, #1c3fca);
+      background: var(--surface-primary-base);
     }
   }
 }

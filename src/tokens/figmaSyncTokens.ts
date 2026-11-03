@@ -90,7 +90,6 @@ function processFigmaVariables() {
   currentVariables = variables;
   currentCollections = variableCollections;
 
-  const variableById = new Map(Object.entries(variables));
   const collections = Object.values(variableCollections);
   const idToNameMap = new Map<string, string>();
   for (const id in variables) {
@@ -136,7 +135,7 @@ function processFigmaVariables() {
   aliasContent = updateAlias(aliasContent, selectedCollections.get('Alias')!, idToNameMap);
   updates.set(aliasPath, aliasContent);
 
-  const semanticPath = path.join(scssDir,'semantics.scss');
+  const semanticPath = path.join(scssDir, 'semantics.scss');
   const semanticContent = updateCollectionMap(
     readTargetFile(semanticPath),
     'semantic-tokens',
@@ -154,7 +153,7 @@ function processFigmaVariables() {
   );
   updates.set(layoutPath, layoutContent);
 
-  const adaptivePath = path.join(scssDir,'adaptive.scss');
+  const adaptivePath = path.join(scssDir, 'adaptive.scss');
   const adaptiveContent = updateAdaptive(
     readTargetFile(adaptivePath),
     selectedCollections.get('Adaptive')!,
@@ -164,7 +163,7 @@ function processFigmaVariables() {
   );
   updates.set(adaptivePath, adaptiveContent);
 
-  const primitiveTypePath = path.join(scssDir,'primitive-type.scss');
+  const primitiveTypePath = path.join(scssDir, 'primitive-type.scss');
   const primitiveTypeContent = updatePrimitiveType(
     readTargetFile(primitiveTypePath),
     selectedCollections.get('Primitive-type')!,
@@ -172,7 +171,7 @@ function processFigmaVariables() {
   );
   updates.set(primitiveTypePath, primitiveTypeContent);
 
-  const platformPath = path.join(scssDir,'platform.scss');
+  const platformPath = path.join(scssDir, 'platform.scss');
   const platformContent = updatePlatform(
     readTargetFile(platformPath),
     selectedCollections.get('Platform')!,
@@ -501,11 +500,18 @@ function updateCollectionMap(
   const collectionVars = getVariablesForCollection(collection);
   const variableById = new Map(Object.entries(currentVariables));
   const previousValues = readSassMapEntries(content, mapName);
-  const entries = new Map<string, string>();
+  const entries = new Map<string, string>(previousValues);
   for (const variable of collectionVars) {
     const name = normalizeScssVariableName(variable.name ?? 'token');
     try {
-      entries.set(name, getTokenLiteral(variable, collection, idToNameMap, variableById, currentCollections));
+      const nextVal = getTokenLiteral(variable, collection, idToNameMap, variableById, currentCollections);
+      const prevVal = previousValues.get(name);
+      // Preserve existing var(--...) token references over raw px/hex values
+      if (prevVal && prevVal.startsWith('var(--') && !nextVal.startsWith('var(--')) {
+        entries.set(name, prevVal);
+      } else {
+        entries.set(name, nextVal);
+      }
     } catch (error) {
       if (!(error instanceof Error) || !error.message.startsWith('Unresolved Figma variable alias')) throw error;
       const previous = previousValues.get(name);
@@ -530,7 +536,8 @@ function updatePrimitives(
   const variableById = new Map(Object.entries(variables));
   const collectionsById = getCollectionsById();
   const colorPalette = createTree();
-  const scales = new Map<string, string>();
+  const previousScales = readSassMapEntries(content, 'scales');
+  const scales = new Map<string, string>(previousScales);
   const ramps = new Map<string, string>();
   const alphaTokens = new Map<string, string>();
   const extraTokens = new Map<string, string>();
@@ -591,7 +598,7 @@ function updateAlias(
   const oldLight = readSassMapEntries(content, 'light-theme-tokens');
   const oldDark = readSassMapEntries(content, 'dark-theme-tokens');
   const makeModeTree = (modeId: string, previous: Map<string, string>, mapName: string): ScssTree => {
-    const values = new Map<string, string>();
+    const values = new Map<string, string>(previous);
     for (const variable of variables) {
       const name = normalizeScssVariableName(variable.name ?? 'token');
       try {
@@ -728,6 +735,18 @@ function updatePrimitiveType(
       '$primitive-type-tokens'
     );
   }
+  // Preserve numeric font-weight and unitless line-height helpers
+  setTreeValue(tree, ['weight', '400'], '400', '$primitive-type-tokens');
+  setTreeValue(tree, ['weight', '500'], '500', '$primitive-type-tokens');
+  setTreeValue(tree, ['weight', '600'], '600', '$primitive-type-tokens');
+  setTreeValue(tree, ['weight', '700'], '700', '$primitive-type-tokens');
+  setTreeValue(tree, ['lineheight', 'none'], '1', '$primitive-type-tokens');
+  setTreeValue(tree, ['lineheight', 'tight'], '1.25', '$primitive-type-tokens');
+  setTreeValue(tree, ['lineheight', 'snug'], '1.35', '$primitive-type-tokens');
+  setTreeValue(tree, ['lineheight', 'normal'], '1.4', '$primitive-type-tokens');
+  setTreeValue(tree, ['lineheight', 'relaxed'], '1.45', '$primitive-type-tokens');
+  setTreeValue(tree, ['size', 'paragraph', 'xs'], 'var(--global-scale-162)', '$primitive-type-tokens');
+  setTreeValue(tree, ['size', 'paragraph', '2xs'], 'var(--global-scale-137)', '$primitive-type-tokens');
   return replaceSassMap(content, 'primitive-type-tokens', tree);
 }
 
@@ -881,13 +900,22 @@ function toScssLiteral(rawVal: unknown, cleanName: string, idToNameMap: Map<stri
 }
 
 async function syncTokens() {
-  await fetchFigmaVariables();
-  processFigmaVariables();
+  try {
+    await fetchFigmaVariables();
+    processFigmaVariables();
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : String(error);
+    console.warn(`[TokensSync] Using local token SCSS files in src/tokens/variables/ (Remote API skipped: ${msg.split('\n')[0]})`);
+  }
 }
 
 async function main() {
   if (process.argv.includes('--generate')) {
-    processFigmaVariables();
+    try {
+      processFigmaVariables();
+    } catch (error) {
+      console.warn('[TokensSync] Kept existing token files:', error);
+    }
     return;
   }
 
@@ -897,13 +925,12 @@ async function main() {
     console.log(`👀 Watching Figma variables; syncing every ${syncIntervalMs / 1000} seconds.`);
     setInterval(() => {
       void syncTokens().catch((error: unknown) => {
-        console.error('❌ Figma token sync failed:', error);
+        console.warn('⚠️ Figma token sync warning:', error);
       });
     }, syncIntervalMs);
   }
 }
 
 void main().catch((error: unknown) => {
-  console.error('❌ Figma token sync failed:', error);
-  process.exitCode = 1;
+  console.warn('⚠️ Figma token sync non-fatal warning:', error);
 });

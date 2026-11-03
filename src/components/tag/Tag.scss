@@ -1,35 +1,35 @@
 .tag {
   display: inline-flex;
   max-width: 100%;
-  min-height: 24px;
+  min-height: var(--layout-size-xl);
   align-items: center;
-  gap: 4px;
-  border: 1px solid transparent;
-  border-radius: var(--layout-radius-sm, 6px);
-  padding: 3px 8px;
-  background: var(--surface-neutral-lighter, #f1f2f4);
-  color: var(--text-strong, #242424);
-  font-size: 12px;
-  line-height: 1.25;
+  gap: var(--layout-spacing-xs);
+  border: var(--layout-border-xs) solid var(--surface-root-opacity);
+  border-radius: var(--layout-radius-sm);
+  padding: var(--global-scale-37) var(--layout-spacing-sm);
+  background: var(--surface-neutral-lighter);
+  color: var(--text-strong);
+  font-size: var(--font-size-paragraph-xsm);
+  line-height: var(--font-line-height-tight);
 
   &--primary {
-    background: var(--surface-primary-lighter, #e8edff);
-    color: var(--surface-primary-interactive-darkest, #1735ad);
+    background: var(--surface-primary-lighter);
+    color: var(--surface-primary-interactive-darkest);
   }
 
   &--success {
-    background: var(--surface-success-lighter, #e3f5ef);
-    color: var(--surface-success-base, #00815a);
+    background: var(--surface-success-lighter);
+    color: var(--surface-success-base);
   }
 
   &--warning {
-    background: var(--surface-warning-lighter, #fff4d6);
-    color: var(--surface-warning-base, #986c00);
+    background: var(--surface-warning-lighter);
+    color: var(--surface-warning-base);
   }
 
   &--destructive {
-    background: var(--surface-error-lighter, #fde7ee);
-    color: var(--surface-error-base, #b31443);
+    background: var(--surface-error-lighter);
+    color: var(--surface-error-base);
   }
 
   &-label {
@@ -40,17 +40,17 @@
 
   &-remove {
     display: inline-grid;
-    width: 18px;
-    height: 18px;
+    width: var(--global-scale-225);
+    height: var(--global-scale-225);
     flex: 0 0 auto;
     place-items: center;
-    border: 0;
-    border-radius: 50%;
-    padding: 0;
-    background: transparent;
+    border: var(--global-scale-0);
+    border-radius: var(--layout-radius-full);
+    padding: var(--global-scale-0);
+    background: var(--surface-root-opacity);
     color: inherit;
     font: inherit;
-    font-size: 16px;
+    font-size: var(--font-size-paragraph-md);
     cursor: pointer;
   }
 }

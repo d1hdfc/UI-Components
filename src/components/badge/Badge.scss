@@ -1,40 +1,40 @@
 @use 'sass:list';
 
 $badge-tones: (
-  'primary': (#1c3fca, #fff, #e8edff, #1735ad),
-  'neutral': (#50555d, #fff, #f1f2f4, #50555d),
-  'warning': (#f8b600, #222, #fff4d6, #986c00),
-  'success': (#00815a, #fff, #e3f5ef, #006b4b),
-  'destructive': (#d61c53, #fff, #fde7ee, #b31443),
-  'info': (#0878bd, #fff, #e4f4ff, #08649e)
+  'primary': (var(--surface-primary-base), var(--surface-static-white), var(--surface-primary-lighter), var(--surface-primary-interactive-darkest)),
+  'neutral': (var(--surface-neutral-base), var(--surface-static-white), var(--surface-neutral-lighter), var(--surface-neutral-on-light)),
+  'warning': (var(--surface-warning-base), var(--surface-neutral-darker), var(--surface-warning-lighter), var(--surface-warning-on-light)),
+  'success': (var(--surface-success-base), var(--surface-static-white), var(--surface-success-lighter), var(--surface-success-on-light)),
+  'destructive': (var(--surface-error-base), var(--surface-static-white), var(--surface-error-lighter), var(--surface-error-on-light)),
+  'info': (var(--surface-info-base), var(--surface-static-white), var(--surface-info-lighter), var(--surface-info-on-light))
 );
 
 .badge {
-  --badge-height: var(--badge-size-medium-height, 28px);
-  --badge-gap: var(--badge-size-medium-gap, 4px);
-  --badge-padding-x: var(--badge-size-medium-horizontal-padding, 8px);
-  --badge-padding-y: var(--badge-size-medium-vertical-padding, 4px);
-  --badge-radius: var(--badge-size-medium-radius, 8px);
-  --badge-fill: #1c3fca;
-  --badge-fill-text: #fff;
-  --badge-accent: #e8edff;
-  --badge-accent-text: #1735ad;
+  --badge-height: var(--badge-size-medium-height);
+  --badge-gap: var(--badge-size-medium-gap);
+  --badge-padding-x: var(--badge-size-medium-horizontal-padding);
+  --badge-padding-y: var(--badge-size-medium-vertical-padding);
+  --badge-radius: var(--badge-size-medium-radius);
+  --badge-fill: var(--surface-primary-base);
+  --badge-fill-text: var(--surface-static-white);
+  --badge-accent: var(--surface-primary-lighter);
+  --badge-accent-text: var(--surface-primary-interactive-darkest);
 
   display: inline-flex;
-  min-width: 0;
+  min-width: var(--global-scale-0);
   height: var(--badge-height);
   align-items: center;
   justify-content: center;
   gap: var(--badge-gap);
-  border: 1px solid transparent;
+  border: var(--layout-border-xs) solid var(--surface-root-opacity);
   border-radius: var(--badge-radius);
   padding: var(--badge-padding-y) var(--badge-padding-x);
   background: var(--badge-fill);
   color: var(--badge-fill-text);
   font: inherit;
-  font-size: 12px;
-  font-weight: 500;
-  line-height: 1;
+  font-size: var(--badge-size-medium-font-size);
+  font-weight: var(--font-weight-500);
+  line-height: var(--font-line-height-none);
   white-space: nowrap;
 
   @each $tone, $colors in $badge-tones {
@@ -47,21 +47,21 @@ $badge-tones: (
   }
 
   &--small {
-    --badge-height: var(--badge-size-small-height, 24px);
-    --badge-gap: var(--badge-size-small-gap, 4px);
-    --badge-padding-x: var(--badge-size-small-horizontal-padding, 8px);
-    --badge-padding-y: var(--badge-size-small-vertical-padding, 4px);
-    --badge-radius: var(--badge-size-small-radius, 8px);
-    font-size: 11px;
+    --badge-height: var(--badge-size-small-height);
+    --badge-gap: var(--badge-size-small-gap);
+    --badge-padding-x: var(--badge-size-small-horizontal-padding);
+    --badge-padding-y: var(--badge-size-small-vertical-padding);
+    --badge-radius: var(--badge-size-small-radius);
+    font-size: var(--badge-size-small-font-size);
   }
 
   &--large {
-    --badge-height: var(--badge-size-large-height, 36px);
-    --badge-gap: var(--badge-size-large-gap, 4px);
-    --badge-padding-x: var(--badge-size-large-horizontal-padding, 12px);
-    --badge-padding-y: var(--badge-size-large-vertical-padding, 8px);
-    --badge-radius: var(--badge-size-large-radius, 12px);
-    font-size: 14px;
+    --badge-height: var(--badge-size-large-height);
+    --badge-gap: var(--badge-size-large-gap);
+    --badge-padding-x: var(--badge-size-large-horizontal-padding);
+    --badge-padding-y: var(--badge-size-large-vertical-padding);
+    --badge-radius: var(--badge-size-large-radius);
+    font-size: var(--badge-size-large-font-size);
   }
 
   &--accent {
@@ -71,7 +71,7 @@ $badge-tones: (
 
   &--outline {
     border-color: currentColor;
-    background: transparent;
+    background: var(--surface-root-opacity);
     color: var(--badge-fill);
   }
 
@@ -89,8 +89,8 @@ $badge-tones: (
 
   &-icon--left,
   &-icon--right {
-    width: 16px;
-    height: 16px;
+    width: var(--layout-size-md);
+    height: var(--layout-size-md);
     background-color: currentColor;
     mask-position: center;
     mask-repeat: no-repeat;

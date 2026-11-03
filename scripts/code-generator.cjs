@@ -187,101 +187,117 @@ export default ${pascalName};
 }
 
 /**
- * Generate SCSS (<Name>.scss)
+ * Generate SCSS (<Name>.scss) using exclusively token variables from src/tokens/variables/
  */
 function generateScss(pascalName, kebabName, meta) {
-  const { padding, cornerRadius, layoutMode } = meta;
+  const { layoutMode } = meta;
 
   return `// Generated from Figma by scripts/code-generator.cjs.
-@use 'sass:color';
+@use 'sass:map';
+
+$${kebabName}-sizes: (
+  small: (
+    height: var(--button-size-small-height),
+    padding: var(--button-size-small-padding-x),
+    radius: var(--button-size-small-radius),
+    gap: var(--button-size-small-gap),
+    font-size: var(--button-size-small-font-size)
+  ),
+  medium: (
+    height: var(--button-size-medium-height),
+    padding: var(--button-size-medium-padding-x),
+    radius: var(--button-size-medium-radius),
+    gap: var(--button-size-medium-gap),
+    font-size: var(--button-size-medium-font-size)
+  ),
+  large: (
+    height: var(--button-size-large-height),
+    padding: var(--button-size-large-padding-x),
+    radius: var(--button-size-large-radius),
+    gap: var(--button-size-large-gap),
+    font-size: var(--button-size-large-font-size)
+  )
+);
+
+$${kebabName}-variants: (
+  primary: (
+    background: var(--button-primary-background-color-default),
+    foreground: var(--button-primary-foreground-color-static),
+    border: transparent,
+    hover-background: var(--button-primary-background-color-hover)
+  ),
+  secondary: (
+    background: var(--button-secondary-background-color-default),
+    foreground: var(--button-secondary-foreground-color-default),
+    border: var(--button-secondary-border-color-default),
+    hover-background: var(--button-secondary-background-color-hover)
+  ),
+  tertiary: (
+    background: var(--button-tertiary-background-color-default),
+    foreground: var(--button-tertiary-foreground-color-default),
+    border: transparent,
+    hover-background: var(--button-tertiary-background-color-hover)
+  ),
+  outlined: (
+    background: transparent,
+    foreground: var(--color-interactive-primary),
+    border: var(--color-border-subtle),
+    hover-background: var(--button-secondary-background-color-hover)
+  )
+);
 
 .ui-${kebabName} {
   display: inline-flex;
   flex-direction: ${layoutMode};
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: var(--global-scale-100);
   box-sizing: border-box;
-  font-family: inherit;
-  font-weight: 500;
+  font-family: var(--font-family-inter);
+  font-weight: var(--font-weight-500);
   text-decoration: none;
   cursor: pointer;
-  border: 1px solid transparent;
-  border-radius: ${cornerRadius}px;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  border: var(--button-size-border-width) solid transparent;
+  border-radius: var(--button-size-medium-radius);
+  transition: all 0.2s ease;
   user-select: none;
   outline: none;
 
   &__content {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: var(--global-scale-75);
   }
 
   &__spinner {
-    width: 14px;
-    height: 14px;
-    border: 2px solid currentColor;
+    width: var(--global-scale-175);
+    height: var(--global-scale-175);
+    border: var(--global-scale-25) solid currentColor;
     border-right-color: transparent;
-    border-radius: 50%;
+    border-radius: var(--layout-radius-full);
     animation: ui-${kebabName}-spin 0.75s linear infinite;
   }
 
-  &--small {
-    font-size: 13px;
-    line-height: 16px;
-    padding: ${Math.max(4, Math.round(padding.top * 0.7))}px ${Math.max(8, Math.round(padding.right * 0.7))}px;
-  }
-
-  &--medium {
-    font-size: 14px;
-    line-height: 20px;
-    padding: ${padding.top}px ${padding.right}px;
-  }
-
-  &--large {
-    font-size: 16px;
-    line-height: 24px;
-    padding: ${Math.round(padding.top * 1.3)}px ${Math.round(padding.right * 1.3)}px;
-  }
-
-  &--primary {
-    background-color: var(--color-interactive-primary, #0c2340);
-    color: #ffffff;
-    border-color: transparent;
-
-    &:hover:not(.ui-${kebabName}--disabled) {
-      background-color: var(--color-interactive-primary-hover, #1d4076);
+  @each $size, $props in $${kebabName}-sizes {
+    &--#{$size} {
+      min-height: map.get($props, height);
+      font-size: map.get($props, font-size);
+      line-height: var(--font-lineheight-tight);
+      padding: var(--global-scale-100) map.get($props, padding);
+      border-radius: map.get($props, radius);
+      gap: map.get($props, gap);
     }
   }
 
-  &--secondary {
-    background-color: transparent;
-    color: var(--color-interactive-primary, #0c2340);
-    border-color: var(--color-border-subtle, #d1d5db);
+  @each $variant, $props in $${kebabName}-variants {
+    &--#{$variant} {
+      background-color: map.get($props, background);
+      color: map.get($props, foreground);
+      border-color: map.get($props, border);
 
-    &:hover:not(.ui-${kebabName}--disabled) {
-      background-color: rgba(12, 35, 64, 0.05);
-    }
-  }
-
-  &--tertiary {
-    background-color: transparent;
-    color: var(--color-interactive-primary, #0c2340);
-    border-color: transparent;
-
-    &:hover:not(.ui-${kebabName}--disabled) {
-      background-color: rgba(12, 35, 64, 0.08);
-    }
-  }
-
-  &--outlined {
-    background-color: transparent;
-    color: var(--color-interactive-primary, #0c2340);
-    border: 1.5px solid currentColor;
-
-    &:hover:not(.ui-${kebabName}--disabled) {
-      background-color: rgba(12, 35, 64, 0.05);
+      &:hover:not(.ui-${kebabName}--disabled) {
+        background-color: map.get($props, hover-background);
+      }
     }
   }
 
@@ -301,11 +317,9 @@ function generateScss(pascalName, kebabName, meta) {
   from {
     transform: rotate(0deg);
   }
-
   to {
     transform: rotate(360deg);
-  } }
-  to { transform: rotate(360deg); }
+  }
 }
 `;
 }
@@ -460,8 +474,6 @@ function generateHtmlSnippet(pascalName, kebabName, meta) {
   const label = meta.defaultLabel || pascalName;
 
   return `<!-- ${pascalName} Component HTML Showcase -->
-<link rel="stylesheet" href="./${kebabName}.css">
-
 <section class="component-showcase">
   <h3>${pascalName} — Default (Primary)</h3>
   <${tag} class="ui-${kebabName} ui-${kebabName}--medium ui-${kebabName}--primary" ${isButton ? 'type="button"' : ''}>
@@ -478,114 +490,6 @@ function generateHtmlSnippet(pascalName, kebabName, meta) {
     <span class="ui-${kebabName}__content">${label}</span>
   </${tag}>
 </section>
-`;
-}
-
-/**
- * Generate Standalone Vanilla CSS (<component-name>.css)
- */
-function generateVanillaCss(pascalName, kebabName, meta) {
-  const { padding, cornerRadius, layoutMode } = meta;
-
-  return `/* Standalone CSS for ${pascalName} */
-.ui-${kebabName} {
-  display: inline-flex;
-  flex-direction: ${layoutMode};
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  box-sizing: border-box;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  font-weight: 500;
-  text-decoration: none;
-  cursor: pointer;
-  border: 1px solid transparent;
-  border-radius: ${cornerRadius}px;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  user-select: none;
-  outline: none;
-}
-
-.ui-${kebabName}__content {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.ui-${kebabName}__spinner {
-  width: 14px;
-  height: 14px;
-  border: 2px solid currentColor;
-  border-right-color: transparent;
-  border-radius: 50%;
-  animation: ui-${kebabName}-spin 0.75s linear infinite;
-}
-
-.ui-${kebabName}--small {
-  font-size: 13px;
-  line-height: 16px;
-  padding: ${Math.max(4, Math.round(padding.top * 0.7))}px ${Math.max(8, Math.round(padding.right * 0.7))}px;
-}
-
-.ui-${kebabName}--medium {
-  font-size: 14px;
-  line-height: 20px;
-  padding: ${padding.top}px ${padding.right}px;
-}
-
-.ui-${kebabName}--large {
-  font-size: 16px;
-  line-height: 24px;
-  padding: ${Math.round(padding.top * 1.3)}px ${Math.round(padding.right * 1.3)}px;
-}
-
-.ui-${kebabName}--primary {
-  background-color: #0c2340;
-  color: #ffffff;
-  border-color: transparent;
-}
-
-.ui-${kebabName}--primary:hover:not(.ui-${kebabName}--disabled) {
-  background-color: #1d4076;
-}
-
-.ui-${kebabName}--secondary {
-  background-color: transparent;
-  color: #0c2340;
-  border-color: #d1d5db;
-}
-
-.ui-${kebabName}--secondary:hover:not(.ui-${kebabName}--disabled) {
-  background-color: rgba(12, 35, 64, 0.05);
-}
-
-.ui-${kebabName}--outlined {
-  background-color: transparent;
-  color: #0c2340;
-  border: 1.5px solid currentColor;
-}
-
-.ui-${kebabName}--full-width {
-  width: 100%;
-  display: flex;
-}
-
-.ui-${kebabName}--disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
-  pointer-events: none;
-}
-
-@keyframes ui-${kebabName}-spin {
-  from {
-    transform: rotate(0deg);
-  }
-
-  to {
-    transform: rotate(360deg);
-  } }
-  to { transform: rotate(360deg); }
-}
 `;
 }
 
@@ -660,14 +564,12 @@ function generateComponentFiles(figmaNode, options = {}) {
   const flutterPath = path.join(componentDir, `${snakeName}.dart`);
   fs.writeFileSync(flutterPath, generateFlutterWidget(pascalName, kebabName, meta), 'utf8');
 
-  // 3. HTML/CSS files
+  // 3. HTML file (no .css inside src/components)
   const htmlPath = path.join(componentDir, `${kebabName}.html`);
-  const cssPath = path.join(componentDir, `${kebabName}.css`);
   fs.writeFileSync(htmlPath, generateHtmlSnippet(pascalName, kebabName, meta), 'utf8');
-  fs.writeFileSync(cssPath, generateVanillaCss(pascalName, kebabName, meta), 'utf8');
   appPageGenerator.syncAppComponentPages();
 
-  console.log(`[CodeGenerator] Generated React, Flutter, and HTML/CSS for "${pascalName}" in ${componentDir}`);
+  console.log(`[CodeGenerator] Generated React (SCSS tokens), Flutter, and HTML for "${pascalName}" in ${componentDir}`);
 
   return {
     componentName: pascalName,
@@ -677,8 +579,7 @@ function generateComponentFiles(figmaNode, options = {}) {
       types: typesPath,
       scss: scssPath,
       flutter: flutterPath,
-      html: htmlPath,
-      css: cssPath
+      html: htmlPath
     }
   };
 }
@@ -703,7 +604,7 @@ function deleteComponentFiles(rawName) {
 }
 
 /**
- * Generate Flutter & HTML/CSS for all existing components in their existing folders
+ * Generate Flutter & HTML for all existing components in their existing folders
  */
 function generateForExistingComponents() {
   if (!fs.existsSync(COMPONENTS_DIR)) return;
@@ -730,17 +631,11 @@ function generateForExistingComponents() {
       layoutMode: 'row'
     };
 
-    // Flutter file
     const flutterPath = path.join(folderPath, `${snakeName}.dart`);
     fs.writeFileSync(flutterPath, generateFlutterWidget(pascalName, folder, mockMeta), 'utf8');
 
-    // HTML & CSS files
     const htmlPath = path.join(folderPath, `${folder}.html`);
-    const cssPath = path.join(folderPath, `${folder}.css`);
     fs.writeFileSync(htmlPath, generateHtmlSnippet(pascalName, folder, mockMeta), 'utf8');
-    fs.writeFileSync(cssPath, generateVanillaCss(pascalName, folder, mockMeta), 'utf8');
-
-    console.log(`[CodeGenerator] Added Flutter & HTML/CSS to existing component "${pascalName}" (${folder})`);
   }
 
   appPageGenerator.syncAppComponentPages();
@@ -751,6 +646,7 @@ module.exports = {
   toKebabCase,
   toSnakeCase,
   parseVariantsAndProps,
+  generateScss,
   generateComponentFiles,
   deleteComponentFiles,
   generateForExistingComponents,

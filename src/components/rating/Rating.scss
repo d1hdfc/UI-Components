@@ -1,26 +1,26 @@
 .rating {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  color: var(--surface-neutral-light, #c8cbd1);
+  gap: var(--layout-spacing-xs);
+  color: var(--surface-neutral-light);
 
   &-star {
-    border: 0;
-    padding: 0;
-    background: transparent;
+    border: var(--global-scale-0);
+    padding: var(--global-scale-0);
+    background: var(--surface-root-opacity);
     color: inherit;
     font: inherit;
-    font-size: var(--ratings-height, 24px);
-    line-height: 1;
+    font-size: var(--ratings-height);
+    line-height: var(--font-line-height-none);
     cursor: pointer;
 
     &--filled {
-      color: var(--surface-static-warning, #f8b600);
+      color: var(--surface-static-warning);
     }
 
     &:focus-visible {
-      outline: 2px solid var(--border-primary-default, #1c3fca);
-      outline-offset: 2px;
+      outline: var(--layout-border-md) solid var(--border-primary-default);
+      outline-offset: var(--layout-spacing-2xs);
     }
   }
 
