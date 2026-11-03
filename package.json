@@ -50,6 +50,7 @@
     "sync:figma-to-code": "node scripts/cli-sync.cjs --figma-to-code",
     "sync:code-to-figma": "node scripts/cli-sync.cjs --code-to-figma",
     "sync:generate-all": "node scripts/cli-sync.cjs --generate-existing",
+    "test:sync": "node --test scripts/sync.test.cjs",
     "figma:webhook": "node scripts/webhook-manager.cjs"
   },
   "dependencies": {

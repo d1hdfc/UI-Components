@@ -69,9 +69,11 @@ function getFileKey(): string {
 }
 
 function getToken(): string {
-  const token = process.env.FIGMA_PERSONAL_ACCESS_TOKEN?.trim();
+  const token =
+    process.env.FIGMA_PERSONAL_ACCESS_TOKEN?.trim() ||
+    process.env.FIGMA_ACCESS_TOKEN?.trim();
   if (!token) {
-    throw new Error('FIGMA_PERSONAL_ACCESS_TOKEN is missing. Add it to the local .env file or shell environment.');
+    throw new Error('FIGMA_PERSONAL_ACCESS_TOKEN or FIGMA_ACCESS_TOKEN is missing. Add a Figma token to the local .env file or shell environment.');
   }
 
   return token;

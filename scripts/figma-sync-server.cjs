@@ -91,11 +91,9 @@ function handleSocketMessage(socket, rawMessage) {
     const channelName = data.channel || 'figma-sync';
     const payload = data.message;
 
-    // Handle Figma Plugin selection capture
-    if (payload && payload.event === 'FIGMA_SELECTION_PUSH') {
-      console.log(`[Bridge] Received ${payload.items?.length || 0} selected components from Figma Canvas`);
-      // Trigger Figma-to-code sync
-      triggerFigmaToCodeSync('plugin-selection');
+    if (payload?.event === 'FIGMA_SYNC_REQUEST' || payload?.event === 'FIGMA_SELECTION_PUSH') {
+      console.log(`[Bridge] Figma sync requested${payload.event === 'FIGMA_SELECTION_PUSH' ? ` for ${payload.items?.length || 0} selected item(s)` : ''}`);
+      triggerFigmaToCodeSync(payload.event === 'FIGMA_SYNC_REQUEST' ? 'plugin-request' : 'plugin-selection');
     }
 
     broadcastToChannel(channelName, payload);
@@ -142,7 +140,7 @@ async function triggerCodeToFigmaSync(componentFolder, action = 'update') {
   const compData = codeParser.parseComponentDir(componentFolder);
 
   if (action === 'delete' || compData.isDeleted) {
-    console.log(`[SyncServer] Dispatching deletion to Figma for "${compData.componentName}"...`);
+    console.log(`\n[FigmaSync] DELETED: Variant <${compData.componentName}> removed from src/components and UI pages`);
     broadcastToChannel('figma-sync', {
       event: 'CODE_TO_FIGMA_DELETE',
       componentName: compData.componentName,
@@ -152,20 +150,38 @@ async function triggerCodeToFigmaSync(componentFolder, action = 'update') {
     return;
   }
 
-  console.log(`[SyncServer] Dispatching canvas update to Figma for "${compData.componentName}"...`);
+  console.log(`[CodeWatcher] CHANGED: src/components/${compData.folder}/${compData.componentName} -> Syncing to Figma Canvas`);
+  console.log(`[FigmaSync] UPDATED: Component <${compData.componentName}> styles modified — fontSize=${compData.fontSize ?? 'n/a'}, cornerRadius=${compData.cornerRadius ?? 'n/a'}, bg=${compData.backgroundColor ?? 'n/a'}`);
+
   broadcastToChannel('figma-sync', {
     event: 'CODE_TO_FIGMA_UPDATE',
     componentName: compData.componentName,
     folder: compData.folder,
     nodeId: compData.nodeId,
+    // Typography
+    fontSize: compData.fontSize,
+    fontWeight: compData.fontWeight,
+    letterSpacing: compData.letterSpacing,
+    lineHeight: compData.lineHeight,
+    // Geometry
     cornerRadius: compData.cornerRadius,
     padding: compData.padding,
+    width: compData.width,
+    height: compData.height,
+    gap: compData.gap,
+    // Colors
     backgroundColor: compData.backgroundColor,
+    textColor: compData.textColor,
+    borderColor: compData.borderColor,
+    opacity: compData.opacity,
+    // Variants & Sizes maps
     variants: compData.variants,
-    sizes: compData.sizes
+    sizes: compData.sizes,
+    sizesMap: compData.sizesMap,
+    variantsMap: compData.variantsMap
   });
 
-  // Also update Dev Resources via Figma REST API
+    // Also update Dev Resources via Figma REST API
   if (compData.nodeId) {
     try {
       const fileKey = figmaApi.getFileKey();

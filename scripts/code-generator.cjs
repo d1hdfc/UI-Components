@@ -36,8 +36,8 @@ function toSnakeCase(str) {
 }
 
 function parseVariantsAndProps(node) {
-  const variants = new Set(['primary', 'secondary', 'tertiary', 'outlined']);
-  const sizes = new Set(['small', 'medium', 'large']);
+  const variants = new Set();
+  const sizes = new Set();
   let defaultLabel = 'Component';
 
   if (node.componentPropertyDefinitions) {
@@ -61,7 +61,7 @@ function parseVariantsAndProps(node) {
 
   // Scan children if it's a COMPONENT_SET
   if (Array.isArray(node.children)) {
-    for (const child of node.children.slice(0, 50)) {
+    for (const child of node.children) {
       if (child.name && child.name.includes('=')) {
         const parts = child.name.split(',').map(s => s.trim());
         for (const part of parts) {
@@ -75,6 +75,13 @@ function parseVariantsAndProps(node) {
         }
       }
     }
+  }
+
+  if (variants.size === 0) {
+    ['primary', 'secondary', 'tertiary', 'outlined'].forEach(value => variants.add(value));
+  }
+  if (sizes.size === 0) {
+    ['small', 'medium', 'large'].forEach(value => sizes.add(value));
   }
 
   const sample = (node.children && node.children[0]) || node;
@@ -107,7 +114,8 @@ function generateReactTypes(pascalName, kebabName, meta) {
   const variantType = meta.variants.map(v => `'${v}'`).join(' | ') || "'primary' | 'secondary'";
   const sizeType = meta.sizes.map(s => `'${s}'`).join(' | ') || "'small' | 'medium' | 'large'";
 
-  return `import type React from 'react';
+  return `// Generated from Figma by scripts/code-generator.cjs.
+import type React from 'react';
 
 export type ${pascalName}Variant = ${variantType};
 export type ${pascalName}Size = ${sizeType};
@@ -132,7 +140,8 @@ function generateReactComponent(pascalName, kebabName, meta) {
   const defaultVariant = meta.variants[0] || 'primary';
   const defaultSize = meta.sizes.includes('medium') ? 'medium' : meta.sizes[0] || 'medium';
 
-  return `import React from 'react';
+  return `// Generated from Figma by scripts/code-generator.cjs.
+import React from 'react';
 import type { ${pascalName}Props } from './${pascalName}.types';
 import './${pascalName}.scss';
 
@@ -183,7 +192,8 @@ export default ${pascalName};
 function generateScss(pascalName, kebabName, meta) {
   const { padding, cornerRadius, layoutMode } = meta;
 
-  return `@use 'sass:color';
+  return `// Generated from Figma by scripts/code-generator.cjs.
+@use 'sass:color';
 
 .ui-${kebabName} {
   display: inline-flex;

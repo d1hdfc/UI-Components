@@ -3,6 +3,7 @@
 require('dotenv').config();
 const fs = require('node:fs');
 const path = require('node:path');
+const { createHash } = require('node:crypto');
 const figmaApi = require('./figma-rest-api.cjs');
 const codeGenerator = require('./code-generator.cjs');
 const codeParser = require('./code-parser.cjs');
@@ -81,6 +82,10 @@ function collectUIComponents(node, pageName, components) {
   for (const child of node.children || []) {
     collectUIComponents(child, pageName, components);
   }
+}
+
+function getComponentSignature(node) {
+  return createHash('sha256').update(JSON.stringify(node)).digest('hex');
 }
 
 function removeFromIndexTs(componentName) {
@@ -168,6 +173,7 @@ async function syncFigmaToCode(options = {}) {
     const prev = syncState.components[id];
     const kebab = codeGenerator.toKebabCase(comp.name);
     const componentDirExists = fs.existsSync(path.join(COMPONENTS_DIR, kebab));
+    const signature = getComponentSignature(comp.node);
 
     if (!prev) {
       if (componentDirExists) {
@@ -177,6 +183,8 @@ async function syncFigmaToCode(options = {}) {
           name: comp.name,
           type: comp.type,
           pageName: comp.pageName,
+          signature,
+          generated: false,
           updatedAt: new Date().toISOString()
         };
       } else {
@@ -187,19 +195,35 @@ async function syncFigmaToCode(options = {}) {
           name: comp.name,
           type: comp.type,
           pageName: comp.pageName,
+          signature,
+          generated: true,
           updatedAt: new Date().toISOString()
         };
         createdCount++;
       }
-    } else if (prev.name !== comp.name || options.force) {
+    } else if (prev.name !== comp.name || (prev.signature && prev.signature !== signature) || options.force) {
       console.log(`[FigmaToCode] 🔄 Updated Component detected: "${comp.name}" (${id})`);
-      codeGenerator.generateComponentFiles(comp.node);
+      codeGenerator.generateComponentFiles(comp.node, { preserveExistingReact: !prev.generated });
       syncState.components[id] = {
         ...prev,
         name: comp.name,
+        type: comp.type,
+        pageName: comp.pageName,
+        signature,
         updatedAt: new Date().toISOString()
       };
       updatedCount++;
+    } else if (!prev.signature) {
+      // Establish a baseline for legacy sync state without replacing existing React source.
+      codeGenerator.generateComponentFiles(comp.node, { preserveExistingReact: true });
+      syncState.components[id] = {
+        ...prev,
+        type: comp.type,
+        pageName: comp.pageName,
+        signature,
+        generated: false,
+        updatedAt: new Date().toISOString()
+      };
     }
   }
 
@@ -357,6 +381,7 @@ if (require.main === module) {
 }
 
 module.exports = {
+  getComponentSignature,
   syncFigmaToCode,
   syncCodeToFigma
 };

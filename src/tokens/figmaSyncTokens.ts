@@ -2,7 +2,9 @@ import 'dotenv/config';
 import fs from 'fs';
 import path from 'path';
 
-const token = process.env.FIGMA_PERSONAL_ACCESS_TOKEN?.trim();
+const token =
+  process.env.FIGMA_PERSONAL_ACCESS_TOKEN?.trim() ||
+  process.env.FIGMA_ACCESS_TOKEN?.trim();
 const fileKey = process.env.FIGMA_FILE_KEY || process.env.FIGMA_DESIGN_FILE_KEY || 'CXxUbHl3oMzt9Bzv3SKv75';
 const syncIntervalMs = 60_000;
 
@@ -41,7 +43,7 @@ function normalizeScssVariableName(name: string): string {
 
 async function fetchFigmaVariables() {
   if (!token) {
-    throw new Error('FIGMA_PERSONAL_ACCESS_TOKEN is missing. Add it to the local .env file or shell environment.');
+    throw new Error('FIGMA_PERSONAL_ACCESS_TOKEN or FIGMA_ACCESS_TOKEN is missing. Add a Figma token to the local .env file or shell environment.');
   }
 
   console.log('🚀 Fetching Figma variables...');

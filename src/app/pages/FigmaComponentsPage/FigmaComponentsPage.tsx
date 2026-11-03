@@ -58,7 +58,11 @@ export function FigmaComponentsPage() {
                     aria-label={`Open ${component.name} in Figma`}
                   >
                     {component.thumbnailUrl ? (
-                      <img src={component.thumbnailUrl} alt="" loading="lazy" />
+                      <img
+                        src={`${component.thumbnailUrl}?v=${encodeURIComponent(figmaComponentCatalog.version)}`}
+                        alt=""
+                        loading="lazy"
+                      />
                     ) : (
                       <span className="figma-component-no-preview">Preview unavailable</span>
                     )}

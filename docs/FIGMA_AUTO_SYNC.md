@@ -47,19 +47,22 @@ This project features a complete bi-directional auto-sync system connecting Figm
 
 ## 1. Figma to Code Auto-Sync
 
-When a component, button, or component set is added, modified, or removed in Figma:
+When a component or component set is added, modified, or removed in Figma:
 
 1. **Detection**:
    - **Figma Webhook**: The server listens at `POST /api/webhook` for `FILE_UPDATE`, `FILE_VERSION_UPDATE`, and `LIBRARY_PUBLISH` events.
    - **REST API Polling**: Background poller checks Figma file versions every 30 seconds (configurable via `SYNC_POLL_INTERVAL_MS`).
-   - **Figma Plugin**: The **Push Selection to Code** action sends a signal over the WebSocket bridge that starts a Figma-to-code sync for the configured file. It does not generate code from only the selected node.
+   - **Figma Plugin**: While the plugin is open, canvas edits are debounced and sent over the WebSocket bridge. **Sync Figma File to VS Code** also requests an immediate full-file sync; no canvas selection is required.
+   - The poller remains as a fallback when the plugin is closed. It checks the latest saved Figma version every 30 seconds.
 2. **Multi-Framework Code Generation**:
    - For each eligible component or component set detected (including nested components):
      - **React**: `<Component>.tsx`, `<Component>.types.ts`, `<Component>.scss`, and `index.ts`.
      - **Flutter**: `<component_name>.dart` (idiomatic `StatelessWidget` with typed variants and properties).
      - **HTML & CSS**: `<component-name>.html` and `<component-name>.css` (standalone semantic markup & styling).
    - React components are placed in `src/components/<component>/`; their docs page folders are generated in `src/app/pages/<Component>Page/`.
-   - Component additions and removals automatically update `src/components/index.ts`.
+   - Changes to a component-set signature (including adding or removing variants) trigger regeneration. A generated component's React props reflect the current Figma variant/size options; hand-written React files are preserved.
+   - Component additions and removals automatically update `src/components/index.ts` and generated documentation pages.
+   - The Figma catalog watcher in `npm run dev` refreshes the component-set preview images and catalog data, so the UI gallery reflects the saved Figma design.
 3. **Automated Git Integration**:
    - A server-triggered sync automatically stages (`git add -A`), commits, and attempts to push changed files. Review your worktree before leaving the daemon running if you do not want unrelated local edits included in an automatic commit.
 
@@ -126,4 +129,9 @@ To enable real-time canvas mutations (updates and deletions on the Figma canvas 
 2. Go to `Plugins` -> `Development` -> `Import plugin from manifest...`.
 3. Select `scripts/figma-plugin/manifest.json`.
 4. Run the plugin **HDFC UI Components Two-Way Auto-Sync**.
-5. The plugin connects to `ws://localhost:3055`. As you edit or delete component files in VS Code, the canvas updates in real time!
+5. Before first use, run `npm run sync:figma-to-code` once to save component signatures for future change detection.
+6. Start `npm run sync:server` and `npm run dev` in separate VS Code terminals. The plugin connects to `ws://localhost:3055`.
+7. Keep the plugin open for canvas-change notifications. Save/publish changes as appropriate; the server poller also checks the latest saved file version every 30 seconds.
+8. Open the documentation UI at `http://localhost:5173/#figma-components`. New/removed components update the catalog, and generated component pages appear in the sidebar.
+
+The sync maps Figma component/variant metadata and supported layout properties into code; it is not a pixel-perfect conversion of every arbitrary Figma layer. The catalog page provides the current Figma component-set preview.
