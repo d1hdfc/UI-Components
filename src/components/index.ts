@@ -271,7 +271,6 @@ export type { ActionleftarrowProps } from './action-left-arrow/Actionleftarrow.t
 export { Actionrightarrow } from './action-right-arrow/Actionrightarrow'
 export type { ActionrightarrowProps } from './action-right-arrow/Actionrightarrow.types'
 
-
 export { BottomSh } from './bottom-sh/BottomSh'
 export type { BottomShProps } from './bottom-sh/BottomSh.types'
 

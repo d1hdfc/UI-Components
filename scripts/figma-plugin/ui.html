@@ -81,7 +81,7 @@
       font-size: 11px;
       padding: 8px;
       border-radius: 6px;
-      height: 210px;
+      height: 220px;
       overflow-y: auto;
       white-space: pre-wrap;
       word-break: break-all;
@@ -98,8 +98,8 @@
     <div style="font-size: 12px; color: #666; margin-bottom: 8px;">
       Connected to Local Sync Server: <b>ws://localhost:3055</b>
     </div>
+    <button id="syncNowBtn" class="btn">Sync Figma File ➔ VS Code (Variables & Components)</button>
     <button id="syncCodeToFigmaBtn" class="btn btn-primary-sync">Sync VS Code ➔ Figma Canvas</button>
-    <button id="syncNowBtn" class="btn">Sync Figma File ➔ VS Code</button>
     <button id="reconnectBtn" class="btn btn-secondary">Reconnect Bridge</button>
   </div>
 
@@ -114,7 +114,6 @@
     const reconnectBtn = document.getElementById('reconnectBtn');
 
     let socket = null;
-    let documentSyncTimer = null;
 
     function log(msg) {
       const time = new Date().toLocaleTimeString();
@@ -147,12 +146,6 @@
           statusBadge.textContent = 'Live Connected';
           log('Connected to sync server!');
           socket.send(JSON.stringify({ type: 'join', channel: 'figma-sync' }));
-          // Automatically sync latest VS Code state to Figma when plugin opens/connects
-          setTimeout(() => {
-            if (socket && socket.readyState === WebSocket.OPEN) {
-              requestCodeToFigmaSync();
-            }
-          }, 400);
         };
 
         socket.onmessage = (event) => {
@@ -162,9 +155,9 @@
               const payload = data.message;
               if (payload.event === 'FIGMA_TO_CODE_COMPLETE') {
                 const result = payload.result || {};
-                log(`Figma sync complete: +${result.createdCount || 0} created, ~${result.updatedCount || 0} updated, -${result.deletedCount || 0} deleted`);
+                log(`Figma ➔ VS Code sync complete: +${result.createdCount || 0} created, ~${result.updatedCount || 0} updated, -${result.deletedCount || 0} deleted, ${result.tokensUpdated || 0} tokens synced`);
               } else if (payload.event === 'FIGMA_TO_CODE_ERROR') {
-                log(`Figma sync failed: ${payload.error || 'Unknown error'}`);
+                log(`Figma sync warning: ${payload.error || 'Unknown error'}`);
               } else if (payload.event === 'CODE_TO_FIGMA_DELETE') {
                 log(`Received code deletion for: ${payload.componentName || payload.nodeId}`);
                 parent.postMessage({
@@ -213,38 +206,20 @@
 
       if (msg.type === 'LOG') {
         log(msg.message);
-      } else if (msg.type === 'FIGMA_DOCUMENT_CHANGED') {
-        clearTimeout(documentSyncTimer);
-        documentSyncTimer = setTimeout(() => {
-          if (!socket || socket.readyState !== WebSocket.OPEN) {
-            log('Figma change detected, but the sync server is disconnected.');
-            return;
-          }
-
-          socket.send(JSON.stringify({
-            type: 'message',
-            channel: 'figma-sync',
-            message: { event: 'FIGMA_SYNC_REQUEST' }
-          }));
-          log('Figma change detected. Sync requested.');
-        }, 2000);
-      } else if (msg.type === 'SELECTION_CAPTURED') {
-        log(`Selection captured: ${msg.payload.length} items`);
-        if (socket && socket.readyState === WebSocket.OPEN) {
-          socket.send(JSON.stringify({
-            type: 'message',
-            channel: 'figma-sync',
-            message: {
-              event: 'FIGMA_SELECTION_PUSH',
-              items: msg.payload
-            }
-          }));
+      } else if (msg.type === 'FIGMA_LIVE_SYNC_PAYLOAD') {
+        if (!socket || socket.readyState !== WebSocket.OPEN) {
+          log('Cannot send Figma payload: local sync server is disconnected.');
+          return;
         }
+        socket.send(JSON.stringify({
+          type: 'message',
+          channel: 'figma-sync',
+          message: {
+            event: 'FIGMA_LIVE_SYNC_PAYLOAD',
+            ...msg.payload
+          }
+        }));
       }
-    };
-
-    syncCodeToFigmaBtn.onclick = () => {
-      requestCodeToFigmaSync();
     };
 
     syncNowBtn.onclick = () => {
@@ -252,13 +227,17 @@
         log('Cannot sync: the local sync server is disconnected.');
         return;
       }
+      log('Extracting live Figma Variables & Components from canvas...');
+      parent.postMessage({
+        pluginMessage: {
+          type: 'REQUEST_FULL_FIGMA_EXPORT',
+          reason: 'manual'
+        }
+      }, '*');
+    };
 
-      socket.send(JSON.stringify({
-        type: 'message',
-        channel: 'figma-sync',
-        message: { event: 'FIGMA_SYNC_REQUEST' }
-      }));
-      log('Manual Figma-to-code sync requested.');
+    syncCodeToFigmaBtn.onclick = () => {
+      requestCodeToFigmaSync();
     };
 
     reconnectBtn.onclick = () => {

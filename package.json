@@ -26,7 +26,6 @@
   ],
   "scripts": {
     "tokens:build": "npx tsx src/tokens/figmaSyncTokens.ts --generate",
-    "generate-tokens": "npx tsx src/tokens/figmaSyncTokens.ts --generate",
     "sync-tokens": "npx tsx src/tokens/figmaSyncTokens.ts --generate",
     "tokens:watch": "npx tsx src/tokens/figmaSyncTokens.ts --watch",
     "predev": "npm run sync:app-pages",
@@ -35,14 +34,9 @@
     "sync:app-pages": "node scripts/app-page-generator.cjs",
     "figma:components:sync": "tsx src/figma/syncComponents.ts",
     "figma:components:watch": "tsx src/figma/syncComponents.ts --watch",
-    "build": "tsc && vite build && npm run build:mcp-socket",
+    "build": "tsc && vite build",
     "build:library": "vite build --config vite.library.config.ts && tsc -p tsconfig.library.json",
     "preview": "vite preview",
-    "mcp:watch": "node .mcp/watch.js",
-    "dev:mcp": "concurrently \"npm run dev\" \"npm run mcp:watch\"",
-    "build:mcp-socket": "node scripts/build-mcp-socket.cjs",
-    "mcp:start": "npm run build:mcp-socket && node dist/socket.js",
-    "build:tokens": "style-dictionary build",
     "sync": "sync.bat",
     "sync:server": "node scripts/figma-sync-server.cjs",
     "sync:watch": "node scripts/figma-sync-server.cjs",
@@ -68,10 +62,8 @@
     "concurrently": "^10.0.5",
     "sass": "^1.105.1",
     "sass-embedded": "^1.105.1",
-    "ts-node": "^10.9.2",
     "tsx": "^4.23.15",
     "typescript": "^5.9.3",
-    "vite": "^5.0.0",
-    "yn": "^5.1.0"
+    "vite": "^5.0.0"
   }
 }

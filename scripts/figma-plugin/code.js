@@ -1,13 +1,27 @@
 // ============================================================
 // HDFC UI Components — Figma Plugin Sandbox (code.js)
-// Full Bi-Directional Sync: Code ↔ Figma Canvas
+// Full Bi-Directional Auto-Sync Engine: Figma ↔ VS Code
 // Compatible with "documentAccess": "dynamic-page"
 // ============================================================
-figma.showUI(__html__, { width: 420, height: 540 });
+figma.showUI(__html__, { width: 420, height: 560 });
 
 const LOG_PREFIX = '[HDFC Plugin]';
 
-// ── Helpers ─────────────────────────────────────────────────
+const IGNORED_PAGES = new Set([
+  'Variables', 'Thumbnail', 'Get started', 'Changelog',
+  'Understanding the version', '-------------', '---------',
+  '------', '----------', 'Colors', 'Spatial tokens',
+  'Grid & Columns', 'Typography', 'Global Size', 'Accessibility',
+  'Border', 'Radius', 'Gradient', 'Elevation',
+  'derpicated items', 'global_token_architecture'
+]);
+
+let isApplyingCodeUpdate = false;
+let lastVariablesHash = '';
+let lastSelectionHash = '';
+let allPagesLoaded = false;
+
+// ── Logging & Naming Helpers ────────────────────────────────
 
 function log(msg) {
   console.log(`${LOG_PREFIX} ${msg}`);
@@ -18,6 +32,14 @@ function normalizeName(str) {
   return String(str || '').trim().toLowerCase().replace(/[-_\s]+/g, '');
 }
 
+function toKebabTokenName(str) {
+  return String(str || '')
+    .replace(/[\/\s_]+/g, '-')
+    .replace(/[^a-zA-Z0-9-]/g, '')
+    .replace(/^-+|-+$/g, '')
+    .toLowerCase();
+}
+
 function getPageOfNode(node) {
   let curr = node;
   while (curr && curr.type !== 'PAGE') {
@@ -26,12 +48,26 @@ function getPageOfNode(node) {
   return curr;
 }
 
-/**
- * Find a node by Figma nodeId or by exact/fuzzy name match.
- * Uses async APIs required by "documentAccess": "dynamic-page".
- */
+function rgbToHex(r, g, b) {
+  const toByte = (c) => Math.round(Math.max(0, Math.min(1, c || 0)) * 255);
+  const toHex = (n) => n.toString(16).padStart(2, '0');
+  return `#${toHex(toByte(r))}${toHex(toByte(g))}${toHex(toByte(b))}`.toUpperCase();
+}
+
+// ── Node Lookup (Async for dynamic-page) ────────────────────
+
+async function ensureAllPagesLoaded() {
+  if (allPagesLoaded) return;
+  try {
+    await figma.loadAllPagesAsync();
+    allPagesLoaded = true;
+  } catch (e) {
+    log(`⚠ loadAllPagesAsync warning: ${e.message}`);
+  }
+}
+
 async function findNode(nodeId, name) {
-  // 1. Try exact nodeId via getNodeByIdAsync
+  // 1. Exact nodeId lookup
   if (nodeId) {
     try {
       const n = await figma.getNodeByIdAsync(nodeId);
@@ -46,7 +82,7 @@ async function findNode(nodeId, name) {
   const targetClean = normalizeName(name);
   if (!targetClean) return null;
 
-  // 2. Check current selection first if user selected the component
+  // 2. Check active selection first
   for (const sel of figma.currentPage.selection) {
     if (normalizeName(sel.name) === targetClean && sel.type !== 'TEXT') {
       return sel;
@@ -56,7 +92,6 @@ async function findNode(nodeId, name) {
     }
   }
 
-  // Helper to search a page prioritizing COMPONENT_SET and COMPONENT over other nodes
   const searchContainer = (container) => {
     try {
       const compSet = container.findOne(
@@ -80,34 +115,109 @@ async function findNode(nodeId, name) {
   };
 
   // 3. Search current page
-  const onCurrentPage = searchContainer(figma.currentPage);
-  if (onCurrentPage) return onCurrentPage;
+  const onCurrent = searchContainer(figma.currentPage);
+  if (onCurrent) return onCurrent;
 
-  // 4. Load all pages for dynamic-page mode and search every page
-  try {
-    await figma.loadAllPagesAsync();
-    for (const page of figma.root.children) {
-      if (page.id === figma.currentPage.id) continue;
-      // If a page itself is named after the component (e.g. Page "Button"), check its children
-      const found = searchContainer(page);
-      if (found) return found;
-    }
-  } catch (e) {
-    log(`⚠ Could not search all pages: ${e.message}`);
+  // 4. Search across all pages
+  await ensureAllPagesLoaded();
+  for (const page of figma.root.children) {
+    if (page.id === figma.currentPage.id) continue;
+    const found = searchContainer(page);
+    if (found) return found;
   }
 
   return null;
 }
 
-function unbindVariable(node, field) {
+// ── Figma ➔ Code: Extract Local Variables & Collections ─────
+
+async function extractFigmaVariablesPayload() {
+  const tokenMap = {};
+  const rawVariables = [];
+  const rawCollections = [];
+
   try {
-    if ('boundVariables' in node && node.boundVariables && node.boundVariables[field]) {
-      node.setBoundVariable(field, null);
+    if (!figma.variables || !figma.variables.getLocalVariablesAsync) {
+      return { tokenMap, rawVariables, rawCollections };
     }
-  } catch {
-    // Ignore if field cannot be unbound
+
+    const collections = await figma.variables.getLocalVariableCollectionsAsync();
+    const variables = await figma.variables.getLocalVariablesAsync();
+
+    const collectionById = new Map();
+    for (const c of collections) {
+      collectionById.set(c.id, c);
+      rawCollections.push({
+        id: c.id,
+        name: c.name,
+        defaultModeId: c.defaultModeId,
+        modes: c.modes
+      });
+    }
+
+    const idToCssName = new Map();
+
+    for (const v of variables) {
+      const col = collectionById.get(v.variableCollectionId);
+      const colName = col ? col.name.toLowerCase() : '';
+      let cssName = toKebabTokenName(v.name);
+      if (colName === 'layout' && !cssName.startsWith('layout-')) {
+        cssName = `layout-${cssName}`;
+      } else if (colName === 'adaptive' && cssName.startsWith('responsive-')) {
+        cssName = `global-${cssName.slice('responsive-'.length)}`;
+      }
+      idToCssName.set(v.id, cssName);
+    }
+
+    for (const v of variables) {
+      const col = collectionById.get(v.variableCollectionId);
+      const colName = col ? col.name.toLowerCase() : 'semantics';
+      const defaultModeId = col?.defaultModeId || Object.keys(v.valuesByMode || {})[0];
+      const rawVal = defaultModeId ? v.valuesByMode[defaultModeId] : undefined;
+      const tokenKey = toKebabTokenName(v.name);
+
+      let scssValue = null;
+      if (rawVal && typeof rawVal === 'object' && rawVal.type === 'VARIABLE_ALIAS' && rawVal.id) {
+        const refCssName = idToCssName.get(rawVal.id);
+        if (refCssName) {
+          scssValue = `var(--${refCssName})`;
+        }
+      } else if (rawVal && typeof rawVal === 'object' && typeof rawVal.r === 'number') {
+        const a = typeof rawVal.a === 'number' ? rawVal.a : 1;
+        if (a < 1) {
+          scssValue = `rgba(${Math.round(rawVal.r * 255)}, ${Math.round(rawVal.g * 255)}, ${Math.round(rawVal.b * 255)}, ${Number(a.toFixed(4))})`;
+        } else {
+          scssValue = rgbToHex(rawVal.r, rawVal.g, rawVal.b);
+        }
+      } else if (typeof rawVal === 'number') {
+        const needsPx = /height|width|padding|margin|radius|size|gap|spacing|top|bottom|left|right|font|line|border/i.test(tokenKey);
+        scssValue = needsPx ? `${rawVal}px` : String(rawVal);
+      } else if (typeof rawVal === 'string') {
+        scssValue = rawVal.startsWith('var(') ? rawVal : JSON.stringify(rawVal);
+      }
+
+      if (scssValue !== null) {
+        if (!tokenMap[colName]) tokenMap[colName] = {};
+        tokenMap[colName][tokenKey] = scssValue;
+      }
+
+      rawVariables.push({
+        id: v.id,
+        name: v.name,
+        collectionName: colName,
+        resolvedType: v.resolvedType,
+        scssKey: tokenKey,
+        scssValue
+      });
+    }
+  } catch (e) {
+    log(`⚠ Could not read local variables: ${e.message}`);
   }
+
+  return { tokenMap, rawVariables, rawCollections };
 }
+
+// ── Figma ➔ Code: Serialize Component / Selection Nodes ─────
 
 function findAllTextChildren(node) {
   const results = [];
@@ -123,6 +233,154 @@ function findAllTextChildren(node) {
   }
   walk(node);
   return results;
+}
+
+function extractFirstSolidColor(paints) {
+  if (!Array.isArray(paints)) return null;
+  const solid = paints.find(p => p && p.type === 'SOLID' && p.visible !== false && p.color);
+  if (!solid) return null;
+  return {
+    r: solid.color.r,
+    g: solid.color.g,
+    b: solid.color.b,
+    hex: rgbToHex(solid.color.r, solid.color.g, solid.color.b)
+  };
+}
+
+function serializeComponentNode(node, pageName) {
+  const sample = (node.type === 'COMPONENT_SET' && Array.isArray(node.children) && node.children[0])
+    ? node.children[0]
+    : node;
+  const textNodes = findAllTextChildren(sample);
+  const primaryText = textNodes[0] || null;
+
+  const fontSize = (primaryText && typeof primaryText.fontSize === 'number') ? primaryText.fontSize : null;
+  const textContent = primaryText ? primaryText.characters : null;
+  const bgColor = ('fills' in sample) ? extractFirstSolidColor(sample.fills) : null;
+  const strokeColor = ('strokes' in sample) ? extractFirstSolidColor(sample.strokes) : null;
+  const textColor = (primaryText && 'fills' in primaryText) ? extractFirstSolidColor(primaryText.fills) : null;
+
+  const childrenSummary = [];
+  if (node.type === 'COMPONENT_SET' && Array.isArray(node.children)) {
+    for (const child of node.children.slice(0, 60)) {
+      const childText = findAllTextChildren(child)[0];
+      childrenSummary.push({
+        id: child.id,
+        name: child.name,
+        type: child.type,
+        width: Math.round(child.width || 0),
+        height: Math.round(child.height || 0),
+        cornerRadius: ('cornerRadius' in child && typeof child.cornerRadius === 'number') ? child.cornerRadius : 8,
+        paddingLeft: 'paddingLeft' in child ? child.paddingLeft : 16,
+        paddingRight: 'paddingRight' in child ? child.paddingRight : 16,
+        paddingTop: 'paddingTop' in child ? child.paddingTop : 10,
+        paddingBottom: 'paddingBottom' in child ? child.paddingBottom : 10,
+        itemSpacing: 'itemSpacing' in child ? child.itemSpacing : 8,
+        fontSize: (childText && typeof childText.fontSize === 'number') ? childText.fontSize : fontSize,
+        backgroundColor: ('fills' in child) ? extractFirstSolidColor(child.fills) : null
+      });
+    }
+  }
+
+  let compPropDefs = undefined;
+  try {
+    if (node.type === 'COMPONENT_SET' || (node.type === 'COMPONENT' && (!node.parent || node.parent.type !== 'COMPONENT_SET'))) {
+      compPropDefs = node.componentPropertyDefinitions;
+    }
+  } catch {
+    compPropDefs = undefined;
+  }
+
+  return {
+    id: node.id,
+    name: node.name,
+    type: node.type,
+    pageName: pageName || getPageOfNode(node)?.name || figma.currentPage.name,
+    width: Math.round(sample.width || node.width || 0),
+    height: Math.round(sample.height || node.height || 0),
+    cornerRadius: ('cornerRadius' in sample && typeof sample.cornerRadius === 'number') ? sample.cornerRadius : 8,
+    paddingLeft: 'paddingLeft' in sample ? sample.paddingLeft : 16,
+    paddingRight: 'paddingRight' in sample ? sample.paddingRight : 16,
+    paddingTop: 'paddingTop' in sample ? sample.paddingTop : 10,
+    paddingBottom: 'paddingBottom' in sample ? sample.paddingBottom : 10,
+    itemSpacing: 'itemSpacing' in sample ? sample.itemSpacing : 8,
+    layoutMode: 'layoutMode' in sample ? sample.layoutMode : 'HORIZONTAL',
+    fontSize,
+    textContent,
+    backgroundColor: bgColor,
+    textColor,
+    borderColor: strokeColor,
+    componentPropertyDefinitions: compPropDefs,
+    children: childrenSummary
+  };
+}
+
+async function exportFullFigmaState(reason = 'manual') {
+  const { tokenMap, rawVariables } = await extractFigmaVariablesPayload();
+  const components = [];
+  const selectedItems = [];
+
+  for (const sel of figma.currentPage.selection) {
+    const target = (sel.parent && sel.parent.type === 'COMPONENT_SET') ? sel.parent : sel;
+    selectedItems.push(serializeComponentNode(target, figma.currentPage.name));
+  }
+
+  const collectFromPage = (page) => {
+    if (IGNORED_PAGES.has(page.name)) return;
+    const visit = (n) => {
+      if (!n || n.type === 'INSTANCE') return;
+      if ((n.type === 'COMPONENT_SET' || n.type === 'COMPONENT') && n.name) {
+        const clean = n.name.trim();
+        if (!clean.startsWith('@') && !clean.startsWith('_') && !clean.startsWith('rowAlpha') && clean !== 'Component') {
+          components.push(serializeComponentNode(n, page.name));
+          return;
+        }
+      }
+      if ('children' in n && Array.isArray(n.children)) {
+        for (const c of n.children) visit(c);
+      }
+    };
+    if ('children' in page && Array.isArray(page.children)) {
+      for (const child of page.children) visit(child);
+    }
+  };
+
+  if (reason === 'manual' || reason === 'document-change') {
+    await ensureAllPagesLoaded();
+    for (const page of figma.root.children) {
+      collectFromPage(page);
+    }
+  } else {
+    collectFromPage(figma.currentPage);
+  }
+
+  figma.ui.postMessage({
+    type: 'FIGMA_LIVE_SYNC_PAYLOAD',
+    payload: {
+      reason,
+      fileName: figma.root.name,
+      currentPageName: figma.currentPage.name,
+      tokenMap,
+      variablesCount: rawVariables.length,
+      components,
+      selectedItems,
+      timestamp: new Date().toISOString()
+    }
+  });
+
+  log(`📤 Exported ${rawVariables.length} variable(s) & ${components.length} component(s) to VS Code (${reason})`);
+}
+
+// ── Code ➔ Figma: Canvas & Variable Mutation Helpers ────────
+
+function unbindVariable(node, field) {
+  try {
+    if ('boundVariables' in node && node.boundVariables && node.boundVariables[field]) {
+      node.setBoundVariable(field, null);
+    }
+  } catch {
+    // Ignore if field cannot be unbound
+  }
 }
 
 async function loadTextNodeFonts(textNode) {
@@ -141,7 +399,6 @@ async function loadTextNodeFonts(textNode) {
   }
 }
 
-/** Safely load fonts, clear linked textStyleId/boundVariables, and update TEXT children */
 async function applyFontSize(node, fontSize) {
   if (!fontSize || typeof fontSize !== 'number' || fontSize <= 0) return 0;
   const textNodes = node.type === 'TEXT' ? [node] : findAllTextChildren(node);
@@ -151,11 +408,7 @@ async function applyFontSize(node, fontSize) {
     try {
       await loadTextNodeFonts(textNode);
       if (textNode.textStyleId && textNode.textStyleId !== '') {
-        try {
-          await textNode.setTextStyleIdAsync('');
-        } catch {
-          // Ignore
-        }
+        try { await textNode.setTextStyleIdAsync(''); } catch {}
       }
       unbindVariable(textNode, 'fontSize');
       textNode.fontSize = fontSize;
@@ -196,9 +449,7 @@ async function applyFontWeight(node, fontWeight) {
         await figma.loadFontAsync(altFont);
         textNode.fontName = altFont;
       }
-    } catch {
-      // Ignore if specific font style is not installed
-    }
+    } catch {}
   }
 }
 
@@ -305,22 +556,14 @@ function applyDimensions(node, width, height) {
   try {
     const targetW = (width && typeof width === 'number' && width > 0) ? width : node.width;
     const targetH = (height && typeof height === 'number' && height > 0) ? height : node.height;
-    if (height && typeof height === 'number' && height > 0) {
-      unbindVariable(node, 'height');
-    }
-    if (width && typeof width === 'number' && width > 0) {
-      unbindVariable(node, 'width');
-    }
+    if (height && typeof height === 'number' && height > 0) unbindVariable(node, 'height');
+    if (width && typeof width === 'number' && width > 0) unbindVariable(node, 'width');
     if (targetW !== node.width || targetH !== node.height) {
       node.resize(targetW, targetH);
     }
   } catch {}
 }
 
-/**
- * Parse Figma variant name like "size=Large, style=Primary, state=Default, type=Default"
- * into a lowercase key-value map: { size: 'large', style: 'primary', state: 'default', type: 'default' }
- */
 function parseVariantName(name) {
   const props = {};
   const parts = String(name || '').split(',');
@@ -335,231 +578,214 @@ function parseVariantName(name) {
   return props;
 }
 
-// ── Main message handler ─────────────────────────────────────
+// ── Main Message Handler (WebSocket Bridge ↔ Figma) ─────────
 
 figma.ui.onmessage = async (msg) => {
   if (!msg?.type) return;
-  log(`Received: ${msg.type}`);
 
   switch (msg.type) {
 
-    // ── DELETE component from canvas ────────────────────────
+    // ── Full Export Request (Figma ➔ VS Code) ───────────────
+    case 'REQUEST_FULL_FIGMA_EXPORT': {
+      await exportFullFigmaState(msg.reason || 'manual');
+      break;
+    }
+
+    // ── DELETE component from canvas (Code ➔ Figma) ─────────
     case 'ACTION_DELETE_COMPONENT': {
-      const { nodeId, componentName } = msg.payload || {};
-      const node = await findNode(nodeId, componentName);
-      if (node) {
-        const name = node.name;
-        node.remove();
-        figma.notify(`🗑️ Deleted "${name}" from Figma canvas`);
-        log(`DELETED: "${name}" (nodeId=${nodeId || 'by-name'})`);
-      } else {
-        log(`DELETE: Node "${componentName}" not found on canvas`);
-        figma.notify(`⚠️ Component "${componentName}" not found on canvas`);
+      isApplyingCodeUpdate = true;
+      try {
+        const { nodeId, componentName } = msg.payload || {};
+        const node = await findNode(nodeId, componentName);
+        if (node) {
+          const name = node.name;
+          node.remove();
+          figma.notify(`🗑️ Deleted "${name}" from Figma canvas`);
+          log(`DELETED: "${name}" (nodeId=${nodeId || 'by-name'})`);
+        } else {
+          log(`DELETE: Node "${componentName}" not found on canvas`);
+          figma.notify(`⚠️ Component "${componentName}" not found on canvas`);
+        }
+      } finally {
+        setTimeout(() => { isApplyingCodeUpdate = false; }, 1500);
       }
       break;
     }
 
-    // ── UPDATE component on canvas ──────────────────────────
+    // ── UPDATE / CREATE component on canvas (Code ➔ Figma) ──
     case 'ACTION_UPDATE_COMPONENT': {
-      const {
-        nodeId, componentName,
-        fontSize, fontWeight,
-        cornerRadius, padding, backgroundColor, textColor, borderColor,
-        opacity, width, height, gap,
-        sizesMap, variantsMap,
-      } = msg.payload || {};
+      isApplyingCodeUpdate = true;
+      try {
+        const {
+          nodeId, componentName,
+          fontSize, fontWeight,
+          cornerRadius, padding, backgroundColor, textColor, borderColor,
+          opacity, width, height, gap,
+          sizesMap, variantsMap, variantProperties,
+        } = msg.payload || {};
 
-      let node = await findNode(nodeId, componentName);
+        let node = await findNode(nodeId, componentName);
 
-      if (!node) {
-        // Create a new component frame on current page
-        node = figma.createComponent();
-        node.name = componentName || 'NewComponent';
-        node.resize(width || 200, height || 48);
-        node.layoutMode = 'HORIZONTAL';
-        node.primaryAxisAlignItems = 'CENTER';
-        node.counterAxisAlignItems = 'CENTER';
-        node.paddingLeft = node.paddingRight = padding?.left ?? 16;
-        node.paddingTop = node.paddingBottom = padding?.top ?? 10;
-        figma.currentPage.appendChild(node);
+        if (!node) {
+          node = figma.createComponent();
+          node.name = componentName || 'NewComponent';
+          node.resize(width || 200, height || 48);
+          node.layoutMode = 'HORIZONTAL';
+          node.primaryAxisAlignItems = 'CENTER';
+          node.counterAxisAlignItems = 'CENTER';
+          node.paddingLeft = node.paddingRight = padding?.left ?? 16;
+          node.paddingTop = node.paddingBottom = padding?.top ?? 10;
+          figma.currentPage.appendChild(node);
 
-        await figma.loadFontAsync({ family: 'Inter', style: 'Regular' });
-        const txt = figma.createText();
-        txt.characters = componentName || 'Component';
-        txt.fills = [{ type: 'SOLID', color: { r: 1, g: 1, b: 1 } }];
-        node.appendChild(txt);
+          await figma.loadFontAsync({ family: 'Inter', style: 'Regular' });
+          const txt = figma.createText();
+          txt.characters = componentName || 'Component';
+          txt.fills = [{ type: 'SOLID', color: { r: 1, g: 1, b: 1 } }];
+          node.appendChild(txt);
 
-        figma.notify(`✅ Created "${node.name}" on canvas`);
-        log(`CREATED: "${node.name}" on canvas`);
-      } else {
-        const nodePage = getPageOfNode(node);
-        if (nodePage && nodePage.id !== figma.currentPage.id) {
-          try {
-            await figma.setCurrentPageAsync(nodePage);
-            log(`Switched to page "${nodePage.name}" for "${node.name}"`);
-          } catch {}
+          figma.notify(`✅ Created "${node.name}" on canvas`);
+          log(`CREATED: "${node.name}" on canvas`);
+        } else {
+          const nodePage = getPageOfNode(node);
+          if (nodePage && nodePage.id !== figma.currentPage.id) {
+            try {
+              await figma.setCurrentPageAsync(nodePage);
+              log(`Switched to page "${nodePage.name}" for "${node.name}"`);
+            } catch {}
+          }
+          log(`UPDATING: "${node.name}" (${node.type}, id=${node.id})`);
         }
-        log(`UPDATING: "${node.name}" (${node.type}, id=${node.id})`);
-      }
 
-      let updatedVariants = 0;
-      let updatedTexts = 0;
-
-      if (node.type === 'COMPONENT_SET' && 'children' in node) {
-        // Apply per-size and per-variant styles to every variant COMPONENT child!
-        const variantChildren = node.children.filter(c => c.type === 'COMPONENT');
-        log(`Updating ${variantChildren.length} variant(s) inside COMPONENT_SET "${node.name}"...`);
-
-        for (const variantNode of variantChildren) {
-          const vProps = parseVariantName(variantNode.name);
-          const sizeKey = vProps.size || vProps.sizes || '';
-          const styleKey = vProps.style || vProps.variant || '';
-          const stateKey = vProps.state || 'default';
-          const typeKey = vProps.type || 'default';
-
-          const sizeSpec = (sizesMap && sizeKey && sizesMap[sizeKey]) ? sizesMap[sizeKey] : null;
-          const variantSpec = (variantsMap && styleKey && variantsMap[styleKey]) ? variantsMap[styleKey] : null;
-
-          // 1. Dimensions & Layout from sizeSpec or fallback top-level props
-          const vHeight = sizeSpec?.heightPx ?? height;
-          const vRadius = sizeSpec?.radiusPx ?? cornerRadius;
-          const vGap    = sizeSpec?.gapPx ?? gap;
-          const vPadX   = sizeSpec?.paddingPx ?? padding?.left;
-          const vFontSz = sizeSpec?.['font-sizePx'] ?? fontSize;
-
-          if (vRadius !== null && vRadius !== undefined) {
-            applyCornerRadius(variantNode, vRadius);
+        // If node is an INSTANCE and variantProperties were passed, switch variant via setProperties()
+        if (node.type === 'INSTANCE' && variantProperties && typeof variantProperties === 'object') {
+          try {
+            node.setProperties(variantProperties);
+            log(`Switched INSTANCE "${node.name}" properties: ${JSON.stringify(variantProperties)}`);
+          } catch (e) {
+            log(`⚠ Could not setProperties on INSTANCE: ${e.message}`);
           }
-          if (vPadX !== null && vPadX !== undefined && typeKey !== 'icon') {
-            applyPadding(variantNode, {
-              left: vPadX,
-              right: vPadX,
-              top: variantNode.paddingTop,
-              bottom: variantNode.paddingBottom,
-            });
-          }
-          if (vGap !== null && vGap !== undefined) {
-            applyGap(variantNode, vGap);
-          }
-          if (vHeight !== null && vHeight !== undefined) {
-            applyDimensions(variantNode, typeKey === 'icon' ? vHeight : null, vHeight);
-          }
+        }
 
-          // 2. Colors from variantSpec (for Default/Hover/Pressed/Disabled states)
-          if (variantSpec && typeKey === 'default') {
-            let bgRgb = variantSpec.backgroundRgb;
-            let fgRgb = variantSpec.foregroundRgb;
-            let bdRgb = variantSpec.borderRgb;
+        let updatedVariants = 0;
+        let updatedTexts = 0;
 
-            if (stateKey === 'hover') {
-              bgRgb = variantSpec['hover-backgroundRgb'] || bgRgb;
-              fgRgb = variantSpec['hover-foregroundRgb'] || fgRgb;
-              bdRgb = variantSpec['hover-borderRgb'] || bdRgb;
-            } else if (stateKey === 'pressed' || stateKey === 'active') {
-              bgRgb = variantSpec['active-backgroundRgb'] || bgRgb;
-              fgRgb = variantSpec['active-foregroundRgb'] || fgRgb;
-              bdRgb = variantSpec['active-borderRgb'] || bdRgb;
-            } else if (stateKey === 'disabled') {
-              bgRgb = variantSpec['disabled-backgroundRgb'] || bgRgb;
-              fgRgb = variantSpec['disabled-foregroundRgb'] || fgRgb;
-              bdRgb = variantSpec['disabled-borderRgb'] || bdRgb;
+        if (node.type === 'COMPONENT_SET' && 'children' in node) {
+          const variantChildren = node.children.filter(c => c.type === 'COMPONENT');
+          log(`Updating ${variantChildren.length} variant(s) inside COMPONENT_SET "${node.name}"...`);
+
+          for (const variantNode of variantChildren) {
+            const vProps = parseVariantName(variantNode.name);
+            const sizeKey = vProps.size || vProps.sizes || '';
+            const styleKey = vProps.style || vProps.variant || '';
+            const stateKey = vProps.state || 'default';
+            const typeKey = vProps.type || 'default';
+
+            const sizeSpec = (sizesMap && sizeKey && sizesMap[sizeKey]) ? sizesMap[sizeKey] : null;
+            const variantSpec = (variantsMap && styleKey && variantsMap[styleKey]) ? variantsMap[styleKey] : null;
+
+            const vHeight = sizeSpec?.heightPx ?? height;
+            const vRadius = sizeSpec?.radiusPx ?? cornerRadius;
+            const vGap    = sizeSpec?.gapPx ?? gap;
+            const vPadX   = sizeSpec?.paddingPx ?? padding?.left;
+            const vFontSz = sizeSpec?.['font-sizePx'] ?? fontSize;
+
+            if (vRadius !== null && vRadius !== undefined) {
+              applyCornerRadius(variantNode, vRadius);
+            }
+            if (vPadX !== null && vPadX !== undefined && typeKey !== 'icon') {
+              applyPadding(variantNode, {
+                left: vPadX,
+                right: vPadX,
+                top: variantNode.paddingTop,
+                bottom: variantNode.paddingBottom,
+              });
+            }
+            if (vGap !== null && vGap !== undefined) {
+              applyGap(variantNode, vGap);
+            }
+            if (vHeight !== null && vHeight !== undefined) {
+              applyDimensions(variantNode, typeKey === 'icon' ? vHeight : null, vHeight);
             }
 
-            if (bgRgb) applyFills(variantNode, bgRgb);
-            if (fgRgb) applyTextColor(variantNode, fgRgb);
-            if (bdRgb) applyStrokes(variantNode, bdRgb);
-          }
+            if (variantSpec && typeKey === 'default') {
+              let bgRgb = variantSpec.backgroundRgb;
+              let fgRgb = variantSpec.foregroundRgb;
+              let bdRgb = variantSpec.borderRgb;
 
-          // 3. Typography (fontSize & fontWeight) on all TEXT nodes in this variant
-          if (vFontSz) {
-            updatedTexts += await applyFontSize(variantNode, vFontSz);
+              if (stateKey === 'hover') {
+                bgRgb = variantSpec['hover-backgroundRgb'] || bgRgb;
+                fgRgb = variantSpec['hover-foregroundRgb'] || fgRgb;
+                bdRgb = variantSpec['hover-borderRgb'] || bdRgb;
+              } else if (stateKey === 'pressed' || stateKey === 'active') {
+                bgRgb = variantSpec['active-backgroundRgb'] || bgRgb;
+                fgRgb = variantSpec['active-foregroundRgb'] || fgRgb;
+                bdRgb = variantSpec['active-borderRgb'] || bdRgb;
+              } else if (stateKey === 'disabled') {
+                bgRgb = variantSpec['disabled-backgroundRgb'] || bgRgb;
+                fgRgb = variantSpec['disabled-foregroundRgb'] || fgRgb;
+                bdRgb = variantSpec['disabled-borderRgb'] || bdRgb;
+              }
+
+              if (bgRgb) applyFills(variantNode, bgRgb);
+              if (fgRgb) applyTextColor(variantNode, fgRgb);
+              if (bdRgb) applyStrokes(variantNode, bdRgb);
+            }
+
+            if (vFontSz) {
+              updatedTexts += await applyFontSize(variantNode, vFontSz);
+            }
+            if (fontWeight) {
+              await applyFontWeight(variantNode, fontWeight);
+            }
+
+            updatedVariants++;
+          }
+        } else {
+          applyCornerRadius(node, cornerRadius);
+          applyPadding(node, padding);
+          if (backgroundColor) applyFills(node, backgroundColor);
+          if (textColor) applyTextColor(node, textColor);
+          if (borderColor) applyStrokes(node, borderColor);
+          applyOpacity(node, opacity);
+          applyDimensions(node, width, height);
+          applyGap(node, gap);
+
+          if (fontSize) {
+            updatedTexts += await applyFontSize(node, fontSize);
           }
           if (fontWeight) {
-            await applyFontWeight(variantNode, fontWeight);
+            await applyFontWeight(node, fontWeight);
           }
-
-          updatedVariants++;
+          updatedVariants = 1;
         }
-      } else {
-        // Single COMPONENT / FRAME / INSTANCE node
-        applyCornerRadius(node, cornerRadius);
-        applyPadding(node, padding);
-        if (backgroundColor) applyFills(node, backgroundColor);
-        if (textColor) applyTextColor(node, textColor);
-        if (borderColor) applyStrokes(node, borderColor);
-        applyOpacity(node, opacity);
-        applyDimensions(node, width, height);
-        applyGap(node, gap);
 
-        if (fontSize) {
-          updatedTexts += await applyFontSize(node, fontSize);
-        }
-        if (fontWeight) {
-          await applyFontWeight(node, fontWeight);
-        }
-        updatedVariants = 1;
-      }
-
-      // Also if user has any other nodes selected on the canvas, update their text/styles too
-      for (const sel of figma.currentPage.selection) {
-        if (sel.id !== node.id && (!node.children || !node.children.some(c => c.id === sel.id))) {
-          if (fontSize) {
-            updatedTexts += await applyFontSize(sel, fontSize);
+        // Also apply to any actively selected node if different
+        for (const sel of figma.currentPage.selection) {
+          if (sel.id !== node.id && (!node.children || !node.children.some(c => c.id === sel.id))) {
+            if (fontSize) {
+              updatedTexts += await applyFontSize(sel, fontSize);
+            }
           }
         }
+
+        try {
+          figma.viewport.scrollAndZoomIntoView([node]);
+        } catch {}
+
+        const summary = `fontSize=${fontSize ?? 'map'}px (${updatedVariants} variants, ${updatedTexts} text nodes)`;
+        figma.notify(`✅ Updated "${node.name}" — ${summary}`);
+        log(`UPDATED: "${node.name}" — ${summary}`);
+      } finally {
+        setTimeout(() => { isApplyingCodeUpdate = false; }, 1500);
       }
-
-      try {
-        figma.viewport.scrollAndZoomIntoView([node]);
-      } catch {}
-
-      const summary = `fontSize=${fontSize ?? 'map'}px (${updatedVariants} variants, ${updatedTexts} text nodes)`;
-      figma.notify(`✅ Updated "${node.name}" — ${summary}`);
-      log(`UPDATED: "${node.name}" — ${summary}`);
       break;
     }
 
-    // ── CAPTURE current selection ───────────────────────────
-    case 'CAPTURE_SELECTION': {
-      const selection = figma.currentPage.selection;
-      if (!selection.length) {
-        figma.notify('Please select at least one node first.');
-        return;
-      }
-      const items = selection.map(n => ({
-        id: n.id,
-        name: n.name,
-        type: n.type,
-        width: n.width,
-        height: n.height,
-        cornerRadius: 'cornerRadius' in n && typeof n.cornerRadius === 'number' ? n.cornerRadius : 0,
-        layoutMode: 'layoutMode' in n ? n.layoutMode : 'NONE',
-        fontSize: findAllTextChildren(n)[0]?.fontSize ?? null,
-      }));
-      figma.ui.postMessage({ type: 'SELECTION_CAPTURED', payload: items });
-      log(`Captured ${items.length} selected node(s)`);
-      break;
-    }
-
-    // ── PUSH selection to code (Figma → Code) ───────────────
+    // ── CAPTURE / PUSH current selection to VS Code ─────────
+    case 'CAPTURE_SELECTION':
     case 'PUSH_SELECTION_TO_CODE': {
-      const selection = figma.currentPage.selection;
-      if (!selection.length) {
-        figma.notify('Select a component first.');
-        return;
-      }
-      const items = selection.map(n => ({
-        id: n.id,
-        name: n.name,
-        type: n.type,
-        width: n.width,
-        height: n.height,
-        cornerRadius: 'cornerRadius' in n && typeof n.cornerRadius === 'number' ? n.cornerRadius : 0,
-        fontSize: findAllTextChildren(n)[0]?.fontSize ?? null,
-      }));
-      figma.ui.postMessage({ type: 'FIGMA_SELECTION_PUSH', items });
-      figma.notify(`📤 Pushed ${items.length} component(s) to sync server`);
-      log(`PUSH_SELECTION: ${items.map(i => i.name).join(', ')}`);
+      await exportFullFigmaState('selection-push');
+      figma.notify('📤 Synced Figma selection & variables to VS Code');
       break;
     }
 
@@ -568,3 +794,67 @@ figma.ui.onmessage = async (msg) => {
       break;
   }
 };
+
+// ── Real-Time Figma Change Listeners (Figma ➔ Code) ─────────
+
+let docChangeTimer = null;
+
+async function initRealtimeWatchers() {
+  // 1. Listen for canvas node modifications, additions, and deletions
+  try {
+    await ensureAllPagesLoaded();
+    figma.on('documentchange', (event) => {
+      if (isApplyingCodeUpdate) return;
+      const relevant = (event.documentChanges || []).some(
+        ch => ch.type === 'PROPERTY_CHANGE' || ch.type === 'CREATE' || ch.type === 'DELETE'
+      );
+      if (!relevant) return;
+
+      if (docChangeTimer) clearTimeout(docChangeTimer);
+      docChangeTimer = setTimeout(() => {
+        docChangeTimer = null;
+        exportFullFigmaState('document-change');
+      }, 1500);
+    });
+    log('Real-time Figma canvas watcher active');
+  } catch (e) {
+    log(`⚠ Document watcher setup note: ${e.message}`);
+  }
+
+  // 2. Poll local Figma Variables every 3s so edits inside the Figma Variables modal
+  //    (e.g. changing Semantics -> button -> primary -> background-color) auto-sync to VS Code!
+  setInterval(async () => {
+    if (isApplyingCodeUpdate) return;
+    try {
+      const { rawVariables } = await extractFigmaVariablesPayload();
+      const currentHash = rawVariables.map(v => `${v.scssKey}:${v.scssValue}`).join('|');
+      if (lastVariablesHash && currentHash !== lastVariablesHash) {
+        lastVariablesHash = currentHash;
+        log('🔄 Detected Figma Variables change — auto-syncing to VS Code...');
+        await exportFullFigmaState('variables-change');
+      } else if (!lastVariablesHash) {
+        lastVariablesHash = currentHash;
+      }
+
+      // Also check active selection geometry/text changes
+      if (figma.currentPage.selection.length > 0) {
+        const selSnap = figma.currentPage.selection.map(n => {
+          const txt = findAllTextChildren(n)[0];
+          const fill = ('fills' in n) ? extractFirstSolidColor(n.fills)?.hex : '';
+          return `${n.id}:${Math.round(n.width)}x${Math.round(n.height)}:r${'cornerRadius' in n ? String(n.cornerRadius) : ''}:fs${txt ? String(txt.fontSize) : ''}:bg${fill}`;
+        }).join('|');
+        if (lastSelectionHash && selSnap !== lastSelectionHash) {
+          lastSelectionHash = selSnap;
+          log('🔄 Detected selected component edit — auto-syncing to VS Code...');
+          await exportFullFigmaState('selection-edit');
+        } else {
+          lastSelectionHash = selSnap;
+        }
+      }
+    } catch {
+      // Ignore transient errors
+    }
+  }, 3000);
+}
+
+initRealtimeWatchers();

@@ -5,6 +5,7 @@ import path from 'node:path';
 import { createRequire } from 'node:module';
 
 const require = createRequire(import.meta.url);
+const { WebSocket } = require('ws');
 
 type FigmaNode = {
   id: string;
@@ -59,6 +60,8 @@ const previewDirectory = path.join(process.cwd(), 'public', 'figma', 'components
 const componentsDir = path.join(process.cwd(), 'src', 'components');
 const tokenVariablesDir = path.join(process.cwd(), 'src', 'tokens', 'variables');
 const imageBatchSize = 50;
+
+let suppressForwarderUntil = 0;
 
 function getFileKey(): string {
   const config = fs.existsSync(configPath)
@@ -258,8 +261,9 @@ function postToSyncBridge(payload: Record<string, unknown>): void {
   req.end();
 }
 
-function setupLiveCodeToFigmaForwarder(): void {
+function setupLiveBiDirectionalBridge(): void {
   let lastFolder = 'button';
+
   const pushComponentUpdate = (folder: string) => {
     try {
       const codeParserPath = path.join(process.cwd(), 'scripts', 'code-parser.cjs');
@@ -306,9 +310,56 @@ function setupLiveCodeToFigmaForwarder(): void {
     }
   };
 
+  // Connect to ws://localhost:3055 to handle FIGMA_LIVE_SYNC_PAYLOAD & CODE_TO_FIGMA_SYNC_REQUEST
+  const connectWsListener = () => {
+    const port = Number(process.env.PORT || 3055);
+    let ws: InstanceType<typeof WebSocket> | null = null;
+    try {
+      ws = new WebSocket(`ws://localhost:${port}`);
+      ws.on('open', () => {
+        ws.send(JSON.stringify({ type: 'join', channel: 'figma-sync' }));
+      });
+      ws.on('message', (raw: Buffer) => {
+        try {
+          const data = JSON.parse(raw.toString());
+          if (data.type === 'broadcast' && data.message) {
+            const payload = data.message;
+            if (payload.event === 'FIGMA_LIVE_SYNC_PAYLOAD') {
+              suppressForwarderUntil = Date.now() + 3000;
+              const serverModPath = path.join(process.cwd(), 'scripts', 'figma-sync-server.cjs');
+              delete require.cache[require.resolve(serverModPath)];
+              const { applyFigmaLivePayload } = require(serverModPath);
+              const result = applyFigmaLivePayload(payload);
+              postToSyncBridge({
+                event: 'FIGMA_TO_CODE_COMPLETE',
+                result,
+                source: payload.reason || 'plugin-live'
+              });
+            } else if (payload.event === 'CODE_TO_FIGMA_SYNC_REQUEST') {
+              pushComponentUpdate(payload.componentFolder || lastFolder || 'button');
+            }
+          }
+        } catch {
+          // Ignore malformed WS messages
+        }
+      });
+      ws.on('close', () => {
+        setTimeout(connectWsListener, 5000);
+      });
+      ws.on('error', () => {
+        // Ignore; close handler will retry
+      });
+    } catch {
+      setTimeout(connectWsListener, 5000);
+    }
+  };
+
+  connectWsListener();
+
   if (fs.existsSync(componentsDir)) {
     const timers = new Map<string, NodeJS.Timeout>();
     fs.watch(componentsDir, { recursive: true }, (_event, filename) => {
+      if (Date.now() < suppressForwarderUntil) return;
       if (!filename || filename.includes('.git') || filename.endsWith('.tmp')) return;
       const folder = filename.split(/[/\\]/)[0];
       if (!folder || folder === 'index.ts' || folder.includes('.')) return;
@@ -327,6 +378,7 @@ function setupLiveCodeToFigmaForwarder(): void {
   if (fs.existsSync(tokenVariablesDir)) {
     let tokenTimer: NodeJS.Timeout | null = null;
     fs.watch(tokenVariablesDir, { recursive: false }, (_event, filename) => {
+      if (Date.now() < suppressForwarderUntil) return;
       if (!filename || !filename.endsWith('.scss')) return;
       if (tokenTimer) clearTimeout(tokenTimer);
       tokenTimer = setTimeout(() => {
@@ -337,7 +389,6 @@ function setupLiveCodeToFigmaForwarder(): void {
     });
   }
 
-  // Send initial sync payload on startup so any connected Figma plugin gets latest state immediately
   setTimeout(() => pushComponentUpdate('button'), 1500);
 }
 
@@ -353,7 +404,7 @@ async function main(): Promise<void> {
   }
 
   if (isWatch) {
-    setupLiveCodeToFigmaForwarder();
+    setupLiveBiDirectionalBridge();
     console.log(`[FigmaComponents] Watching Figma catalog & local code changes; checking every ${syncIntervalMs / 1000} seconds.`);
     let syncInProgress = false;
     setInterval(() => {

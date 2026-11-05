@@ -7,6 +7,7 @@ const path = require('node:path');
 const { WebSocket, WebSocketServer } = require('ws');
 const figmaApi = require('./figma-rest-api.cjs');
 const cliSync = require('./cli-sync.cjs');
+const codeGenerator = require('./code-generator.cjs');
 const codeParser = require('./code-parser.cjs');
 
 const PORT = Number(process.env.PORT || 3055);
@@ -14,6 +15,7 @@ const HOST = process.env.HOST || '0.0.0.0';
 const POLL_INTERVAL_MS = Number(process.env.SYNC_POLL_INTERVAL_MS || 30_000);
 const COMPONENTS_DIR = path.join(process.cwd(), 'src', 'components');
 const TOKENS_VARIABLES_DIR = path.join(process.cwd(), 'src', 'tokens', 'variables');
+const STATE_FILE = path.join(process.cwd(), '.sync-state.json');
 
 const channels = new Map();
 const joinedChannels = new WeakMap();
@@ -22,6 +24,188 @@ let isFigmaSyncing = false;
 let lastKnownVersion = null;
 let lastFigmaSyncTime = null;
 let lastModifiedComponentFolder = 'button';
+let suppressWatcherUntil = 0;
+
+// ==========================================
+// State Helpers
+// ==========================================
+
+function loadSyncState() {
+  if (fs.existsSync(STATE_FILE)) {
+    try {
+      return JSON.parse(fs.readFileSync(STATE_FILE, 'utf8'));
+    } catch {
+      // ignore
+    }
+  }
+  return { version: null, components: {} };
+}
+
+function saveSyncState(state) {
+  try {
+    fs.writeFileSync(STATE_FILE, JSON.stringify(state, null, 2), 'utf8');
+  } catch {
+    // ignore
+  }
+}
+
+// ==========================================
+// Live Figma Plugin Payload Processor (Figma ➔ Code)
+// ==========================================
+
+function updateScssTokenMapFile(filePath, incomingMap) {
+  if (!fs.existsSync(filePath) || !incomingMap || typeof incomingMap !== 'object') return 0;
+  let content = fs.readFileSync(filePath, 'utf8');
+  let updatedCount = 0;
+
+  // Sanitize any corrupted extra closing parens on var(--...)
+  const sanitized = content.replace(/(var\(--[a-zA-Z0-9_-]+\))\)+/g, '$1');
+  if (sanitized !== content) {
+    content = sanitized;
+    updatedCount++;
+  }
+
+  for (const [rawKey, newVal] of Object.entries(incomingMap)) {
+    if (!newVal || typeof newVal !== 'string') continue;
+    const escapedKey = rawKey.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const entryRegex = new RegExp(`(["']${escapedKey}["']\\s*:\\s*)([^,\\r\\n]+)`, 'g');
+    content = content.replace(entryRegex, (fullMatch, prefix, oldVal) => {
+      const cleanOld = oldVal.trim();
+      const cleanNew = newVal.trim();
+      if (cleanOld === cleanNew) return fullMatch;
+      // Keep var(--...) if incoming is raw px/hex unless incoming is also a var(--...) or explicit override
+      if (cleanOld.startsWith('var(--') && !cleanNew.startsWith('var(--') && !cleanNew.startsWith('#')) {
+        return fullMatch;
+      }
+      updatedCount++;
+      console.log(`[FigmaSync] TOKEN UPDATED: "${rawKey}": ${cleanOld} -> ${cleanNew} in ${path.basename(filePath)}`);
+      return `${prefix}${cleanNew}`;
+    });
+  }
+
+  if (updatedCount > 0) {
+    suppressWatcherUntil = Date.now() + 2500;
+    fs.writeFileSync(filePath, content, 'utf8');
+    codeParser.invalidateTokenCache();
+  }
+  return updatedCount;
+}
+
+function applyFigmaLivePayload(payload) {
+  if (!payload || typeof payload !== 'object') {
+    return { createdCount: 0, updatedCount: 0, deletedCount: 0, tokensUpdated: 0 };
+  }
+
+  let tokensUpdated = 0;
+  let createdCount = 0;
+  let updatedCount = 0;
+  let deletedCount = 0;
+
+  // 1. Apply Figma Local Variables (Semantics, Alias, Layout) -> src/tokens/variables/*.scss
+  if (payload.tokenMap && typeof payload.tokenMap === 'object') {
+    if (payload.tokenMap.semantics) {
+      tokensUpdated += updateScssTokenMapFile(
+        path.join(TOKENS_VARIABLES_DIR, 'semantics.scss'),
+        payload.tokenMap.semantics
+      );
+    }
+    if (payload.tokenMap.alias) {
+      tokensUpdated += updateScssTokenMapFile(
+        path.join(TOKENS_VARIABLES_DIR, 'alias.scss'),
+        payload.tokenMap.alias
+      );
+    }
+    if (payload.tokenMap.layout) {
+      tokensUpdated += updateScssTokenMapFile(
+        path.join(TOKENS_VARIABLES_DIR, 'layout.scss'),
+        payload.tokenMap.layout
+      );
+    }
+  }
+
+  // 2. Apply Selected Component Direct Edits (e.g. fontSize or cornerRadius changed on canvas)
+  if (Array.isArray(payload.selectedItems) && payload.selectedItems.length > 0) {
+    for (const item of payload.selectedItems) {
+      if (!item || !item.name) continue;
+      const kebab = codeGenerator.toKebabCase(item.name);
+      const compDir = path.join(COMPONENTS_DIR, kebab);
+      if (fs.existsSync(compDir)) {
+        const files = fs.readdirSync(compDir);
+        const scssFile = files.find(f => f.endsWith('.scss'));
+        if (scssFile && typeof item.fontSize === 'number' && item.fontSize > 0) {
+          const scssPath = path.join(compDir, scssFile);
+          const currentParsed = codeParser.parseComponentDir(kebab);
+          if (currentParsed.fontSize && currentParsed.fontSize !== item.fontSize) {
+            let scssContent = fs.readFileSync(scssPath, 'utf8');
+            // If selector has a direct font-size override, update it
+            if (/font-size:\s*\d+px/.test(scssContent)) {
+              scssContent = scssContent.replace(/font-size:\s*\d+px/g, `font-size: ${item.fontSize}px`);
+              suppressWatcherUntil = Date.now() + 2500;
+              fs.writeFileSync(scssPath, scssContent, 'utf8');
+              updatedCount++;
+              console.log(`[FigmaSync] UPDATED: Component <${item.name}> font-size=${item.fontSize}px in ${scssFile}`);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // 3. Apply Component Additions & Deletions from Canvas
+  if (Array.isArray(payload.components) && payload.components.length > 0) {
+    const syncState = loadSyncState();
+    const seenIds = new Set();
+
+    for (const comp of payload.components) {
+      if (!comp || !comp.id || !comp.name) continue;
+      seenIds.add(comp.id);
+      const kebab = codeGenerator.toKebabCase(comp.name);
+      const compDir = path.join(COMPONENTS_DIR, kebab);
+
+      if (!fs.existsSync(compDir)) {
+        suppressWatcherUntil = Date.now() + 3000;
+        console.log(`[FigmaSync] ADDED: Component <${comp.name}> in src/components/${kebab}`);
+        codeGenerator.generateComponentFiles(comp);
+        syncState.components[comp.id] = {
+          id: comp.id,
+          name: comp.name,
+          type: comp.type || 'COMPONENT',
+          pageName: comp.pageName || 'Canvas',
+          generated: true,
+          updatedAt: new Date().toISOString()
+        };
+        createdCount++;
+      } else if (!syncState.components[comp.id]) {
+        syncState.components[comp.id] = {
+          id: comp.id,
+          name: comp.name,
+          type: comp.type || 'COMPONENT',
+          pageName: comp.pageName || 'Canvas',
+          generated: false,
+          updatedAt: new Date().toISOString()
+        };
+      }
+    }
+
+    // Check for deleted components when a full scan was performed
+    if (payload.reason === 'manual' || payload.reason === 'document-change') {
+      for (const [id, prev] of Object.entries(syncState.components)) {
+        if (prev && prev.generated && !seenIds.has(id)) {
+          suppressWatcherUntil = Date.now() + 3000;
+          console.log(`[FigmaSync] DELETED: Variant <${prev.name}> removed from src/components and UI pages`);
+          codeGenerator.deleteComponentFiles(prev.name);
+          delete syncState.components[id];
+          deletedCount++;
+        }
+      }
+    }
+
+    syncState.lastSync = new Date().toISOString();
+    saveSyncState(syncState);
+  }
+
+  return { createdCount, updatedCount, deletedCount, tokensUpdated };
+}
 
 // ==========================================
 // WebSocket & Messaging Helpers
@@ -93,12 +277,26 @@ function handleSocketMessage(socket, rawMessage) {
     const channelName = data.channel || 'figma-sync';
     const payload = data.message;
 
+    // 1. Live payload pushed directly from Figma Plugin (Variables + Components)
+    if (payload?.event === 'FIGMA_LIVE_SYNC_PAYLOAD') {
+      console.log(`\n[Bridge] Received live Figma payload from "${payload.fileName || 'Figma'}" (reason: ${payload.reason || 'sync'})`);
+      const result = applyFigmaLivePayload(payload);
+      broadcastToChannel(channelName, {
+        event: 'FIGMA_TO_CODE_COMPLETE',
+        result,
+        source: payload.reason || 'plugin-live'
+      });
+      return;
+    }
+
+    // 2. Legacy / REST Figma sync request
     if (payload?.event === 'FIGMA_SYNC_REQUEST' || payload?.event === 'FIGMA_SELECTION_PUSH') {
       console.log(`[Bridge] Figma sync requested${payload.event === 'FIGMA_SELECTION_PUSH' ? ` for ${payload.items?.length || 0} selected item(s)` : ''}`);
       triggerFigmaToCodeSync(payload.event === 'FIGMA_SYNC_REQUEST' ? 'plugin-request' : 'plugin-selection');
       return;
     }
 
+    // 3. Manual / Auto Code -> Figma sync request from Plugin UI
     if (payload?.event === 'CODE_TO_FIGMA_SYNC_REQUEST') {
       const targetFolder = payload.componentFolder || lastModifiedComponentFolder || 'button';
       console.log(`[Bridge] Code -> Figma sync requested from plugin for "${targetFolder}"`);
@@ -137,7 +335,7 @@ async function triggerFigmaToCodeSync(triggerSource = 'manual') {
       source: triggerSource
     });
   } catch (error) {
-    console.error('[SyncServer] Figma to Code sync failed:', error.message);
+    console.warn('[SyncServer] Figma REST sync skipped:', error.message);
     broadcastToChannel('figma-sync', {
       event: 'FIGMA_TO_CODE_ERROR',
       error: error.message
@@ -195,16 +393,17 @@ async function triggerCodeToFigmaSync(componentFolder, action = 'update') {
     variantsMap: compData.variantsMap
   });
 
-  // Also update Dev Resources via Figma REST API (best effort)
   if (compData.nodeId) {
     try {
       const fileKey = figmaApi.getFileKey();
       const repoUrl = `https://github.com/d1hdfc/UI-Components/blob/main/src/components/${compData.folder}/${compData.componentName}.tsx`;
-      await figmaApi.createDevResource(fileKey, {
-        name: `${compData.componentName} (Code Component)`,
-        url: repoUrl,
-        nodeId: compData.nodeId
-      });
+      await figmaApi.createDevResources(fileKey, [
+        {
+          name: `${compData.componentName} (Code Component)`,
+          url: repoUrl,
+          nodeId: compData.nodeId
+        }
+      ]);
     } catch {
       // Ignore if dev resource exists or file unavailable on REST API
     }
@@ -223,6 +422,7 @@ function setupCodeWatcher() {
   const debounceTimers = new Map();
 
   fs.watch(COMPONENTS_DIR, { recursive: true }, (eventType, filename) => {
+    if (Date.now() < suppressWatcherUntil) return;
     if (!filename) return;
 
     if (filename.includes('.git') || filename.includes('node_modules') || filename.endsWith('.tmp')) {
@@ -251,15 +451,15 @@ function setupCodeWatcher() {
         } else {
           triggerCodeToFigmaSync(componentFolder, 'update');
         }
-      }, 800)
+      }, 600)
     );
   });
 
-  // Also watch src/tokens/variables/ so changing token SCSS variables immediately syncs to Figma
   if (fs.existsSync(TOKENS_VARIABLES_DIR)) {
     console.log(`[CodeWatcher] Watching for token variable changes in: ${TOKENS_VARIABLES_DIR}`);
     let tokenTimer = null;
     fs.watch(TOKENS_VARIABLES_DIR, { recursive: false }, (eventType, filename) => {
+      if (Date.now() < suppressWatcherUntil) return;
       if (!filename || !filename.endsWith('.scss')) return;
       if (tokenTimer) clearTimeout(tokenTimer);
       tokenTimer = setTimeout(() => {
@@ -267,13 +467,13 @@ function setupCodeWatcher() {
         console.log(`[CodeWatcher] CHANGED: src/tokens/variables/${filename} -> Re-evaluating token variables & syncing to Figma`);
         codeParser.invalidateTokenCache();
         triggerCodeToFigmaSync(lastModifiedComponentFolder || 'button', 'update');
-      }, 800);
+      }, 600);
     });
   }
 }
 
 // ==========================================
-// Background Poller (Figma to Code)
+// Background Poller (Figma REST API fallback)
 // ==========================================
 
 function setupFigmaPoller() {
@@ -300,7 +500,7 @@ function setupFigmaPoller() {
         await triggerFigmaToCodeSync('poller-version-change');
       }
     } catch {
-      // Silently skip when working on local copy or offline
+      // Silently skip when working on local copy or offline; WebSocket bridge handles live sync
     }
   }
 
@@ -317,7 +517,7 @@ function parseBody(req) {
     let body = '';
     req.on('data', chunk => {
       body += chunk;
-      if (body.length > 5 * 1024 * 1024) {
+      if (body.length > 15 * 1024 * 1024) {
         reject(new Error('Payload too large'));
       }
     });
@@ -389,18 +589,14 @@ const server = http.createServer(async (req, res) => {
   if (req.method === 'POST' && (pathname === '/api/webhook' || pathname === '/api/figma-webhook')) {
     try {
       const payload = await parseBody(req);
-      console.log(`[Webhook] Received Figma Webhook event: ${payload.event_type || 'UNKNOWN'}`);
-
       if (payload.event_type === 'PING') {
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ status: 'pong', timestamp: new Date().toISOString() }));
         return;
       }
-
       if (payload.event_type === 'FILE_UPDATE' || payload.event_type === 'LIBRARY_PUBLISH') {
         triggerFigmaToCodeSync(`webhook-${payload.event_type}`);
       }
-
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ status: 'received' }));
     } catch (err) {
@@ -448,39 +644,43 @@ wss.on('connection', socket => {
 // Server Start
 // ==========================================
 
-let startupErrorLogged = false;
-function handleStartupError(error) {
-  if (startupErrorLogged) return;
-  startupErrorLogged = true;
+if (require.main === module) {
+  let startupErrorLogged = false;
+  function handleStartupError(error) {
+    if (startupErrorLogged) return;
+    startupErrorLogged = true;
 
-  if (error.code === 'EADDRINUSE') {
-    console.error(
-      `[SyncServer] Port ${PORT} is already in use. The sync server may already be running. ` +
-      `Check http://localhost:${PORT}/health before starting another instance.`
-    );
-  } else {
-    console.error(`[SyncServer] Failed to start: ${error.message}`);
+    if (error.code === 'EADDRINUSE') {
+      console.error(
+        `[SyncServer] Port ${PORT} is already in use. The sync server may already be running. ` +
+        `Check http://localhost:${PORT}/health before starting another instance.`
+      );
+    } else {
+      console.error(`[SyncServer] Failed to start: ${error.message}`);
+    }
+    process.exitCode = 1;
   }
-  process.exitCode = 1;
+
+  wss.once('error', handleStartupError);
+  server.once('error', handleStartupError);
+
+  server.listen(PORT, HOST, () => {
+    console.log('====================================================');
+    console.log(`🚀 HDFC Two-Way Real-Time Auto-Sync Server Running`);
+    console.log(`📡 HTTP & Webhook Endpoint: http://localhost:${PORT}/api/webhook`);
+    console.log(`🔌 Figma Plugin Bridge WebSocket: ws://localhost:${PORT}`);
+    console.log(`🩺 Health & Status Check: http://localhost:${PORT}/api/sync/status`);
+    console.log('====================================================');
+
+    setupCodeWatcher();
+    setupFigmaPoller();
+  });
+
+  process.on('SIGINT', () => {
+    console.log('\n[SyncServer] Shutting down gracefully...');
+    wss.close();
+    server.close(() => process.exit(0));
+  });
 }
 
-wss.once('error', handleStartupError);
-server.once('error', handleStartupError);
-
-server.listen(PORT, HOST, () => {
-  console.log('====================================================');
-  console.log(`🚀 HDFC Two-Way Real-Time Auto-Sync Server Running`);
-  console.log(`📡 HTTP & Webhook Endpoint: http://localhost:${PORT}/api/webhook`);
-  console.log(`🔌 Figma Plugin Bridge WebSocket: ws://localhost:${PORT}`);
-  console.log(`🩺 Health & Status Check: http://localhost:${PORT}/api/sync/status`);
-  console.log('====================================================');
-
-  setupCodeWatcher();
-  setupFigmaPoller();
-});
-
-process.on('SIGINT', () => {
-  console.log('\n[SyncServer] Shutting down gracefully...');
-  wss.close();
-  server.close(() => process.exit(0));
-});
+module.exports = { applyFigmaLivePayload };

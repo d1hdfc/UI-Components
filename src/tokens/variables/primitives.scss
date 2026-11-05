@@ -4,9 +4,8 @@
 $color-palette: (
   "basic-black": #000000,
   "basic-white": #FFFFFF,
-  "basic-transparent": rgba(255, 255, 255, 0),
-  "blue": (
-    "50": #F3F6FD,
+  "basic-transparent": #ffffff00,
+  "blue": ("50": #F3F6FD,
     "100": #E1E9FE,
     "200": #9CB4F7,
     "300": #FFFFFF,
@@ -16,13 +15,11 @@ $color-palette: (
     "700": #112266,
     "800": #162150,
     "900": #11162D,
-    "b50": rgba(28, 63, 202, 0.08),
-    "b100": rgba(28, 63, 202, 0.12),
-    "b200": rgba(28, 63, 202, 0.18),
-    "b300": rgba(28, 63, 202, 0.28)
-  ),
-  "grey": (
-    "50": #F5F5F5,
+    "b50": #1c3fca14,
+    "b100": #1c3fca1f,
+    "b200": #1c3fca2e,
+    "b300": #1c3fca47),
+  "grey": ("50": #F5F5F5,
     "100": #ECECEC,
     "200": #D9D9D9,
     "300": #B3B3B3,
@@ -31,10 +28,8 @@ $color-palette: (
     "600": #383838,
     "700": #2C2C2C,
     "800": #1E1E1E,
-    "900": #111111
-  ),
-  "slate": (
-    "50": #F9FAFF,
+    "900": #111111),
+  "slate": ("50": #F9FAFF,
     "100": #EDEDF1,
     "200": #BBBCC3,
     "300": #9EA0AA,
@@ -43,10 +38,8 @@ $color-palette: (
     "600": #3E4457,
     "700": #252B3D,
     "800": #1B2137,
-    "900": #10182D
-  ),
-  "green": (
-    "50": #EFFAF2,
+    "900": #10182D),
+  "green": ("50": #EFFAF2,
     "100": #DCF4ED,
     "200": #ACE5C9,
     "300": #76E2C0,
@@ -55,10 +48,8 @@ $color-palette: (
     "600": #076246,
     "700": #0E4636,
     "800": #11362A,
-    "900": #10231D
-  ),
-  "orange": (
-    "50": #FEFAEC,
+    "900": #10231D),
+  "orange": ("50": #FEFAEC,
     "100": #FFF0D1,
     "200": #F7C599,
     "300": #F6A258,
@@ -67,10 +58,8 @@ $color-palette: (
     "600": #804006,
     "700": #542D0B,
     "800": #38210B,
-    "900": #2E1D10
-  ),
-  "red": (
-    "50": #FDF1F4,
+    "900": #2E1D10),
+  "red": ("50": #FDF1F4,
     "100": #FFDDE6,
     "200": #F49BB3,
     "300": #EF7092,
@@ -79,10 +68,8 @@ $color-palette: (
     "600": #A30F3B,
     "700": #6C1831,
     "800": #3C1620,
-    "900": #261218
-  ),
-  "vivid-red": (
-    "50": #FCE6E7,
+    "900": #261218),
+  "vivid-red": ("50": #FCE6E7,
     "100": #F9C8CB,
     "200": #F28C92,
     "300": #EC5861,
@@ -91,10 +78,8 @@ $color-palette: (
     "600": #CF0511,
     "700": #A1040D,
     "800": #7D030A,
-    "900": #5F0308
-  ),
-  "light-blue": (
-    "50": #EBFCFE,
+    "900": #5F0308),
+  "light-blue": ("50": #EBFCFE,
     "100": #DBF9FE,
     "200": #B7EFFE,
     "300": #79D7FB,
@@ -103,10 +88,8 @@ $color-palette: (
     "600": #2974C1,
     "700": #2467AD,
     "800": #153A65,
-    "900": #142B4D
-  ),
-  "violet": (
-    "50": #F4F0FF,
+    "900": #142B4D),
+  "violet": ("50": #F4F0FF,
     "100": #E2D8FF,
     "200": #C7B9FF,
     "300": #AD9AFC,
@@ -115,10 +98,8 @@ $color-palette: (
     "600": #5236C9,
     "700": #3A268D,
     "800": #241950,
-    "900": #1D1537
-  ),
-  "brown": (
-    "50": #FDEFED,
+    "900": #1D1537),
+  "brown": ("50": #FDEFED,
     "100": #F4DBD7,
     "200": #E7BCB6,
     "300": #DA9D95,
@@ -127,10 +108,8 @@ $color-palette: (
     "600": #85463C,
     "700": #62342D,
     "800": #3D221E,
-    "900": #261512
-  ),
-  "yellow": (
-    "50": #FDFAE7,
+    "900": #261512),
+  "yellow": ("50": #FDFAE7,
     "100": #FFEFC7,
     "200": #FFE8AC,
     "300": #FFD86E,
@@ -139,10 +118,8 @@ $color-palette: (
     "600": #B38600,
     "700": #8F6B00,
     "800": #533F04,
-    "900": #332E1B
-  ),
-  "purple": (
-    "50": #FDEDFA,
+    "900": #332E1B),
+  "purple": ("50": #FDEDFA,
     "100": #F1D5F6,
     "200": #E6B5EE,
     "300": #D894E4,
@@ -151,8 +128,7 @@ $color-palette: (
     "600": #893399,
     "700": #581F63,
     "800": #36163C,
-    "900": #241028
-  ),
+    "900": #241028),
   "identity-hdfc-blue": #014790,
   "identity-hdfc-red": #FF2D16
 );
@@ -259,46 +235,41 @@ $alpha-tokens: (
 );
 
 $primitive-extra-tokens: (
-
 );
 
-:root 
-{
+:root {
+
   // Render Colors
-  @each $key, $value in $color-palette 
-  {
-    @if meta.type-of($value) == "map" 
-    {
-      @each $shade, $hex in $value 
+  @each $key, $value in $color-palette {
+    @if meta.type-of($value)=="map"
+
       {
+      @each $shade, $hex in $value {
         --global-colors-#{$key}-#{$shade}: #{$hex};
       }
-    } @else 
-    {
+    }
+
+    @else {
       --global-colors-#{$key}: #{$value};
     }
   }
 
   // Render Scales
-  @each $key, $value in $scales 
-  {
+  @each $key, $value in $scales {
     --global-scale-#{$key}: #{$value}px;
   }
 
   // Render Ramps
-  @each $key, $value in $ramps 
-  {
+  @each $key, $value in $ramps {
     --ramps-#{$key}: #{$value};
   }
 
   // Render Alpha and additional primitive tokens
-  @each $key, $value in $alpha-tokens 
-  {
+  @each $key, $value in $alpha-tokens {
     --alpha-#{$key}: #{$value};
   }
 
-  @each $key, $value in $primitive-extra-tokens 
-  {
+  @each $key, $value in $primitive-extra-tokens {
     --#{$key}: #{$value};
   }
 }

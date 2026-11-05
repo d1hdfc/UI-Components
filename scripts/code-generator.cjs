@@ -12,23 +12,29 @@ const INDEX_FILE = path.join(COMPONENTS_DIR, 'index.ts');
  */
 function toPascalCase(str) {
   if (!str) return 'Component';
-  const clean = str.replace(/^[@_]+/, '').replace(/[^a-zA-Z0-9\s_-]/g, ' ');
-  return clean
+  const clean = str
+    .replace(/^[@_\d.\s-]+/, '')
+    .replace(/[^a-zA-Z0-9\s_-]/g, ' ');
+  const result = clean
     .split(/[\s_-]+/)
     .filter(Boolean)
     .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
     .join('');
+  if (!result) return 'Component';
+  return /^\d/.test(result) ? `Comp${result}` : result;
 }
 
 function toKebabCase(str) {
   if (!str) return 'component';
-  return str
+  const result = str
     .replace(/^[@_]+/, '')
+    .replace(/^\d+[\.\s_-]+/, '')
     .replace(/([a-z\d])([A-Z])/g, '$1-$2')
     .replace(/([A-Z]+)([A-Z][a-z\d]+)/g, '$1-$2')
     .replace(/[^a-zA-Z0-9_-]+/g, '-')
     .replace(/^-+|-+$/g, '')
     .toLowerCase();
+  return result || 'component';
 }
 
 function toSnakeCase(str) {

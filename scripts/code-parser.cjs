@@ -321,7 +321,6 @@ function parseComponentDir(componentFolder) {
   const scssFile = files.find(f => f.endsWith('.scss'));
   if (scssFile) {
     const scss = fs.readFileSync(path.join(dirPath, scssFile), 'utf8');
-    const resolvedScss = resolveTokenValue(scss);
 
     // Strip out top-level Sass maps ($...-sizes: (...);) to inspect selector rules separately
     const selectorScss = scss.replace(/\$[\w-]+\s*:\s*\([\s\S]*?^\);/gmi, '');

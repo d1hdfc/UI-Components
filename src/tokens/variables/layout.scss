@@ -8,12 +8,12 @@ $layout-tokens: (
   "radius-xs": var(--global-scale-75),
   "spacing-2xs": var(--global-scale-25),
   "border-2xs": 0.5px,
-  "border-xs": 1px,
+  "border-xs": var(--global-scale-12),
   "border-sm": 1.5px,
-  "border-md": 2px,
+  "border-md": var(--global-scale-25),
   "size-xxs": var(--global-scale-0),
   "border-lg": 2.5px,
-  "border-xl": 3px,
+  "border-xl": var(--global-scale-37),
   "size-xs": var(--global-scale-100),
   "margin-mobile": var(--global-scale-200),
   "margin-tablet": var(--global-scale-400),
@@ -58,8 +58,8 @@ $layout-tokens: (
   "gutter-mobile": var(--global-scale-100),
   "screen-behaviour-mobile": 360,
   "screen-behaviour-tablet": 768,
-  "screen-behaviour-desktop": 1280px,
-  "screen-behaviour-large-desktop": 1440px,
+  "screen-behaviour-desktop": var(--global-scale-16000),
+  "screen-behaviour-large-desktop": var(--global-scale-18000),
   "gutter-tablet": var(--global-scale-200),
   "gutter-desktop": var(--global-scale-250)
 );
@@ -85,11 +85,3 @@ $layout-tokens: (
 :root {
   @include render-layout-vars($layout-tokens, "layout-");
 }
-
-// Example usage in a component SCSS file:
-// .button {
-//   min-height: var(--layout-size-500);
-//   padding: var(--layout-spacing-sm);
-//   border-radius: var(--layout-radius-md);
-// }
-
