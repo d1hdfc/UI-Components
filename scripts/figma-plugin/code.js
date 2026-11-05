@@ -54,6 +54,29 @@ function rgbToHex(r, g, b) {
   return `#${toHex(toByte(r))}${toHex(toByte(g))}${toHex(toByte(b))}`.toUpperCase();
 }
 
+function parseVariantName(name) {
+  const props = {};
+  const parts = String(name || '').split(',');
+  for (const part of parts) {
+    const eq = part.indexOf('=');
+    if (eq > 0) {
+      const k = part.slice(0, eq).trim().toLowerCase();
+      const v = part.slice(eq + 1).trim().toLowerCase();
+      props[k] = v;
+    }
+  }
+  return props;
+}
+
+function isNodeOrAncestorSelected(node, selectedIds) {
+  let curr = node;
+  while (curr && curr.type !== 'PAGE' && curr.type !== 'DOCUMENT') {
+    if (selectedIds.has(curr.id)) return true;
+    curr = curr.parent;
+  }
+  return false;
+}
+
 // ── Node Lookup (Async for dynamic-page) ────────────────────
 
 async function ensureAllPagesLoaded() {
@@ -247,14 +270,46 @@ function extractFirstSolidColor(paints) {
   };
 }
 
-function serializeComponentNode(node, pageName) {
+function serializeSingleVariantNode(child, fallbackFontSize, selectedIds) {
+  const childText = findAllTextChildren(child)[0] || null;
+  const vProps = parseVariantName(child.name);
+  let lineHeightPx = null;
+  try {
+    if (childText && childText.lineHeight && typeof childText.lineHeight === 'object' && childText.lineHeight.unit === 'PIXELS') {
+      lineHeightPx = Math.round(childText.lineHeight.value);
+    }
+  } catch {}
+
+  return {
+    id: child.id,
+    name: child.name,
+    type: child.type,
+    isSelected: selectedIds ? isNodeOrAncestorSelected(child, selectedIds) : false,
+    variantProps: vProps,
+    width: Math.round(child.width || 0),
+    height: Math.round(child.height || 0),
+    cornerRadius: ('cornerRadius' in child && typeof child.cornerRadius === 'number') ? Math.round(child.cornerRadius) : null,
+    paddingLeft: 'paddingLeft' in child ? Math.round(child.paddingLeft) : null,
+    paddingRight: 'paddingRight' in child ? Math.round(child.paddingRight) : null,
+    paddingTop: 'paddingTop' in child ? Math.round(child.paddingTop) : null,
+    paddingBottom: 'paddingBottom' in child ? Math.round(child.paddingBottom) : null,
+    itemSpacing: 'itemSpacing' in child ? Math.round(child.itemSpacing) : null,
+    fontSize: (childText && typeof childText.fontSize === 'number') ? Math.round(childText.fontSize) : fallbackFontSize,
+    lineHeight: lineHeightPx,
+    backgroundColor: ('fills' in child) ? extractFirstSolidColor(child.fills) : null,
+    textColor: (childText && 'fills' in childText) ? extractFirstSolidColor(childText.fills) : null,
+    borderColor: ('strokes' in child) ? extractFirstSolidColor(child.strokes) : null
+  };
+}
+
+function serializeComponentNode(node, pageName, selectedIds = new Set()) {
   const sample = (node.type === 'COMPONENT_SET' && Array.isArray(node.children) && node.children[0])
     ? node.children[0]
     : node;
   const textNodes = findAllTextChildren(sample);
   const primaryText = textNodes[0] || null;
 
-  const fontSize = (primaryText && typeof primaryText.fontSize === 'number') ? primaryText.fontSize : null;
+  const fontSize = (primaryText && typeof primaryText.fontSize === 'number') ? Math.round(primaryText.fontSize) : null;
   const textContent = primaryText ? primaryText.characters : null;
   const bgColor = ('fills' in sample) ? extractFirstSolidColor(sample.fills) : null;
   const strokeColor = ('strokes' in sample) ? extractFirstSolidColor(sample.strokes) : null;
@@ -262,23 +317,10 @@ function serializeComponentNode(node, pageName) {
 
   const childrenSummary = [];
   if (node.type === 'COMPONENT_SET' && Array.isArray(node.children)) {
-    for (const child of node.children.slice(0, 60)) {
-      const childText = findAllTextChildren(child)[0];
-      childrenSummary.push({
-        id: child.id,
-        name: child.name,
-        type: child.type,
-        width: Math.round(child.width || 0),
-        height: Math.round(child.height || 0),
-        cornerRadius: ('cornerRadius' in child && typeof child.cornerRadius === 'number') ? child.cornerRadius : 8,
-        paddingLeft: 'paddingLeft' in child ? child.paddingLeft : 16,
-        paddingRight: 'paddingRight' in child ? child.paddingRight : 16,
-        paddingTop: 'paddingTop' in child ? child.paddingTop : 10,
-        paddingBottom: 'paddingBottom' in child ? child.paddingBottom : 10,
-        itemSpacing: 'itemSpacing' in child ? child.itemSpacing : 8,
-        fontSize: (childText && typeof childText.fontSize === 'number') ? childText.fontSize : fontSize,
-        backgroundColor: ('fills' in child) ? extractFirstSolidColor(child.fills) : null
-      });
+    for (const child of node.children) {
+      if (child.type === 'COMPONENT') {
+        childrenSummary.push(serializeSingleVariantNode(child, fontSize, selectedIds));
+      }
     }
   }
 
@@ -295,15 +337,16 @@ function serializeComponentNode(node, pageName) {
     id: node.id,
     name: node.name,
     type: node.type,
+    isSelected: selectedIds.has(node.id),
     pageName: pageName || getPageOfNode(node)?.name || figma.currentPage.name,
     width: Math.round(sample.width || node.width || 0),
     height: Math.round(sample.height || node.height || 0),
-    cornerRadius: ('cornerRadius' in sample && typeof sample.cornerRadius === 'number') ? sample.cornerRadius : 8,
-    paddingLeft: 'paddingLeft' in sample ? sample.paddingLeft : 16,
-    paddingRight: 'paddingRight' in sample ? sample.paddingRight : 16,
-    paddingTop: 'paddingTop' in sample ? sample.paddingTop : 10,
-    paddingBottom: 'paddingBottom' in sample ? sample.paddingBottom : 10,
-    itemSpacing: 'itemSpacing' in sample ? sample.itemSpacing : 8,
+    cornerRadius: ('cornerRadius' in sample && typeof sample.cornerRadius === 'number') ? Math.round(sample.cornerRadius) : 8,
+    paddingLeft: 'paddingLeft' in sample ? Math.round(sample.paddingLeft) : 16,
+    paddingRight: 'paddingRight' in sample ? Math.round(sample.paddingRight) : 16,
+    paddingTop: 'paddingTop' in sample ? Math.round(sample.paddingTop) : 10,
+    paddingBottom: 'paddingBottom' in sample ? Math.round(sample.paddingBottom) : 10,
+    itemSpacing: 'itemSpacing' in sample ? Math.round(sample.itemSpacing) : 8,
     layoutMode: 'layoutMode' in sample ? sample.layoutMode : 'HORIZONTAL',
     fontSize,
     textContent,
@@ -319,10 +362,19 @@ async function exportFullFigmaState(reason = 'manual') {
   const { tokenMap, rawVariables } = await extractFigmaVariablesPayload();
   const components = [];
   const selectedItems = [];
+  const selectedIds = new Set(figma.currentPage.selection.map(s => s.id));
 
   for (const sel of figma.currentPage.selection) {
-    const target = (sel.parent && sel.parent.type === 'COMPONENT_SET') ? sel.parent : sel;
-    selectedItems.push(serializeComponentNode(target, figma.currentPage.name));
+    // Capture both the exact selected node (e.g. a single variant child) and its parent COMPONENT_SET
+    if (sel.parent && sel.parent.type === 'COMPONENT_SET') {
+      const variantData = serializeSingleVariantNode(sel, null, selectedIds);
+      variantData.parentComponentName = sel.parent.name;
+      variantData.parentComponentId = sel.parent.id;
+      selectedItems.push(variantData);
+      selectedItems.push(serializeComponentNode(sel.parent, figma.currentPage.name, selectedIds));
+    } else {
+      selectedItems.push(serializeComponentNode(sel, figma.currentPage.name, selectedIds));
+    }
   }
 
   const collectFromPage = (page) => {
@@ -332,7 +384,7 @@ async function exportFullFigmaState(reason = 'manual') {
       if ((n.type === 'COMPONENT_SET' || n.type === 'COMPONENT') && n.name) {
         const clean = n.name.trim();
         if (!clean.startsWith('@') && !clean.startsWith('_') && !clean.startsWith('rowAlpha') && clean !== 'Component') {
-          components.push(serializeComponentNode(n, page.name));
+          components.push(serializeComponentNode(n, page.name, selectedIds));
           return;
         }
       }
@@ -564,20 +616,6 @@ function applyDimensions(node, width, height) {
   } catch {}
 }
 
-function parseVariantName(name) {
-  const props = {};
-  const parts = String(name || '').split(',');
-  for (const part of parts) {
-    const eq = part.indexOf('=');
-    if (eq > 0) {
-      const k = part.slice(0, eq).trim().toLowerCase();
-      const v = part.slice(eq + 1).trim().toLowerCase();
-      props[k] = v;
-    }
-  }
-  return props;
-}
-
 // ── Main Message Handler (WebSocket Bridge ↔ Figma) ─────────
 
 figma.ui.onmessage = async (msg) => {
@@ -656,7 +694,6 @@ figma.ui.onmessage = async (msg) => {
           log(`UPDATING: "${node.name}" (${node.type}, id=${node.id})`);
         }
 
-        // If node is an INSTANCE and variantProperties were passed, switch variant via setProperties()
         if (node.type === 'INSTANCE' && variantProperties && typeof variantProperties === 'object') {
           try {
             node.setProperties(variantProperties);
@@ -708,9 +745,9 @@ figma.ui.onmessage = async (msg) => {
             }
 
             if (variantSpec && typeKey === 'default') {
-              let bgRgb = variantSpec.backgroundRgb;
-              let fgRgb = variantSpec.foregroundRgb;
-              let bdRgb = variantSpec.borderRgb;
+              let bgRgb = variantSpec.backgroundRgb || variantSpec['background-colorRgb'];
+              let fgRgb = variantSpec.foregroundRgb || variantSpec.colorRgb;
+              let bdRgb = variantSpec.borderRgb || variantSpec['border-colorRgb'];
 
               if (stateKey === 'hover') {
                 bgRgb = variantSpec['hover-backgroundRgb'] || bgRgb;
@@ -759,7 +796,6 @@ figma.ui.onmessage = async (msg) => {
           updatedVariants = 1;
         }
 
-        // Also apply to any actively selected node if different
         for (const sel of figma.currentPage.selection) {
           if (sel.id !== node.id && (!node.children || !node.children.some(c => c.id === sel.id))) {
             if (fontSize) {
@@ -800,7 +836,6 @@ figma.ui.onmessage = async (msg) => {
 let docChangeTimer = null;
 
 async function initRealtimeWatchers() {
-  // 1. Listen for canvas node modifications, additions, and deletions
   try {
     await ensureAllPagesLoaded();
     figma.on('documentchange', (event) => {
@@ -821,8 +856,6 @@ async function initRealtimeWatchers() {
     log(`⚠ Document watcher setup note: ${e.message}`);
   }
 
-  // 2. Poll local Figma Variables every 3s so edits inside the Figma Variables modal
-  //    (e.g. changing Semantics -> button -> primary -> background-color) auto-sync to VS Code!
   setInterval(async () => {
     if (isApplyingCodeUpdate) return;
     try {
@@ -836,7 +869,6 @@ async function initRealtimeWatchers() {
         lastVariablesHash = currentHash;
       }
 
-      // Also check active selection geometry/text changes
       if (figma.currentPage.selection.length > 0) {
         const selSnap = figma.currentPage.selection.map(n => {
           const txt = findAllTextChildren(n)[0];

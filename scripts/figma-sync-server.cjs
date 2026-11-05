@@ -9,11 +9,13 @@ const figmaApi = require('./figma-rest-api.cjs');
 const cliSync = require('./cli-sync.cjs');
 const codeGenerator = require('./code-generator.cjs');
 const codeParser = require('./code-parser.cjs');
+const appPageGenerator = require('./app-page-generator.cjs');
 
 const PORT = Number(process.env.PORT || 3055);
 const HOST = process.env.HOST || '0.0.0.0';
 const POLL_INTERVAL_MS = Number(process.env.SYNC_POLL_INTERVAL_MS || 30_000);
 const COMPONENTS_DIR = path.join(process.cwd(), 'src', 'components');
+const PAGES_DIR = path.join(process.cwd(), 'src', 'app', 'pages');
 const TOKENS_VARIABLES_DIR = path.join(process.cwd(), 'src', 'tokens', 'variables');
 const STATE_FILE = path.join(process.cwd(), '.sync-state.json');
 
@@ -27,7 +29,7 @@ let lastModifiedComponentFolder = 'button';
 let suppressWatcherUntil = 0;
 
 // ==========================================
-// State Helpers
+// State & Color/Scale Token Helpers
 // ==========================================
 
 function loadSyncState() {
@@ -49,16 +51,192 @@ function saveSyncState(state) {
   }
 }
 
+function rgbObjToHex(rgb) {
+  if (!rgb || typeof rgb.r !== 'number') return null;
+  const toByte = (c) => Math.round(Math.max(0, Math.min(1, c || 0)) * 255);
+  const toHex = (n) => n.toString(16).padStart(2, '0');
+  return `#${toHex(toByte(rgb.r))}${toHex(toByte(rgb.g))}${toHex(toByte(rgb.b))}`.toUpperCase();
+}
+
+function colorsAreDifferent(hexA, hexB) {
+  if (!hexA || !hexB) return false;
+  const cleanA = hexA.replace('#', '').toUpperCase();
+  const cleanB = hexB.replace('#', '').toUpperCase();
+  if (cleanA === cleanB) return false;
+  const rA = parseInt(cleanA.slice(0, 2), 16);
+  const gA = parseInt(cleanA.slice(2, 4), 16);
+  const bA = parseInt(cleanA.slice(4, 6), 16);
+  const rB = parseInt(cleanB.slice(0, 2), 16);
+  const gB = parseInt(cleanB.slice(2, 4), 16);
+  const bB = parseInt(cleanB.slice(4, 6), 16);
+  return Math.abs(rA - rB) > 2 || Math.abs(gA - gB) > 2 || Math.abs(bA - bB) > 2;
+}
+
+/**
+ * Convert any numeric px value into a valid token variable from src/tokens/variables/
+ * (Never returns a raw px value; registers a new scale in primitives.scss if needed).
+ */
+function pxToTokenVar(pxValue, propertyContext = '') {
+  const num = Math.round(Number(pxValue));
+  if (isNaN(num)) return 'var(--global-scale-0)';
+
+  if (propertyContext === 'font-size') {
+    const fontSizeMap = {
+      11: 'var(--font-size-paragraph-2xs)',
+      12: 'var(--font-size-paragraph-xsm)',
+      13: 'var(--font-size-paragraph-xs)',
+      14: 'var(--font-size-paragraph-sm)',
+      16: 'var(--font-size-paragraph-md)',
+      18: 'var(--font-size-paragraph-lg)',
+      20: 'var(--font-size-heading-h5)',
+      24: 'var(--font-size-heading-h4)',
+      28: 'var(--font-size-heading-h3)',
+      32: 'var(--font-size-heading-h2)',
+      36: 'var(--font-size-heading-h1)',
+      40: 'var(--font-size-display-sm)',
+      44: 'var(--font-size-display-md)',
+      48: 'var(--font-size-display-lg)'
+    };
+    if (fontSizeMap[num]) return fontSizeMap[num];
+  }
+
+  if (propertyContext === 'radius') {
+    const radiusMap = {
+      0: 'var(--layout-radius-3xs)',
+      4: 'var(--layout-radius-2xs)',
+      6: 'var(--layout-radius-xs)',
+      8: 'var(--layout-radius-sm)',
+      12: 'var(--layout-radius-md)',
+      16: 'var(--layout-radius-lg)',
+      20: 'var(--layout-radius-xl)',
+      24: 'var(--layout-radius-2xl)',
+      1440: 'var(--layout-radius-full)'
+    };
+    if (radiusMap[num]) return radiusMap[num];
+  }
+
+  const primitivesPath = path.join(TOKENS_VARIABLES_DIR, 'primitives.scss');
+  if (fs.existsSync(primitivesPath)) {
+    let primContent = fs.readFileSync(primitivesPath, 'utf8');
+    const scalesBlockMatch = primContent.match(/\$scales:\s*\(([\s\S]*?)\);/);
+    if (scalesBlockMatch) {
+      const entryRe = /["']([a-zA-Z0-9_-]+)["']\s*:\s*(-?\d+(?:\.\d+)?)/g;
+      let m;
+      while ((m = entryRe.exec(scalesBlockMatch[1])) !== null) {
+        if (Math.round( parseFloat(m[2]) ) === num) {
+          return `var(--global-scale-${m[1]})`;
+        }
+      }
+      // Register new scale token in primitives.scss so no raw px is ever used
+      const newScaleKey = String(Math.round(num * 12.5));
+      const updatedBlock = scalesBlockMatch[0].replace(
+        /\n\);$/,
+        `,\n  "${newScaleKey}": ${num}\n);`
+      );
+      primContent = primContent.replace(scalesBlockMatch[0], updatedBlock);
+      suppressWatcherUntil = Date.now() + 2500;
+      fs.writeFileSync(primitivesPath, primContent, 'utf8');
+      codeParser.invalidateTokenCache();
+      console.log(`[FigmaSync] Registered new scale token --global-scale-${newScaleKey}: ${num}px in primitives.scss`);
+      return `var(--global-scale-${newScaleKey})`;
+    }
+  }
+
+  return 'var(--global-scale-200)';
+}
+
+/**
+ * Convert any #HEX color into a valid token variable from src/tokens/variables/
+ * (Never returns a raw #hex value; registers a custom palette token in primitives.scss if needed).
+ */
+function hexToTokenVar(hexColor) {
+  if (!hexColor || typeof hexColor !== 'string') return 'var(--surface-primary-base)';
+  const targetHex = hexColor.trim().toUpperCase();
+  if (!targetHex.startsWith('#')) return targetHex;
+
+  const tokens = codeParser.loadTokenValues(true);
+  // 1. Prefer global-colors-* or surface-* token matching this exact hex
+  let bestGlobalMatch = null;
+  for (const [tokenName, rawVal] of Object.entries(tokens)) {
+    const resolved = codeParser.resolveTokenValue(`var(--${tokenName})`).trim().toUpperCase();
+    if (resolved === targetHex) {
+      if (tokenName.startsWith('global-colors-')) return `var(--${tokenName})`;
+      if (tokenName.startsWith('surface-') && !bestGlobalMatch) {
+        bestGlobalMatch = `var(--${tokenName})`;
+      }
+    }
+  }
+  if (bestGlobalMatch) return bestGlobalMatch;
+
+  // 2. Check nearest color in global-colors-* within small RGB tolerance (<= 6)
+  const rT = parseInt(targetHex.slice(1, 3), 16);
+  const gT = parseInt(targetHex.slice(3, 5), 16);
+  const bT = parseInt(targetHex.slice(5, 7), 16);
+  for (const [tokenName, rawVal] of Object.entries(tokens)) {
+    if (!tokenName.startsWith('global-colors-')) continue;
+    const resolved = String(rawVal).trim().toUpperCase();
+    if (/^#[0-9A-F]{6}$/.test(resolved)) {
+      const r = parseInt(resolved.slice(1, 3), 16);
+      const g = parseInt(resolved.slice(3, 5), 16);
+      const b = parseInt(resolved.slice(5, 7), 16);
+      if (Math.abs(r - rT) <= 6 && Math.abs(g - gT) <= 6 && Math.abs(b - bT) <= 6) {
+        return `var(--${tokenName})`;
+      }
+    }
+  }
+
+  // 3. Register in primitives.scss $color-palette so zero raw hex is ever used in components/semantics
+  const cleanHexSlug = targetHex.slice(1).toLowerCase();
+  const customKey = `canvas-${cleanHexSlug}`;
+  const primitivesPath = path.join(TOKENS_VARIABLES_DIR, 'primitives.scss');
+  if (fs.existsSync(primitivesPath)) {
+    let primContent = fs.readFileSync(primitivesPath, 'utf8');
+    if (!primContent.includes(`"${customKey}"`)) {
+      primContent = primContent.replace(
+        /"identity-hdfc-red":\s*#[0-9a-fA-F]+/,
+        (match) => `${match},\n  "${customKey}": ${targetHex}`
+      );
+      suppressWatcherUntil = Date.now() + 2500;
+      fs.writeFileSync(primitivesPath, primContent, 'utf8');
+      codeParser.invalidateTokenCache();
+      console.log(`[FigmaSync] Registered new color token --global-colors-${customKey}: ${targetHex} in primitives.scss`);
+    }
+    return `var(--global-colors-${customKey})`;
+  }
+
+  return 'var(--surface-primary-base)';
+}
+
 // ==========================================
 // Live Figma Plugin Payload Processor (Figma ➔ Code)
 // ==========================================
+
+function setTokenInScssFile(filePath, tokenKey, newTokenVarValue) {
+  if (!fs.existsSync(filePath)) return false;
+  let content = fs.readFileSync(filePath, 'utf8');
+  const escapedKey = tokenKey.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const entryRegex = new RegExp(`(["']${escapedKey}["']\\s*:\\s*)([^,\\r\\n]+)`, 'g');
+  let changed = false;
+  content = content.replace(entryRegex, (fullMatch, prefix, oldVal) => {
+    const cleanOld = oldVal.trim();
+    const cleanNew = newTokenVarValue.trim();
+    if (cleanOld === cleanNew) return fullMatch;
+    changed = true;
+    return `${prefix}${cleanNew}`;
+  });
+  if (changed) {
+    suppressWatcherUntil = Date.now() + 2500;
+    fs.writeFileSync(filePath, content, 'utf8');
+    codeParser.invalidateTokenCache();
+  }
+  return changed;
+}
 
 function updateScssTokenMapFile(filePath, incomingMap) {
   if (!fs.existsSync(filePath) || !incomingMap || typeof incomingMap !== 'object') return 0;
   let content = fs.readFileSync(filePath, 'utf8');
   let updatedCount = 0;
 
-  // Sanitize any corrupted extra closing parens on var(--...)
   const sanitized = content.replace(/(var\(--[a-zA-Z0-9_-]+\))\)+/g, '$1');
   if (sanitized !== content) {
     content = sanitized;
@@ -73,8 +251,7 @@ function updateScssTokenMapFile(filePath, incomingMap) {
       const cleanOld = oldVal.trim();
       const cleanNew = newVal.trim();
       if (cleanOld === cleanNew) return fullMatch;
-      // Keep var(--...) if incoming is raw px/hex unless incoming is also a var(--...) or explicit override
-      if (cleanOld.startsWith('var(--') && !cleanNew.startsWith('var(--') && !cleanNew.startsWith('#')) {
+      if (cleanOld.startsWith('var(--') && !cleanNew.startsWith('var(--')) {
         return fullMatch;
       }
       updatedCount++;
@@ -91,6 +268,210 @@ function updateScssTokenMapFile(filePath, incomingMap) {
   return updatedCount;
 }
 
+function updateComponentScssMapProperty(scssPath, sizeOrVariantKey, propName, newTokenVar) {
+  if (!fs.existsSync(scssPath)) return false;
+  let content = fs.readFileSync(scssPath, 'utf8');
+  const blockRe = new RegExp(`(\\b${sizeOrVariantKey}\\s*:\\s*\\([\\s\\S]*?\\b${propName}\\s*:\\s*)([^,\\n)]+)`, 'i');
+  const match = content.match(blockRe);
+  if (!match) return false;
+  const currentVal = match[2].trim();
+  // If the component SCSS map points to a semantic variable like var(--button-size-large-font-size),
+  // update that semantic variable in semantics.scss so the semantic architecture stays intact!
+  const semMatch = currentVal.match(/^var\(--([a-zA-Z0-9_-]+)\)$/);
+  const semanticsPath = path.join(TOKENS_VARIABLES_DIR, 'semantics.scss');
+  if (semMatch && fs.existsSync(semanticsPath)) {
+    const semKey = semMatch[1];
+    const semContent = fs.readFileSync(semanticsPath, 'utf8');
+    if (semContent.includes(`"${semKey}"`)) {
+      const updatedSem = setTokenInScssFile(semanticsPath, semKey, newTokenVar);
+      if (updatedSem) {
+        // Touch component SCSS file mtime so Vite HMR reloads component styles immediately
+        const now = new Date();
+        try { fs.utimesSync(scssPath, now, now); } catch {}
+        return true;
+      }
+    }
+  }
+
+  if (currentVal === newTokenVar) return false;
+  content = content.replace(blockRe, `$1${newTokenVar}`);
+  suppressWatcherUntil = Date.now() + 2500;
+  fs.writeFileSync(scssPath, content, 'utf8');
+  return true;
+}
+
+function applyCanvasComponentEditsToCode(compNode, semanticsPath) {
+  if (!compNode) return 0;
+  const rawName = compNode.parentComponentName || compNode.name;
+  if (!rawName) return 0;
+
+  const kebab = codeGenerator.toKebabCase(rawName);
+  const compDir = path.join(COMPONENTS_DIR, kebab);
+  if (!fs.existsSync(compDir)) return 0;
+
+  const scssPath = path.join(compDir, `${kebab}.scss`);
+  if (!fs.existsSync(scssPath)) return 0;
+
+  const currentParsed = codeParser.parseComponentDir(kebab);
+  let propUpdates = 0;
+
+  // Gather candidate variant nodes to inspect
+  const variantNodes = [];
+  if (compNode.variantProps && Object.keys(compNode.variantProps).length > 0) {
+    variantNodes.push(compNode);
+  }
+  if (Array.isArray(compNode.children) && compNode.children.length > 0) {
+    // Prioritize selected variant children first, then default variants
+    const selectedChildren = compNode.children.filter(c => c.isSelected);
+    const otherChildren = compNode.children.filter(c => !c.isSelected);
+    variantNodes.push(...selectedChildren, ...otherChildren);
+  }
+
+  if (variantNodes.length > 0) {
+    const checkedSizes = new Set();
+    const checkedVariantStates = new Set();
+
+    for (const vNode of variantNodes) {
+      const vProps = vNode.variantProps || {};
+      const sizeKey = (vProps.size || vProps.sizes || '').toLowerCase();
+      const styleKey = (vProps.style || vProps.variant || '').toLowerCase();
+      const stateKey = (vProps.state || 'default').toLowerCase();
+      const typeKey = (vProps.type || 'default').toLowerCase();
+
+      // 1. Check size metrics on default-state, default-type variants (or explicitly selected variant)
+      if (sizeKey && currentParsed.sizesMap?.[sizeKey] && (vNode.isSelected || (stateKey === 'default' && typeKey === 'default'))) {
+        const sizeSpec = currentParsed.sizesMap[sizeKey];
+
+        // Font size check
+        if (
+          typeof vNode.fontSize === 'number' &&
+          vNode.fontSize > 0 &&
+          sizeSpec['font-sizePx'] !== undefined &&
+          Math.round(vNode.fontSize) !== Math.round(sizeSpec['font-sizePx']) &&
+          !checkedSizes.has(`${sizeKey}:font-size`)
+        ) {
+          const tokenVar = pxToTokenVar(vNode.fontSize, 'font-size');
+          if (updateComponentScssMapProperty(scssPath, sizeKey, 'font-size', tokenVar)) {
+            checkedSizes.add(`${sizeKey}:font-size`);
+            propUpdates++;
+            console.log(`[FigmaSync] Updated "${kebab}" (${sizeKey}): font-size -> ${tokenVar} (${vNode.fontSize}px)`);
+          }
+        }
+
+        // Height check
+        if (
+          typeof vNode.height === 'number' &&
+          vNode.height > 0 &&
+          sizeSpec.heightPx !== undefined &&
+          Math.round(vNode.height) !== Math.round(sizeSpec.heightPx) &&
+          !checkedSizes.has(`${sizeKey}:height`)
+        ) {
+          const tokenVar = pxToTokenVar(vNode.height, 'height');
+          if (updateComponentScssMapProperty(scssPath, sizeKey, 'height', tokenVar)) {
+            checkedSizes.add(`${sizeKey}:height`);
+            propUpdates++;
+            console.log(`[FigmaSync] Updated "${kebab}" (${sizeKey}): height -> ${tokenVar} (${vNode.height}px)`);
+          }
+        }
+
+        // Padding check
+        if (
+          typeof vNode.paddingLeft === 'number' &&
+          vNode.paddingLeft >= 0 &&
+          typeKey !== 'icon' &&
+          sizeSpec.paddingPx !== undefined &&
+          Math.round(vNode.paddingLeft) !== Math.round(sizeSpec.paddingPx) &&
+          !checkedSizes.has(`${sizeKey}:padding`)
+        ) {
+          const tokenVar = pxToTokenVar(vNode.paddingLeft, 'padding');
+          if (updateComponentScssMapProperty(scssPath, sizeKey, 'padding', tokenVar)) {
+            checkedSizes.add(`${sizeKey}:padding`);
+            propUpdates++;
+            console.log(`[FigmaSync] Updated "${kebab}" (${sizeKey}): padding -> ${tokenVar} (${vNode.paddingLeft}px)`);
+          }
+        }
+
+        // Corner radius check
+        if (
+          typeof vNode.cornerRadius === 'number' &&
+          vNode.cornerRadius >= 0 &&
+          sizeSpec.radiusPx !== undefined &&
+          Math.round(vNode.cornerRadius) !== Math.round(sizeSpec.radiusPx) &&
+          !checkedSizes.has(`${sizeKey}:radius`)
+        ) {
+          const tokenVar = pxToTokenVar(vNode.cornerRadius, 'radius');
+          if (updateComponentScssMapProperty(scssPath, sizeKey, 'radius', tokenVar)) {
+            checkedSizes.add(`${sizeKey}:radius`);
+            propUpdates++;
+            console.log(`[FigmaSync] Updated "${kebab}" (${sizeKey}): radius -> ${tokenVar} (${vNode.cornerRadius}px)`);
+          }
+        }
+
+        // Gap (itemSpacing) check
+        if (
+          typeof vNode.itemSpacing === 'number' &&
+          vNode.itemSpacing >= 0 &&
+          sizeSpec.gapPx !== undefined &&
+          Math.round(vNode.itemSpacing) !== Math.round(sizeSpec.gapPx) &&
+          !checkedSizes.has(`${sizeKey}:gap`)
+        ) {
+          const tokenVar = pxToTokenVar(vNode.itemSpacing, 'gap');
+          if (updateComponentScssMapProperty(scssPath, sizeKey, 'gap', tokenVar)) {
+            checkedSizes.add(`${sizeKey}:gap`);
+            propUpdates++;
+            console.log(`[FigmaSync] Updated "${kebab}" (${sizeKey}): gap -> ${tokenVar} (${vNode.itemSpacing}px)`);
+          }
+        }
+      }
+
+      // 2. Check variant colors (background, foreground/text, border)
+      if (styleKey && currentParsed.variantsMap?.[styleKey] && (vNode.isSelected || typeKey === 'default')) {
+        const variantSpec = currentParsed.variantsMap[styleKey];
+        const statePrefix = stateKey === 'hover' ? 'hover-'
+          : (stateKey === 'pressed' || stateKey === 'active') ? 'active-'
+            : stateKey === 'disabled' ? 'disabled-'
+              : '';
+
+        const bgPropName = `${statePrefix}background`;
+        const currentBgRgb = variantSpec[`${bgPropName}Rgb`] || (statePrefix === '' ? variantSpec['background-colorRgb'] : null);
+        const currentBgHex = rgbObjToHex(currentBgRgb);
+        const incomingBgHex = vNode.backgroundColor?.hex;
+
+        if (
+          incomingBgHex &&
+          currentBgHex &&
+          colorsAreDifferent(incomingBgHex, currentBgHex) &&
+          !checkedVariantStates.has(`${styleKey}:${bgPropName}`)
+        ) {
+          const colorTokenVar = hexToTokenVar(incomingBgHex);
+          const propKeyInMap = variantSpec[bgPropName] !== undefined ? bgPropName : 'background-color';
+          if (updateComponentScssMapProperty(scssPath, styleKey, propKeyInMap, colorTokenVar)) {
+            checkedVariantStates.add(`${styleKey}:${bgPropName}`);
+            propUpdates++;
+            console.log(`[FigmaSync] Updated "${kebab}" (${styleKey}/${stateKey}): ${propKeyInMap} -> ${colorTokenVar} (${incomingBgHex})`);
+          }
+        }
+      }
+    }
+  } else {
+    // Single component node (non-COMPONENT_SET)
+    if (
+      typeof compNode.fontSize === 'number' &&
+      compNode.fontSize > 0 &&
+      currentParsed.fontSize &&
+      Math.round(compNode.fontSize) !== Math.round(currentParsed.fontSize)
+    ) {
+      const tokenVar = pxToTokenVar(compNode.fontSize, 'font-size');
+      if (updateComponentScssMapProperty(scssPath, 'medium', 'font-size', tokenVar)) {
+        propUpdates++;
+        console.log(`[FigmaSync] Updated "${kebab}": font-size -> ${tokenVar} (${compNode.fontSize}px)`);
+      }
+    }
+  }
+
+  return propUpdates;
+}
+
 function applyFigmaLivePayload(payload) {
   if (!payload || typeof payload !== 'object') {
     return { createdCount: 0, updatedCount: 0, deletedCount: 0, tokensUpdated: 0 };
@@ -101,11 +482,13 @@ function applyFigmaLivePayload(payload) {
   let updatedCount = 0;
   let deletedCount = 0;
 
+  const semanticsPath = path.join(TOKENS_VARIABLES_DIR, 'semantics.scss');
+
   // 1. Apply Figma Local Variables (Semantics, Alias, Layout) -> src/tokens/variables/*.scss
   if (payload.tokenMap && typeof payload.tokenMap === 'object') {
     if (payload.tokenMap.semantics) {
       tokensUpdated += updateScssTokenMapFile(
-        path.join(TOKENS_VARIABLES_DIR, 'semantics.scss'),
+        semanticsPath,
         payload.tokenMap.semantics
       );
     }
@@ -123,35 +506,19 @@ function applyFigmaLivePayload(payload) {
     }
   }
 
-  // 2. Apply Selected Component Direct Edits (e.g. fontSize or cornerRadius changed on canvas)
+  // 2. Apply Selected Component Direct Edits on Canvas -> Token Variables & Component SCSS
+  const processedComponentNames = new Set();
   if (Array.isArray(payload.selectedItems) && payload.selectedItems.length > 0) {
     for (const item of payload.selectedItems) {
-      if (!item || !item.name) continue;
-      const kebab = codeGenerator.toKebabCase(item.name);
-      const compDir = path.join(COMPONENTS_DIR, kebab);
-      if (fs.existsSync(compDir)) {
-        const files = fs.readdirSync(compDir);
-        const scssFile = files.find(f => f.endsWith('.scss'));
-        if (scssFile && typeof item.fontSize === 'number' && item.fontSize > 0) {
-          const scssPath = path.join(compDir, scssFile);
-          const currentParsed = codeParser.parseComponentDir(kebab);
-          if (currentParsed.fontSize && currentParsed.fontSize !== item.fontSize) {
-            let scssContent = fs.readFileSync(scssPath, 'utf8');
-            // If selector has a direct font-size override, update it
-            if (/font-size:\s*\d+px/.test(scssContent)) {
-              scssContent = scssContent.replace(/font-size:\s*\d+px/g, `font-size: ${item.fontSize}px`);
-              suppressWatcherUntil = Date.now() + 2500;
-              fs.writeFileSync(scssPath, scssContent, 'utf8');
-              updatedCount++;
-              console.log(`[FigmaSync] UPDATED: Component <${item.name}> font-size=${item.fontSize}px in ${scssFile}`);
-            }
-          }
-        }
+      const edits = applyCanvasComponentEditsToCode(item, semanticsPath);
+      if (edits > 0) {
+        updatedCount += edits;
+        processedComponentNames.add(codeGenerator.toKebabCase(item.parentComponentName || item.name));
       }
     }
   }
 
-  // 3. Apply Component Additions & Deletions from Canvas
+  // 3. Apply Component Additions, Canvas Property Edits & Deletions
   if (Array.isArray(payload.components) && payload.components.length > 0) {
     const syncState = loadSyncState();
     const seenIds = new Set();
@@ -175,15 +542,21 @@ function applyFigmaLivePayload(payload) {
           updatedAt: new Date().toISOString()
         };
         createdCount++;
-      } else if (!syncState.components[comp.id]) {
-        syncState.components[comp.id] = {
-          id: comp.id,
-          name: comp.name,
-          type: comp.type || 'COMPONENT',
-          pageName: comp.pageName || 'Canvas',
-          generated: false,
-          updatedAt: new Date().toISOString()
-        };
+      } else {
+        if (!processedComponentNames.has(kebab)) {
+          const edits = applyCanvasComponentEditsToCode(comp, semanticsPath);
+          if (edits > 0) updatedCount += edits;
+        }
+        if (!syncState.components[comp.id]) {
+          syncState.components[comp.id] = {
+            id: comp.id,
+            name: comp.name,
+            type: comp.type || 'COMPONENT',
+            pageName: comp.pageName || 'Canvas',
+            generated: false,
+            updatedAt: new Date().toISOString()
+          };
+        }
       }
     }
 
@@ -202,6 +575,15 @@ function applyFigmaLivePayload(payload) {
 
     syncState.lastSync = new Date().toISOString();
     saveSyncState(syncState);
+  }
+
+  // Ensure all documentation pages in src/app/pages/ follow the strict 3-file structure
+  appPageGenerator.syncAppComponentPages();
+
+  if (createdCount === 0 && updatedCount === 0 && deletedCount === 0 && tokensUpdated === 0) {
+    console.log(`[FigmaSync] Checked ${payload.components?.length || 0} component(s) & ${payload.variablesCount || 0} variable(s) — all values in sync.`);
+  } else {
+    console.log(`[FigmaSync] Sync Summary: ${tokensUpdated} token(s) updated, ${updatedCount} component property change(s), ${createdCount} added, ${deletedCount} deleted.`);
   }
 
   return { createdCount, updatedCount, deletedCount, tokensUpdated };
@@ -353,6 +735,7 @@ async function triggerCodeToFigmaSync(componentFolder, action = 'update') {
 
   if (action === 'delete' || compData.isDeleted) {
     console.log(`\n[FigmaSync] DELETED: Variant <${compData.componentName}> removed from src/components and UI pages`);
+    appPageGenerator.syncAppComponentPages();
     broadcastToChannel('figma-sync', {
       event: 'CODE_TO_FIGMA_DELETE',
       componentName: compData.componentName,
@@ -362,7 +745,7 @@ async function triggerCodeToFigmaSync(componentFolder, action = 'update') {
     return;
   }
 
-  console.log(`[CodeWatcher] CHANGED: src/components/${compData.folder}/${compData.componentName} -> Syncing to Figma Canvas`);
+  console.log(`[CodeWatcher] CHANGED: src/components/${compData.folder}/${compData.folder}.scss -> Syncing to Figma Canvas`);
   console.log(`[FigmaSync] UPDATED: Component <${compData.componentName}> styles modified — fontSize=${compData.fontSize ?? 'n/a'}px, cornerRadius=${compData.cornerRadius ?? 'n/a'}px, height=${compData.height ?? 'n/a'}px`);
 
   broadcastToChannel('figma-sync', {
@@ -370,23 +753,19 @@ async function triggerCodeToFigmaSync(componentFolder, action = 'update') {
     componentName: compData.componentName,
     folder: compData.folder,
     nodeId: compData.nodeId,
-    // Typography
     fontSize: compData.fontSize,
     fontWeight: compData.fontWeight,
     letterSpacing: compData.letterSpacing,
     lineHeight: compData.lineHeight,
-    // Geometry
     cornerRadius: compData.cornerRadius,
     padding: compData.padding,
     width: compData.width,
     height: compData.height,
     gap: compData.gap,
-    // Colors
     backgroundColor: compData.backgroundColor,
     textColor: compData.textColor,
     borderColor: compData.borderColor,
     opacity: compData.opacity,
-    // Variants & Sizes maps
     variants: compData.variants,
     sizes: compData.sizes,
     sizesMap: compData.sizesMap,
@@ -425,14 +804,14 @@ function setupCodeWatcher() {
     if (Date.now() < suppressWatcherUntil) return;
     if (!filename) return;
 
-    if (filename.includes('.git') || filename.includes('node_modules') || filename.endsWith('.tmp')) {
+    if (filename.includes('.git') || filename.includes('node_modules') || filename.endsWith('.tmp') || filename.endsWith('.__tmp__')) {
       return;
     }
 
     const parts = filename.split(/[/\\]/);
     const componentFolder = parts[0];
 
-    if (componentFolder === 'index.ts' || componentFolder.includes('.')) return;
+    if (componentFolder === 'index.ts' || componentFolder === 'assets' || componentFolder.includes('.')) return;
 
     if (debounceTimers.has(componentFolder)) {
       clearTimeout(debounceTimers.get(componentFolder));
@@ -467,6 +846,25 @@ function setupCodeWatcher() {
         console.log(`[CodeWatcher] CHANGED: src/tokens/variables/${filename} -> Re-evaluating token variables & syncing to Figma`);
         codeParser.invalidateTokenCache();
         triggerCodeToFigmaSync(lastModifiedComponentFolder || 'button', 'update');
+      }, 600);
+    });
+  }
+
+  if (fs.existsSync(PAGES_DIR)) {
+    console.log(`[CodeWatcher] Watching for page changes in: ${PAGES_DIR}`);
+    let pageTimer = null;
+    fs.watch(PAGES_DIR, { recursive: true }, (eventType, filename) => {
+      if (Date.now() < suppressWatcherUntil) return;
+      if (!filename || filename.endsWith('.tmp')) return;
+      const pageFolder = filename.split(/[/\\]/)[0];
+      if (!pageFolder || !pageFolder.endsWith('Page')) return;
+      const slug = codeGenerator.toKebabCase(pageFolder.replace(/Page$/, ''));
+      if (pageTimer) clearTimeout(pageTimer);
+      pageTimer = setTimeout(() => {
+        pageTimer = null;
+        if (fs.existsSync(path.join(COMPONENTS_DIR, slug))) {
+          triggerCodeToFigmaSync(slug, 'update');
+        }
       }, 600);
     });
   }
@@ -517,7 +915,7 @@ function parseBody(req) {
     let body = '';
     req.on('data', chunk => {
       body += chunk;
-      if (body.length > 15 * 1024 * 1024) {
+      if (body.length > 25 * 1024 * 1024) {
         reject(new Error('Payload too large'));
       }
     });
@@ -683,4 +1081,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = { applyFigmaLivePayload };
+module.exports = { applyFigmaLivePayload, pxToTokenVar, hexToTokenVar };

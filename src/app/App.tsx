@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import type { ComponentType } from 'react';
-import { ButtonPage } from './pages/ButtonPage';
-import { TextFieldPage } from './pages/TextFieldPage';
-import { TextAreaPage } from './pages/TextAreaPage';
-import { HeaderPage } from './pages/HeaderPage';
-import { SidebarPage } from './pages/SidebarPage';
+import { ButtonPage } from './pages/ButtonPage/ButtonPage';
+import { TextFieldPage } from './pages/TextFieldPage/TextFieldPage';
+import { TextAreaPage } from './pages/TextAreaPage/TextAreaPage';
+import { HeaderPage } from './pages/HeaderPage/HeaderPage';
+import { SidebarPage } from './pages/SidebarPage/SidebarPage';
 import { FigmaComponentsPage } from './pages/FigmaComponentsPage/FigmaComponentsPage';
 import { ComponentPage } from './pages/ComponentPage/ComponentPage';
 import { componentDocumentation } from './pages/ComponentPage/componentRegistry';
@@ -12,11 +12,15 @@ import { SyncToast } from './components/SyncToast';
 import { useSyncWebSocket } from './hooks/useSyncWebSocket';
 
 const componentPageModules = import.meta.glob<{
-  componentSlug: string;
-  default: ComponentType;
-}>('./pages/*Page/ComponentDocsPage.tsx', { eager: true });
+  componentSlug?: string;
+  default?: ComponentType;
+}>('./pages/*Page/*Page.tsx', { eager: true });
 const componentPages = new Map(
-  Object.values(componentPageModules).map(({ componentSlug, default: Page }) => [componentSlug, Page])
+  Object.values(componentPageModules)
+    .filter((mod): mod is { componentSlug: string; default: ComponentType } =>
+      Boolean(mod.componentSlug && mod.default)
+    )
+    .map(({ componentSlug, default: Page }) => [componentSlug, Page])
 );
 
 export default function App() {
@@ -96,7 +100,7 @@ export default function App() {
       <HeaderPage
         syncStatus={syncStatus}
         currentPage={currentPage}
-        onNav={(page) => setCurrentPage(page)}
+        onNav={(page: string) => setCurrentPage(page)}
       />
       <div className="docs-layout" id="top">
         <SidebarPage currentPage={currentPage} syncStatus={syncStatus} />
