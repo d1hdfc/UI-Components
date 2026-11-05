@@ -3,19 +3,19 @@
 // Size tokens
 $mpinTypes46-sizes: (
   small: (
-    font-size: 13px,
-    line-height: 16px,
-    padding: 7px 11px,
+    font-size: var(--font-size-paragraph-xs),
+    line-height: var(--global-scale-200),
+    padding: var(--global-scale-87) var(--global-scale-137),
   ),
   medium: (
-    font-size: 14px,
-    line-height: 20px,
-    padding: 10px 16px,
+    font-size: var(--font-size-paragraph-sm),
+    line-height: var(--global-scale-250),
+    padding: var(--global-scale-125) var(--global-scale-200),
   ),
   large: (
-    font-size: 16px,
-    line-height: 24px,
-    padding: 13px 21px,
+    font-size: var(--font-size-paragraph-md),
+    line-height: var(--global-scale-300),
+    padding: var(--global-scale-162) var(--global-scale-262),
   ),
 );
 

@@ -1,4 +1,4 @@
-import type { RatingProps } from './Rating.types';
+import type { RatingProps } from './rating.types';
 
 export function Rating({
   value,

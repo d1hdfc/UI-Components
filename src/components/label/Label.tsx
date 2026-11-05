@@ -1,6 +1,6 @@
 import React from 'react';
-import type { LabelProps } from './Label.types';
-import './Label.scss';
+import type { LabelProps } from './label.types';
+import './label.scss';
 
 const cx = (...parts: Array<string | false | undefined>) => parts.filter(Boolean).join(' ');
 

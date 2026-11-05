@@ -1,4 +1,4 @@
-import type { TagProps } from './Tag.types';
+import type { TagProps } from './tag.types';
 
 const cx = (...parts: Array<string | false | undefined>) => parts.filter(Boolean).join(' ');
 

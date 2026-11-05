@@ -1,6 +1,6 @@
 import React from 'react';
-import type { ContainerProps } from './Container.types';
-import './Container.scss';
+import type { ContainerProps } from './container.types';
+import './container.scss';
 
 const cx = (...parts: Array<string | false | undefined>) => parts.filter(Boolean).join(' ');
 

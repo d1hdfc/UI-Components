@@ -3,19 +3,19 @@
 // Size tokens
 $FinalSearchComponent-sizes: (
   small: (
-    font-size: 13px,
-    line-height: 16px,
-    padding: 7px 11px,
+    font-size: var(--font-size-paragraph-xs),
+    line-height: var(--global-scale-200),
+    padding: var(--global-scale-87) var(--global-scale-137),
   ),
   medium: (
-    font-size: 14px,
-    line-height: 20px,
-    padding: 10px 16px,
+    font-size: var(--font-size-paragraph-sm),
+    line-height: var(--global-scale-250),
+    padding: var(--global-scale-125) var(--global-scale-200),
   ),
   large: (
-    font-size: 16px,
-    line-height: 24px,
-    padding: 13px 21px,
+    font-size: var(--font-size-paragraph-md),
+    line-height: var(--global-scale-300),
+    padding: var(--global-scale-162) var(--global-scale-262),
   ),
 );
 
@@ -39,14 +39,14 @@ $FinalSearchComponent-variants: (
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: var(--global-scale-100);
   box-sizing: border-box;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  font-weight: 500;
+  font-family: var(--font-family-inter);
+  font-weight: var(--font-weight-500);
   text-decoration: none;
   cursor: pointer;
-  border: 1px solid transparent;
-  border-radius: 8px;
+  border: var(--layout-border-xs) solid transparent;
+  border-radius: var(--layout-radius-sm);
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   user-select: none;
   outline: none;
@@ -55,15 +55,15 @@ $FinalSearchComponent-variants: (
 .ui-final-search-component__content {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--global-scale-75);
 }
 
 .ui-final-search-component__spinner {
-  width: 14px;
-  height: 14px;
-  border: 2px solid currentColor;
+  width: var(--global-scale-175);
+  height: var(--global-scale-175);
+  border: var(--global-scale-25) solid currentColor;
   border-right-color: transparent;
-  border-radius: 50%;
+  border-radius: var(--layout-radius-full);
   animation: ui-final-search-component-spin 0.75s linear infinite;
 }
 
@@ -95,7 +95,7 @@ $FinalSearchComponent-variants: (
   }
 }
 
-ui-final-search-component--disabled {
+.ui-final-search-component--disabled {
   opacity: 0.55;
   cursor: not-allowed;
   pointer-events: none;

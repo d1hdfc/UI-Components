@@ -1,6 +1,6 @@
 import React from 'react';
-import type { RowProps } from './Row.types';
-import './Row.scss';
+import type { RowProps } from './row.types';
+import './row.scss';
 
 const cx = (...parts: Array<string | false | undefined>) => parts.filter(Boolean).join(' ');
 

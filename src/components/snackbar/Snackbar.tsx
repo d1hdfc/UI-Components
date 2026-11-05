@@ -1,4 +1,4 @@
-import type { SnackbarProps } from './Snackbar.types';
+import type { SnackbarProps } from './snackbar.types';
 
 const cx = (...parts: Array<string | false | undefined>) => parts.filter(Boolean).join(' ');
 

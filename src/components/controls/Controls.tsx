@@ -1,6 +1,6 @@
 import React from 'react';
-import type { ControlsProps } from './Controls.types';
-import './Controls.scss';
+import type { ControlsProps } from './controls.types';
+import './controls.scss';
 
 const cx = (...parts: Array<string | false | undefined>) => parts.filter(Boolean).join(' ');
 

@@ -1,0 +1,69 @@
+@use 'sass:map';
+
+// Size tokens
+$colorRoles-sizes: (
+  small: (
+    font-size: var(--font-size-paragraph-xs),
+    line-height: var(--global-scale-200),
+    padding: var(--global-scale-87) var(--global-scale-137),
+  ),
+  medium: (
+    font-size: var(--font-size-paragraph-sm),
+    line-height: var(--global-scale-250),
+    padding: var(--global-scale-125) var(--global-scale-200),
+  ),
+  large: (
+    font-size: var(--font-size-paragraph-md),
+    line-height: var(--global-scale-300),
+    padding: var(--global-scale-162) var(--global-scale-262),
+  ),
+);
+
+// Variant tokens
+$colorRoles-variants: (
+  primary: (
+    background-color: var(--color-interactive-primary),
+    color: var(--control-icon-color-default),
+    border-color: transparent,
+  ),
+  secondary: (
+    background-color: transparent,
+    color: var(--color-interactive-primary),
+    border-color: var(--color-border-subtle),
+  ),
+);
+
+// Base component styles
+.ui-color-roles {
+}
+
+.ui-color-roles__content {
+}
+
+// Size modifiers
+@each $size, $tokens in $colorRoles-sizes {
+  .ui-color-roles--#{$size} {
+    font-size: map.get($tokens, font-size);
+    line-height: map.get($tokens, line-height);
+    padding: map.get($tokens, padding);
+  }
+}
+
+// Variant modifiers
+@each $variant, $tokens in $colorRoles-variants {
+  .ui-color-roles--#{$variant} {
+    @each $property, $value in $tokens {
+      #{$property}: #{$value};
+    }
+  }
+}
+
+@keyframes ui-color_roles-spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}

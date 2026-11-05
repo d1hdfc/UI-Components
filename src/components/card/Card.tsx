@@ -1,4 +1,4 @@
-import type { CardProps } from './Card.types';
+import type { CardProps } from './card.types';
 
 const cx = (...parts: Array<string | false | undefined>) => parts.filter(Boolean).join(' ');
 

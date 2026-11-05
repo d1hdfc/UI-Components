@@ -259,6 +259,14 @@ function parseSassMap(scss, mapName) {
   return result;
 }
 
+function toPascalFromFolder(folder) {
+  return String(folder || '')
+    .split(/[-_\s]+/)
+    .filter(Boolean)
+    .map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+    .join('');
+}
+
 // ─────────────────────────────────────────────────────────────
 // Main parser
 // ─────────────────────────────────────────────────────────────
@@ -275,15 +283,24 @@ function parseComponentDir(componentFolder) {
     return {
       isDeleted: true,
       folder,
-      componentName: folder.charAt(0).toUpperCase() + folder.slice(1),
-      nodeId: findFigmaNodeId(folder, folder),
+      componentName: toPascalFromFolder(folder),
+      nodeId: findFigmaNodeId(toPascalFromFolder(folder), folder),
     };
   }
 
   const files      = fs.readdirSync(dirPath);
   const tsxFile    = files.find(f => f.endsWith('.tsx') && !f.endsWith('.test.tsx'));
-  const componentName = tsxFile ? path.basename(tsxFile, '.tsx') : path.basename(dirPath);
   const folder     = path.basename(dirPath);
+  let componentName = toPascalFromFolder(folder);
+  if (tsxFile) {
+    try {
+      const tsxSource = fs.readFileSync(path.join(dirPath, tsxFile), 'utf8');
+      const exportMatch = tsxSource.match(/export\s+(?:const|function)\s+([A-Z][A-Za-z0-9_]*)/);
+      if (exportMatch) {
+        componentName = exportMatch[1];
+      }
+    } catch { /* fallback to folder pascal */ }
+  }
   const nodeId     = findFigmaNodeId(componentName, folder);
 
   // ── Defaults ─────────────────────────────────────────────
@@ -328,16 +345,27 @@ function parseComponentDir(componentFolder) {
 
     // ── Sass maps ────────────────────────────────────────
     const folderBase = folder.replace(/-/g, '');
+    const folderCamel = folder.replace(/-([a-z0-9])/g, (_, c) => c.toUpperCase());
     const compLower = componentName.toLowerCase();
-    const sMap1 = parseSassMap(scss, `${folderBase}-sizes`);
-    const sMap2 = parseSassMap(scss, `${compLower}-sizes`);
-    const sMap3 = parseSassMap(scss, 'sizes');
-    sizesMap = Object.keys(sMap1).length ? sMap1 : (Object.keys(sMap2).length ? sMap2 : sMap3);
+    const sMap0 = parseSassMap(scss, `${folder}-sizes`);
+    const sMap1 = parseSassMap(scss, `${folderCamel}-sizes`);
+    const sMap2 = parseSassMap(scss, `${folderBase}-sizes`);
+    const sMap3 = parseSassMap(scss, `${compLower}-sizes`);
+    const sMap4 = parseSassMap(scss, 'sizes');
+    sizesMap = Object.keys(sMap0).length ? sMap0
+      : Object.keys(sMap1).length ? sMap1
+      : Object.keys(sMap2).length ? sMap2
+      : Object.keys(sMap3).length ? sMap3 : sMap4;
 
-    const vMap1 = parseSassMap(scss, `${folderBase}-variants`);
-    const vMap2 = parseSassMap(scss, `${compLower}-variants`);
-    const vMap3 = parseSassMap(scss, 'variants');
-    variantsMap = Object.keys(vMap1).length ? vMap1 : (Object.keys(vMap2).length ? vMap2 : vMap3);
+    const vMap0 = parseSassMap(scss, `${folder}-variants`);
+    const vMap1 = parseSassMap(scss, `${folderCamel}-variants`);
+    const vMap2 = parseSassMap(scss, `${folderBase}-variants`);
+    const vMap3 = parseSassMap(scss, `${compLower}-variants`);
+    const vMap4 = parseSassMap(scss, 'variants');
+    variantsMap = Object.keys(vMap0).length ? vMap0
+      : Object.keys(vMap1).length ? vMap1
+      : Object.keys(vMap2).length ? vMap2
+      : Object.keys(vMap3).length ? vMap3 : vMap4;
 
     // ── Direct property extraction from selector rules ───
     const selectorFontSize = extractPx(selectorScss, 'font-size');

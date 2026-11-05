@@ -1,6 +1,6 @@
 import React from 'react';
-import type { ToggleProps } from './Toggle.types';
-import './Toggle.scss';
+import type { ToggleProps } from './toggle.types';
+import './toggle.scss';
 
 const cx = (...parts: Array<string | false | undefined>) => parts.filter(Boolean).join(' ');
 

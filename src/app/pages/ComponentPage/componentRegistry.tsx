@@ -150,11 +150,13 @@ export const componentDocumentation: ComponentDocumentation[] = Object.entries(c
 
     const [, slug, filename] = match;
     const example = previewExamples[slug] ?? {};
+    const pascalSlug = slug.split('-').map((p) => `${p.charAt(0).toUpperCase()}${p.slice(1)}`).join('');
+    const compName = (component as { name?: string }).name || (/^[A-Z]/.test(filename) ? filename : pascalSlug);
 
     return [{
       component,
       figmaUrl: getFigmaUrl(slug),
-      name: filename,
+      name: compName,
       previewChildren: example.children,
       previewProps: example.props ?? {},
       routeSlug: slug === 'text-field' ? 'textfield' : slug === 'text-area' ? 'textarea' : slug,

@@ -1,4 +1,4 @@
-import type { SeparatorProps } from './Separator.types';
+import type { SeparatorProps } from './separator.types';
 
 const cx = (...parts: Array<string | false | undefined>) => parts.filter(Boolean).join(' ');
 

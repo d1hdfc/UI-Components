@@ -1,6 +1,6 @@
 import React from 'react';
-import type { BrowserProps } from './Browser.types';
-import './Browser.scss';
+import type { BrowserProps } from './browser.types';
+import './browser.scss';
 
 const cx = (...parts: Array<string | false | undefined>) => parts.filter(Boolean).join(' ');
 

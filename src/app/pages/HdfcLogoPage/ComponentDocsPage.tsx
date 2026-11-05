@@ -2,7 +2,7 @@
 import { componentDocumentation } from '../ComponentPage/componentRegistry';
 import { ComponentPage } from '../ComponentPage/ComponentPage';
 
-export const componentSlug = "hdfc_logo";
+export const componentSlug = "hdfc-logo";
 
 export default function HdfcLogoComponentDocsPage() {
   const component = componentDocumentation.find((entry) => entry.slug === componentSlug);

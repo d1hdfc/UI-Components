@@ -2,7 +2,7 @@
 import { componentDocumentation } from '../ComponentPage/componentRegistry';
 import { ComponentPage } from '../ComponentPage/ComponentPage';
 
-export const componentSlug = "footer_down";
+export const componentSlug = "footer-down";
 
 export default function FooterDownComponentDocsPage() {
   const component = componentDocumentation.find((entry) => entry.slug === componentSlug);

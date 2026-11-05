@@ -1,6 +1,6 @@
 import React from 'react';
-import type { HeaderProps } from './Header.types';
-import './Header.scss';
+import type { HeaderProps } from './header.types';
+import './header.scss';
 
 const cx = (...parts: Array<string | false | undefined>) => parts.filter(Boolean).join(' ');
 

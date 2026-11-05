@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { CarouselProps } from './Carousel.types';
+import type { CarouselProps } from './carousel.types';
 
 export function useCarousel(itemCount: number, initialIndex = 0, wrap = true) {
   const count = Math.max(0, Math.floor(itemCount));

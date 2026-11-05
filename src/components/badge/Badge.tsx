@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import type { BadgeProps } from './Badge.types';
+import type { BadgeProps } from './badge.types';
 import chevronLeft from '../assets/figma/badge-chevron-left.svg';
 import chevronRight from '../assets/figma/badge-chevron-right.svg';
 

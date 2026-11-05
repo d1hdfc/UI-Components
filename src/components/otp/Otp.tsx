@@ -1,6 +1,6 @@
 import React from 'react';
-import type { OtpProps } from './Otp.types';
-import './Otp.scss';
+import type { OtpProps } from './otp.types';
+import './otp.scss';
 
 const cx = (...parts: Array<string | false | undefined>) => parts.filter(Boolean).join(' ');
 

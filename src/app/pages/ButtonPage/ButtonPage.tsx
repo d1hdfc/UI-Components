@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from 'react';
 import { Button as ButtonComponent } from '../../../components';
-import type { ButtonSize, ButtonVariant } from '../../../components/button/Button.types';
+import type { ButtonSize, ButtonVariant } from '../../../components/button/button.types';
 import './ButtonPage.scss';
 
 const buttonSourceUrl = 'https://github.com/d1hdfc/UI-Components/tree/main/src/components/button';

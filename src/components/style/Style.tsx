@@ -1,6 +1,6 @@
 import React from 'react';
-import type { StyleProps } from './Style.types';
-import './Style.scss';
+import type { StyleProps } from './style.types';
+import './style.scss';
 
 const cx = (...parts: Array<string | false | undefined>) => parts.filter(Boolean).join(' ');
 

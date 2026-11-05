@@ -2,7 +2,7 @@
 import { componentDocumentation } from '../ComponentPage/componentRegistry';
 import { ComponentPage } from '../ComponentPage/ComponentPage';
 
-export const componentSlug = "partner-logo_master";
+export const componentSlug = "partner-logo-master";
 
 export default function PartnerLogoMasterComponentDocsPage() {
   const component = componentDocumentation.find((entry) => entry.slug === componentSlug);

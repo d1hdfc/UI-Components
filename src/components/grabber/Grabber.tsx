@@ -1,6 +1,6 @@
 import React from 'react';
-import type { GrabberProps } from './Grabber.types';
-import './Grabber.scss';
+import type { GrabberProps } from './grabber.types';
+import './grabber.scss';
 
 const cx = (...parts: Array<string | false | undefined>) => parts.filter(Boolean).join(' ');
 

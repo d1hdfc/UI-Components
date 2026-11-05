@@ -1,6 +1,6 @@
 import React from 'react';
-import type { BaseProps } from './Base.types';
-import './Base.scss';
+import type { BaseProps } from './base.types';
+import './base.scss';
 
 const cx = (...parts: Array<string | false | undefined>) => parts.filter(Boolean).join(' ');
 

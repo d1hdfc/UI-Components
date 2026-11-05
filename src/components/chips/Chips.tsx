@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import type { ChipsProps } from './Chips.types';
+import type { ChipsProps } from './chips.types';
 import chevronLeft from '../assets/figma/chip-chevron-left.svg';
 import chevronRight from '../assets/figma/chip-chevron-right.svg';
 

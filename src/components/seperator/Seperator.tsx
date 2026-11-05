@@ -1,6 +1,6 @@
 import React from 'react';
-import type { SeperatorProps } from './Seperator.types';
-import './Seperator.scss';
+import type { SeperatorProps } from './seperator.types';
+import './seperator.scss';
 
 const cx = (...parts: Array<string | false | undefined>) => parts.filter(Boolean).join(' ');
 

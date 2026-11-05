@@ -1,5 +1,5 @@
 import { useId } from 'react';
-import type { TooltipProps } from './Tooltip.types';
+import type { TooltipProps } from './tooltip.types';
 
 const cx = (...parts: Array<string | false | undefined>) => parts.filter(Boolean).join(' ');
 

@@ -2,7 +2,7 @@
 import { componentDocumentation } from '../ComponentPage/componentRegistry';
 import { ComponentPage } from '../ComponentPage/ComponentPage';
 
-export const componentSlug = "usage_guidelines_tag";
+export const componentSlug = "usage-guidelines-tag";
 
 export default function UsageGuidelinesTagComponentDocsPage() {
   const component = componentDocumentation.find((entry) => entry.slug === componentSlug);

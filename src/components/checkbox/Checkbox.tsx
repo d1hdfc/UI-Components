@@ -1,5 +1,5 @@
 import { useEffect, useId, useRef } from 'react';
-import type { CheckboxProps } from './Checkbox.types';
+import type { CheckboxProps } from './checkbox.types';
 
 const cx = (...parts: Array<string | false | undefined>) => parts.filter(Boolean).join(' ');
 

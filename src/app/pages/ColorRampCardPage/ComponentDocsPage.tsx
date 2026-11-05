@@ -2,7 +2,7 @@
 import { componentDocumentation } from '../ComponentPage/componentRegistry';
 import { ComponentPage } from '../ComponentPage/ComponentPage';
 
-export const componentSlug = "color_ramp_card";
+export const componentSlug = "color-ramp-card";
 
 export default function ColorRampCardComponentDocsPage() {
   const component = componentDocumentation.find((entry) => entry.slug === componentSlug);

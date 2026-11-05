@@ -1,5 +1,5 @@
 import { useId, useState, type KeyboardEvent } from 'react';
-import type { TabsProps } from './Tabs.types';
+import type { TabsProps } from './tabs.types';
 
 const cx = (...parts: Array<string | false | undefined>) => parts.filter(Boolean).join(' ');
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import type { ButtonProps } from './Button.types';
+import type { ButtonProps } from './button.types';
 import chevronLeft from '../assets/figma/button-chevron-left.svg';
 import chevronRight from '../assets/figma/button-chevron-right.svg';
 

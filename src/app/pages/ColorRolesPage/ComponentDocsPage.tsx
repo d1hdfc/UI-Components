@@ -2,7 +2,7 @@
 import { componentDocumentation } from '../ComponentPage/componentRegistry';
 import { ComponentPage } from '../ComponentPage/ComponentPage';
 
-export const componentSlug = "color_roles";
+export const componentSlug = "color-roles";
 
 export default function ColorRolesComponentDocsPage() {
   const component = componentDocumentation.find((entry) => entry.slug === componentSlug);

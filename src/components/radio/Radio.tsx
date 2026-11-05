@@ -1,5 +1,5 @@
 import { useId } from 'react';
-import type { RadioProps } from './Radio.types';
+import type { RadioProps } from './radio.types';
 
 const cx = (...parts: Array<string | false | undefined>) => parts.filter(Boolean).join(' ');
 

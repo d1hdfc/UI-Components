@@ -1,6 +1,6 @@
 import React from 'react';
-import type { RatingsProps } from './Ratings.types';
-import './Ratings.scss';
+import type { RatingsProps } from './ratings.types';
+import './ratings.scss';
 
 const cx = (...parts: Array<string | false | undefined>) => parts.filter(Boolean).join(' ');
 

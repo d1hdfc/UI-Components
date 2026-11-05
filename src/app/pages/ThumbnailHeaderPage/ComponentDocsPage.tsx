@@ -2,7 +2,7 @@
 import { componentDocumentation } from '../ComponentPage/componentRegistry';
 import { ComponentPage } from '../ComponentPage/ComponentPage';
 
-export const componentSlug = "thumbnail_header";
+export const componentSlug = "thumbnail-header";
 
 export default function ThumbnailHeaderComponentDocsPage() {
   const component = componentDocumentation.find((entry) => entry.slug === componentSlug);

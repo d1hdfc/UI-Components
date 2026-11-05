@@ -2,7 +2,7 @@
 import { componentDocumentation } from '../ComponentPage/componentRegistry';
 import { ComponentPage } from '../ComponentPage/ComponentPage';
 
-export const componentSlug = "token_name";
+export const componentSlug = "token-name";
 
 export default function TokenNameComponentDocsPage() {
   const component = componentDocumentation.find((entry) => entry.slug === componentSlug);

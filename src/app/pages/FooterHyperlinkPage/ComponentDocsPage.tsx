@@ -2,7 +2,7 @@
 import { componentDocumentation } from '../ComponentPage/componentRegistry';
 import { ComponentPage } from '../ComponentPage/ComponentPage';
 
-export const componentSlug = "footer_hyperlink";
+export const componentSlug = "footer-hyperlink";
 
 export default function FooterHyperlinkComponentDocsPage() {
   const component = componentDocumentation.find((entry) => entry.slug === componentSlug);

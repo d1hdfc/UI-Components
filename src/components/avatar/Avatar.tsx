@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import type { AvatarProps } from './Avatar.types';
+import type { AvatarProps } from './avatar.types';
 
 const cx = (...parts: Array<string | false | undefined>) => parts.filter(Boolean).join(' ');
 

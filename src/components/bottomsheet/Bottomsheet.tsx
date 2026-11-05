@@ -1,6 +1,6 @@
 import React from 'react';
-import type { BottomsheetProps } from './Bottomsheet.types';
-import './bottom-sheet.scss';
+import type { BottomsheetProps } from './bottomsheet.types';
+import './bottomsheet.scss';
 
 const cx = (...parts: Array<string | false | undefined>) => parts.filter(Boolean).join(' ');
 

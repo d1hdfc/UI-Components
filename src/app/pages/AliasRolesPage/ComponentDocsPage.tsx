@@ -2,7 +2,7 @@
 import { componentDocumentation } from '../ComponentPage/componentRegistry';
 import { ComponentPage } from '../ComponentPage/ComponentPage';
 
-export const componentSlug = "alias_roles";
+export const componentSlug = "alias-roles";
 
 export default function AliasRolesComponentDocsPage() {
   const component = componentDocumentation.find((entry) => entry.slug === componentSlug);

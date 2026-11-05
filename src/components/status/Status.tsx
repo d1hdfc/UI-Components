@@ -1,6 +1,6 @@
 import React from 'react';
-import type { StatusProps } from './Status.types';
-import './Status.scss';
+import type { StatusProps } from './status.types';
+import './status.scss';
 
 const cx = (...parts: Array<string | false | undefined>) => parts.filter(Boolean).join(' ');
 

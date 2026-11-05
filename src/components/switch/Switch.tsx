@@ -1,5 +1,5 @@
 import { useId } from 'react';
-import type { SwitchProps } from './Switch.types';
+import type { SwitchProps } from './switch.types';
 
 const cx = (...parts: Array<string | false | undefined>) => parts.filter(Boolean).join(' ');
 

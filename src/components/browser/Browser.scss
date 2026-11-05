@@ -5,14 +5,14 @@
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: var(--global-scale-100);
   box-sizing: border-box;
-  font-family: inherit;
-  font-weight: 500;
+  font-family: var(--font-family-inter);
+  font-weight: var(--font-weight-500);
   text-decoration: none;
   cursor: pointer;
-  border: 1px solid transparent;
-  border-radius: 5px;
+  border: var(--layout-border-xs) solid transparent;
+  border-radius: var(--global-scale-62);
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   user-select: none;
   outline: none;
@@ -20,34 +20,34 @@
   &__content {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: var(--global-scale-75);
   }
 
   &__spinner {
-    width: 14px;
-    height: 14px;
-    border: 2px solid currentColor;
+    width: var(--global-scale-175);
+    height: var(--global-scale-175);
+    border: var(--global-scale-25) solid currentColor;
     border-right-color: transparent;
-    border-radius: 50%;
+    border-radius: var(--layout-radius-full);
     animation: ui-browser-spin 0.75s linear infinite;
   }
 
   &--small {
-    font-size: 13px;
-    line-height: 16px;
-    padding: 7px 11px;
+    font-size: var(--font-size-paragraph-xs);
+    line-height: var(--global-scale-200);
+    padding: var(--global-scale-87) var(--global-scale-137);
   }
 
   &--medium {
-    font-size: 14px;
-    line-height: 20px;
-    padding: 10px 16px;
+    font-size: var(--font-size-paragraph-sm);
+    line-height: var(--global-scale-250);
+    padding: var(--global-scale-125) var(--global-scale-200);
   }
 
   &--large {
-    font-size: 16px;
-    line-height: 24px;
-    padding: 13px 21px;
+    font-size: var(--font-size-paragraph-md);
+    line-height: var(--global-scale-300);
+    padding: var(--global-scale-162) var(--global-scale-262);
   }
 
   &--primary {
@@ -56,7 +56,7 @@
     border-color: transparent;
 
     &:hover:not(.ui-browser--disabled) {
-      background-color: var(--color-interactive-primary-hover, #1d4076);
+      background-color: var(--color-interactive-primary-hover);
     }
   }
 
@@ -66,7 +66,7 @@
     border-color: var(--color-border-subtle, var(--color-border-subtle));
 
     &:hover:not(.ui-browser--disabled) {
-      background-color: rgba(12, 35, 64, 0.05);
+      background-color: var(--button-secondary-background-color-hover);
     }
   }
 
@@ -76,17 +76,17 @@
     border-color: transparent;
 
     &:hover:not(.ui-browser--disabled) {
-      background-color: rgba(12, 35, 64, 0.08);
+      background-color: var(--button-tertiary-background-color-hover);
     }
   }
 
   &--outlined {
     background-color: transparent;
     color: var(--color-interactive-primary);
-    border: 1.5px solid currentColor;
+    border: var(--layout-border-sm) solid currentColor;
 
     &:hover:not(.ui-browser--disabled) {
-      background-color: rgba(12, 35, 64, 0.05);
+      background-color: var(--button-secondary-background-color-hover);
     }
   }
 

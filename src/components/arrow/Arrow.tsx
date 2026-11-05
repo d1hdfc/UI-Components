@@ -1,6 +1,6 @@
 import React from 'react';
-import type { ArrowProps } from './Arrow.types';
-import './Arrow.scss';
+import type { ArrowProps } from './arrow.types';
+import './arrow.scss';
 
 const cx = (...parts: Array<string | false | undefined>) => parts.filter(Boolean).join(' ');
 

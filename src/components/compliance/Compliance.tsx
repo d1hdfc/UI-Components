@@ -1,6 +1,6 @@
 import React from 'react';
-import type { ComplianceProps } from './Compliance.types';
-import './Compliance.scss';
+import type { ComplianceProps } from './compliance.types';
+import './compliance.scss';
 
 const cx = (...parts: Array<string | false | undefined>) => parts.filter(Boolean).join(' ');
 

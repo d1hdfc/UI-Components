@@ -31,7 +31,8 @@ function toKebabCase(str) {
     .replace(/^\d+[\.\s_-]+/, '')
     .replace(/([a-z\d])([A-Z])/g, '$1-$2')
     .replace(/([A-Z]+)([A-Z][a-z\d]+)/g, '$1-$2')
-    .replace(/[^a-zA-Z0-9_-]+/g, '-')
+    .replace(/[^a-zA-Z0-9]+/g, '-')
+    .replace(/-+/g, '-')
     .replace(/^-+|-+$/g, '')
     .toLowerCase();
   return result || 'component';
@@ -114,7 +115,7 @@ function parseVariantsAndProps(node) {
 }
 
 /**
- * Generate React Types (<Name>.types.ts)
+ * Generate React Types (<component-name>.types.ts)
  */
 function generateReactTypes(pascalName, kebabName, meta) {
   const variantType = meta.variants.map(v => `'${v}'`).join(' | ') || "'primary' | 'secondary'";
@@ -139,7 +140,7 @@ export interface ${pascalName}Props extends React.HTMLAttributes<HTMLDivElement>
 }
 
 /**
- * Generate React Component (<Name>.tsx)
+ * Generate React Component (<component-name>.tsx)
  */
 function generateReactComponent(pascalName, kebabName, meta) {
   const isButton = kebabName.includes('button') || pascalName.toLowerCase().includes('button');
@@ -148,8 +149,8 @@ function generateReactComponent(pascalName, kebabName, meta) {
 
   return `// Generated from Figma by scripts/code-generator.cjs.
 import React from 'react';
-import type { ${pascalName}Props } from './${pascalName}.types';
-import './${pascalName}.scss';
+import type { ${pascalName}Props } from './${kebabName}.types';
+import './${kebabName}.scss';
 
 const cx = (...parts: Array<string | false | undefined>) => parts.filter(Boolean).join(' ');
 
@@ -193,13 +194,12 @@ export default ${pascalName};
 }
 
 /**
- * Generate SCSS (<Name>.scss) using exclusively token variables from src/tokens/variables/
+ * Generate SCSS (<component-name>.scss) using exclusively token variables from src/tokens/variables/
  */
 function generateScss(pascalName, kebabName, meta) {
   const { layoutMode } = meta;
 
-  return `// Generated from Figma by scripts/code-generator.cjs.
-@use 'sass:map';
+  return `@use 'sass:map';
 
 $${kebabName}-sizes: (
   small: (
@@ -207,21 +207,24 @@ $${kebabName}-sizes: (
     padding: var(--button-size-small-padding-x),
     radius: var(--button-size-small-radius),
     gap: var(--button-size-small-gap),
-    font-size: var(--button-size-small-font-size)
+    font-size: var(--button-size-small-font-size),
+    line-height: var(--font-line-height-paragraph-xsm)
   ),
   medium: (
     height: var(--button-size-medium-height),
     padding: var(--button-size-medium-padding-x),
     radius: var(--button-size-medium-radius),
     gap: var(--button-size-medium-gap),
-    font-size: var(--button-size-medium-font-size)
+    font-size: var(--button-size-medium-font-size),
+    line-height: var(--font-line-height-paragraph-md)
   ),
   large: (
     height: var(--button-size-large-height),
     padding: var(--button-size-large-padding-x),
     radius: var(--button-size-large-radius),
     gap: var(--button-size-large-gap),
-    font-size: var(--button-size-large-font-size)
+    font-size: var(--button-size-large-font-size),
+    line-height: var(--font-line-height-paragraph-lg)
   )
 );
 
@@ -229,7 +232,7 @@ $${kebabName}-variants: (
   primary: (
     background: var(--button-primary-background-color-default),
     foreground: var(--button-primary-foreground-color-static),
-    border: transparent,
+    border: var(--surface-root-opacity),
     hover-background: var(--button-primary-background-color-hover)
   ),
   secondary: (
@@ -241,11 +244,11 @@ $${kebabName}-variants: (
   tertiary: (
     background: var(--button-tertiary-background-color-default),
     foreground: var(--button-tertiary-foreground-color-default),
-    border: transparent,
+    border: var(--surface-root-opacity),
     hover-background: var(--button-tertiary-background-color-hover)
   ),
   outlined: (
-    background: transparent,
+    background: var(--surface-root-opacity),
     foreground: var(--color-interactive-primary),
     border: var(--color-border-subtle),
     hover-background: var(--button-secondary-background-color-hover)
@@ -263,9 +266,9 @@ $${kebabName}-variants: (
   font-weight: var(--font-weight-500);
   text-decoration: none;
   cursor: pointer;
-  border: var(--button-size-border-width) solid transparent;
+  border: var(--button-size-border-width) solid var(--surface-root-opacity);
   border-radius: var(--button-size-medium-radius);
-  transition: all 0.2s ease;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
   user-select: none;
   outline: none;
 
@@ -279,7 +282,7 @@ $${kebabName}-variants: (
     width: var(--global-scale-175);
     height: var(--global-scale-175);
     border: var(--global-scale-25) solid currentColor;
-    border-right-color: transparent;
+    border-right-color: var(--surface-root-opacity);
     border-radius: var(--layout-radius-full);
     animation: ui-${kebabName}-spin 0.75s linear infinite;
   }
@@ -288,7 +291,7 @@ $${kebabName}-variants: (
     &--#{$size} {
       min-height: map.get($props, height);
       font-size: map.get($props, font-size);
-      line-height: var(--font-lineheight-tight);
+      line-height: map.get($props, line-height);
       padding: var(--global-scale-100) map.get($props, padding);
       border-radius: map.get($props, radius);
       gap: map.get($props, gap);
@@ -331,7 +334,7 @@ $${kebabName}-variants: (
 }
 
 /**
- * Generate Flutter Widget (<component_name>.dart)
+ * Generate Flutter Widget (<component-name>.dart)
  */
 function generateFlutterWidget(pascalName, kebabName, meta) {
   const { padding, cornerRadius } = meta;
@@ -472,40 +475,22 @@ class ${widgetClass} extends StatelessWidget {
 }
 
 /**
- * Generate HTML snippet (<component-name>.html)
+ * Clean up any extra/non-standard files inside a component directory so only
+ * the 4 canonical files (<kebab>.dart, <kebab>.scss, <kebab>.tsx, <kebab>.types.ts) remain.
  */
-function generateHtmlSnippet(pascalName, kebabName, meta) {
-  const isButton = kebabName.includes('button') || pascalName.toLowerCase().includes('button');
-  const tag = isButton ? 'button' : 'div';
-  const label = meta.defaultLabel || pascalName;
-
-  return `<!-- ${pascalName} Component HTML Showcase -->
-<section class="component-showcase">
-  <h3>${pascalName} — Default (Primary)</h3>
-  <${tag} class="ui-${kebabName} ui-${kebabName}--medium ui-${kebabName}--primary" ${isButton ? 'type="button"' : ''}>
-    <span class="ui-${kebabName}__content">${label}</span>
-  </${tag}>
-
-  <h3>${pascalName} — Secondary</h3>
-  <${tag} class="ui-${kebabName} ui-${kebabName}--medium ui-${kebabName}--secondary" ${isButton ? 'type="button"' : ''}>
-    <span class="ui-${kebabName}__content">${label}</span>
-  </${tag}>
-
-  <h3>${pascalName} — Disabled</h3>
-  <${tag} class="ui-${kebabName} ui-${kebabName}--medium ui-${kebabName}--primary ui-${kebabName}--disabled" ${isButton ? 'type="button" disabled' : 'aria-disabled="true"'}>
-    <span class="ui-${kebabName}__content">${label}</span>
-  </${tag}>
-</section>
-`;
-}
-
-/**
- * Generate component folder index.ts
- */
-function generateComponentFolderIndex(pascalName) {
-  return `export { ${pascalName} } from './${pascalName}';
-export * from './${pascalName}.types';
-`;
+function enforceFourFileStructure(componentDir, kebabName) {
+  if (!fs.existsSync(componentDir)) return;
+  const allowed = new Set([
+    `${kebabName}.dart`,
+    `${kebabName}.scss`,
+    `${kebabName}.tsx`,
+    `${kebabName}.types.ts`
+  ]);
+  for (const file of fs.readdirSync(componentDir)) {
+    if (!allowed.has(file)) {
+      fs.rmSync(path.join(componentDir, file), { recursive: true, force: true });
+    }
+  }
 }
 
 /**
@@ -515,9 +500,9 @@ function ensureExportInIndex(pascalName, folder) {
   if (!fs.existsSync(INDEX_FILE)) return;
   let content = fs.readFileSync(INDEX_FILE, 'utf8');
 
-  const exportLine = `export { ${pascalName} } from './${folder}/${pascalName}'`;
+  const exportLine = `export { ${pascalName} } from './${folder}/${folder}'`;
   if (!content.includes(exportLine)) {
-    content += `\n${exportLine}\nexport type { ${pascalName}Props } from './${folder}/${pascalName}.types'\n`;
+    content += `\n${exportLine}\nexport type { ${pascalName}Props } from './${folder}/${folder}.types'\n`;
     fs.writeFileSync(INDEX_FILE, content, 'utf8');
     console.log(`[CodeGenerator] Added export for ${pascalName} to src/components/index.ts`);
   }
@@ -539,43 +524,36 @@ function removeExportFromIndex(pascalName, folder) {
 }
 
 /**
- * Main entry: Generate all files for a component
+ * Main entry: Generate strictly the 4 files (<kebab>.dart, <kebab>.scss, <kebab>.tsx, <kebab>.types.ts)
  */
 function generateComponentFiles(figmaNode, options = {}) {
   const rawName = figmaNode.name || 'Component';
   const pascalName = toPascalCase(rawName);
   const kebabName = toKebabCase(rawName);
-  const snakeName = toSnakeCase(rawName);
 
   const componentDir = path.join(COMPONENTS_DIR, kebabName);
   fs.mkdirSync(componentDir, { recursive: true });
 
   const meta = parseVariantsAndProps(figmaNode);
 
-  // 1. React files
-  const tsxPath = path.join(componentDir, `${pascalName}.tsx`);
-  const typesPath = path.join(componentDir, `${pascalName}.types.ts`);
-  const scssPath = path.join(componentDir, `${pascalName}.scss`);
-  const localIndexPath = path.join(componentDir, 'index.ts');
+  const tsxPath = path.join(componentDir, `${kebabName}.tsx`);
+  const typesPath = path.join(componentDir, `${kebabName}.types.ts`);
+  const scssPath = path.join(componentDir, `${kebabName}.scss`);
+  const flutterPath = path.join(componentDir, `${kebabName}.dart`);
 
   if (!options.preserveExistingReact || !fs.existsSync(tsxPath)) {
     fs.writeFileSync(tsxPath, generateReactComponent(pascalName, kebabName, meta), 'utf8');
     fs.writeFileSync(typesPath, generateReactTypes(pascalName, kebabName, meta), 'utf8');
     fs.writeFileSync(scssPath, generateScss(pascalName, kebabName, meta), 'utf8');
-    fs.writeFileSync(localIndexPath, generateComponentFolderIndex(pascalName), 'utf8');
     ensureExportInIndex(pascalName, kebabName);
   }
 
-  // 2. Flutter file
-  const flutterPath = path.join(componentDir, `${snakeName}.dart`);
   fs.writeFileSync(flutterPath, generateFlutterWidget(pascalName, kebabName, meta), 'utf8');
 
-  // 3. HTML file (no .css inside src/components)
-  const htmlPath = path.join(componentDir, `${kebabName}.html`);
-  fs.writeFileSync(htmlPath, generateHtmlSnippet(pascalName, kebabName, meta), 'utf8');
+  enforceFourFileStructure(componentDir, kebabName);
   appPageGenerator.syncAppComponentPages();
 
-  console.log(`[CodeGenerator] Generated React (SCSS tokens), Flutter, and HTML for "${pascalName}" in ${componentDir}`);
+  console.log(`[CodeGenerator] Generated 4-file component (${kebabName}.tsx, .types.ts, .scss, .dart) in ${componentDir}`);
 
   return {
     componentName: pascalName,
@@ -584,8 +562,7 @@ function generateComponentFiles(figmaNode, options = {}) {
       react: tsxPath,
       types: typesPath,
       scss: scssPath,
-      flutter: flutterPath,
-      html: htmlPath
+      flutter: flutterPath
     }
   };
 }
@@ -610,7 +587,7 @@ function deleteComponentFiles(rawName) {
 }
 
 /**
- * Generate Flutter & HTML for all existing components in their existing folders
+ * Ensure all existing components follow the strict 4-file lowercase-hyphen structure
  */
 function generateForExistingComponents() {
   if (!fs.existsSync(COMPONENTS_DIR)) return;
@@ -618,16 +595,15 @@ function generateForExistingComponents() {
   const entries = fs.readdirSync(COMPONENTS_DIR, { withFileTypes: true });
   for (const entry of entries) {
     if (!entry.isDirectory() || entry.name === 'assets') continue;
-    const folder = entry.name;
+    const folder = toKebabCase(entry.name);
     const folderPath = path.join(COMPONENTS_DIR, folder);
-    const files = fs.readdirSync(folderPath);
+    if (!fs.existsSync(folderPath)) continue;
 
+    const files = fs.readdirSync(folderPath);
     const tsxFile = files.find(f => f.endsWith('.tsx') && !f.endsWith('.test.tsx'));
     if (!tsxFile) continue;
 
-    const pascalName = path.basename(tsxFile, '.tsx');
-    const snakeName = toSnakeCase(folder);
-
+    const pascalName = toPascalCase(folder);
     const mockMeta = {
       variants: ['primary', 'secondary', 'tertiary'],
       sizes: ['small', 'medium', 'large'],
@@ -637,11 +613,11 @@ function generateForExistingComponents() {
       layoutMode: 'row'
     };
 
-    const flutterPath = path.join(folderPath, `${snakeName}.dart`);
-    fs.writeFileSync(flutterPath, generateFlutterWidget(pascalName, folder, mockMeta), 'utf8');
-
-    const htmlPath = path.join(folderPath, `${folder}.html`);
-    fs.writeFileSync(htmlPath, generateHtmlSnippet(pascalName, folder, mockMeta), 'utf8');
+    const flutterPath = path.join(folderPath, `${folder}.dart`);
+    if (!fs.existsSync(flutterPath)) {
+      fs.writeFileSync(flutterPath, generateFlutterWidget(pascalName, folder, mockMeta), 'utf8');
+    }
+    enforceFourFileStructure(folderPath, folder);
   }
 
   appPageGenerator.syncAppComponentPages();
@@ -657,5 +633,6 @@ module.exports = {
   deleteComponentFiles,
   generateForExistingComponents,
   ensureExportInIndex,
-  removeExportFromIndex
+  removeExportFromIndex,
+  enforceFourFileStructure
 };

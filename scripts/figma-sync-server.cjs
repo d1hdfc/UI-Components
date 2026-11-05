@@ -396,7 +396,7 @@ async function triggerCodeToFigmaSync(componentFolder, action = 'update') {
   if (compData.nodeId) {
     try {
       const fileKey = figmaApi.getFileKey();
-      const repoUrl = `https://github.com/d1hdfc/UI-Components/blob/main/src/components/${compData.folder}/${compData.componentName}.tsx`;
+      const repoUrl = `https://github.com/d1hdfc/UI-Components/blob/main/src/components/${compData.folder}/${compData.folder}.tsx`;
       await figmaApi.createDevResources(fileKey, [
         {
           name: `${compData.componentName} (Code Component)`,

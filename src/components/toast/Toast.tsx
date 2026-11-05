@@ -1,5 +1,5 @@
 import { useEffect, useId } from 'react';
-import type { ToastProps } from './Toast.types';
+import type { ToastProps } from './toast.types';
 
 const cx = (...parts: Array<string | false | undefined>) => parts.filter(Boolean).join(' ');
 
