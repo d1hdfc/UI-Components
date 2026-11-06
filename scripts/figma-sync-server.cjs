@@ -115,6 +115,26 @@ function pxToTokenVar(pxValue, propertyContext = '') {
     if (radiusMap[num]) return radiusMap[num];
   }
 
+  if (propertyContext === 'padding' || propertyContext === 'gap') {
+    const spacingMap = {
+      0: 'var(--global-scale-0)',
+      2: 'var(--layout-spacing-2xs)',
+      4: 'var(--layout-spacing-xs)',
+      8: 'var(--layout-spacing-sm)',
+      12: 'var(--layout-spacing-md)',
+      16: 'var(--layout-spacing-lg)',
+      20: 'var(--layout-spacing-xl)',
+      24: 'var(--layout-spacing-2xl)',
+      28: 'var(--layout-spacing-3xl)',
+      32: 'var(--layout-spacing-4xl)',
+      40: 'var(--layout-spacing-5xl)',
+      48: 'var(--layout-spacing-6xl)',
+      64: 'var(--layout-spacing-7xl)',
+      80: 'var(--layout-spacing-8xl)'
+    };
+    if (spacingMap[num]) return spacingMap[num];
+  }
+
   const primitivesPath = path.join(TOKENS_VARIABLES_DIR, 'primitives.scss');
   if (fs.existsSync(primitivesPath)) {
     let primContent = fs.readFileSync(primitivesPath, 'utf8');
@@ -211,11 +231,19 @@ function hexToTokenVar(hexColor) {
 // Live Figma Plugin Payload Processor (Figma ➔ Code)
 // ==========================================
 
+function touchMainStylesheet() {
+  const now = new Date();
+  const mainScss = path.join(process.cwd(), 'src', 'app', 'main.scss');
+  const libScss = path.join(COMPONENTS_DIR, 'library.scss');
+  try { if (fs.existsSync(libScss)) fs.utimesSync(libScss, now, now); } catch {}
+  try { if (fs.existsSync(mainScss)) fs.utimesSync(mainScss, now, now); } catch {}
+}
+
 function setTokenInScssFile(filePath, tokenKey, newTokenVarValue) {
   if (!fs.existsSync(filePath)) return false;
   let content = fs.readFileSync(filePath, 'utf8');
   const escapedKey = tokenKey.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const entryRegex = new RegExp(`(["']${escapedKey}["']\\s*:\\s*)([^,\\r\\n]+)`, 'g');
+  const entryRegex = new RegExp(`(["']${escapedKey}["']\\s*:\\s*)((?:var\\([^)]*\\)|rgba?\\([^)]*\\)|[^,\\r\\n()])+)`, 'g');
   let changed = false;
   content = content.replace(entryRegex, (fullMatch, prefix, oldVal) => {
     const cleanOld = oldVal.trim();
@@ -228,6 +256,7 @@ function setTokenInScssFile(filePath, tokenKey, newTokenVarValue) {
     suppressWatcherUntil = Date.now() + 2500;
     fs.writeFileSync(filePath, content, 'utf8');
     codeParser.invalidateTokenCache();
+    touchMainStylesheet();
   }
   return changed;
 }
@@ -237,7 +266,7 @@ function updateScssTokenMapFile(filePath, incomingMap) {
   let content = fs.readFileSync(filePath, 'utf8');
   let updatedCount = 0;
 
-  const sanitized = content.replace(/(var\(--[a-zA-Z0-9_-]+\))\)+/g, '$1');
+  const sanitized = content.replace(/^(\s*["'][a-zA-Z0-9_-]+["']\s*:\s*var\(--[a-zA-Z0-9_-]+\))\)+(\s*,?\s*)$/gm, '$1$2');
   if (sanitized !== content) {
     content = sanitized;
     updatedCount++;
@@ -246,7 +275,7 @@ function updateScssTokenMapFile(filePath, incomingMap) {
   for (const [rawKey, newVal] of Object.entries(incomingMap)) {
     if (!newVal || typeof newVal !== 'string') continue;
     const escapedKey = rawKey.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const entryRegex = new RegExp(`(["']${escapedKey}["']\\s*:\\s*)([^,\\r\\n]+)`, 'g');
+    const entryRegex = new RegExp(`(["']${escapedKey}["']\\s*:\\s*)((?:var\\([^)]*\\)|rgba?\\([^)]*\\)|[^,\\r\\n()])+)`, 'g');
     content = content.replace(entryRegex, (fullMatch, prefix, oldVal) => {
       const cleanOld = oldVal.trim();
       const cleanNew = newVal.trim();
@@ -264,6 +293,7 @@ function updateScssTokenMapFile(filePath, incomingMap) {
     suppressWatcherUntil = Date.now() + 2500;
     fs.writeFileSync(filePath, content, 'utf8');
     codeParser.invalidateTokenCache();
+    touchMainStylesheet();
   }
   return updatedCount;
 }
@@ -271,7 +301,7 @@ function updateScssTokenMapFile(filePath, incomingMap) {
 function updateComponentScssMapProperty(scssPath, sizeOrVariantKey, propName, newTokenVar) {
   if (!fs.existsSync(scssPath)) return false;
   let content = fs.readFileSync(scssPath, 'utf8');
-  const blockRe = new RegExp(`(\\b${sizeOrVariantKey}\\s*:\\s*\\([\\s\\S]*?\\b${propName}\\s*:\\s*)([^,\\n)]+)`, 'i');
+  const blockRe = new RegExp(`(\\b${sizeOrVariantKey}\\s*:\\s*\\([\\s\\S]*?\\b${propName}\\s*:\\s*)((?:var\\([^)]*\\)|rgba?\\([^)]*\\)|[^,\\r\\n()])+)`, 'i');
   const match = content.match(blockRe);
   if (!match) return false;
   const currentVal = match[2].trim();
@@ -293,17 +323,36 @@ function updateComponentScssMapProperty(scssPath, sizeOrVariantKey, propName, ne
     }
   }
 
-  if (currentVal === newTokenVar) return false;
-  content = content.replace(blockRe, `$1${newTokenVar}`);
+  const parts = currentVal.split(/\s+/).filter(Boolean);
+  const replacementVal = (propName === 'padding' && parts.length === 2)
+    ? `${parts[0]} ${newTokenVar}`
+    : newTokenVar;
+
+  if (currentVal === replacementVal) return false;
+  content = content.replace(blockRe, (_, prefix) => `${prefix}${replacementVal}`);
   suppressWatcherUntil = Date.now() + 2500;
   fs.writeFileSync(scssPath, content, 'utf8');
   return true;
 }
 
-function applyCanvasComponentEditsToCode(compNode, semanticsPath) {
+function parseVariantString(name) {
+  const props = {};
+  for (const part of String(name || '').split(',')) {
+    const eq = part.indexOf('=');
+    if (eq > 0) {
+      props[part.slice(0, eq).trim().toLowerCase()] = part.slice(eq + 1).trim().toLowerCase();
+    }
+  }
+  return props;
+}
+
+function applyCanvasComponentEditsToCode(compNode, semanticsPath, fallbackPageName = '') {
   if (!compNode) return 0;
-  const rawName = compNode.parentComponentName || compNode.name;
+  let rawName = compNode.parentComponentName || compNode.name;
   if (!rawName) return 0;
+  if (rawName.includes('=')) {
+    rawName = compNode.pageName || fallbackPageName || 'button';
+  }
 
   const kebab = codeGenerator.toKebabCase(rawName);
   const compDir = path.join(COMPONENTS_DIR, kebab);
@@ -317,13 +366,27 @@ function applyCanvasComponentEditsToCode(compNode, semanticsPath) {
 
   // Gather candidate variant nodes to inspect
   const variantNodes = [];
-  if (compNode.variantProps && Object.keys(compNode.variantProps).length > 0) {
-    variantNodes.push(compNode);
+  const topVariantProps = (compNode.variantProps && Object.keys(compNode.variantProps).length > 0)
+    ? compNode.variantProps
+    : (compNode.name && compNode.name.includes('=') ? parseVariantString(compNode.name) : {});
+
+  if (Object.keys(topVariantProps).length > 0) {
+    variantNodes.push({
+      ...compNode,
+      variantProps: topVariantProps,
+      isSelected: Boolean(compNode.isSelected)
+    });
   }
+
   if (Array.isArray(compNode.children) && compNode.children.length > 0) {
-    // Prioritize selected variant children first, then default variants
-    const selectedChildren = compNode.children.filter(c => c.isSelected);
-    const otherChildren = compNode.children.filter(c => !c.isSelected);
+    const hydratedChildren = compNode.children.map((c) => ({
+      ...c,
+      variantProps: (c.variantProps && Object.keys(c.variantProps).length > 0)
+        ? c.variantProps
+        : parseVariantString(c.name)
+    }));
+    const selectedChildren = hydratedChildren.filter(c => c.isSelected);
+    const otherChildren = hydratedChildren.filter(c => !c.isSelected);
     variantNodes.push(...selectedChildren, ...otherChildren);
   }
 
@@ -338,94 +401,75 @@ function applyCanvasComponentEditsToCode(compNode, semanticsPath) {
       const stateKey = (vProps.state || 'default').toLowerCase();
       const typeKey = (vProps.type || 'default').toLowerCase();
 
-      // 1. Check size metrics on default-state, default-type variants (or explicitly selected variant)
-      if (sizeKey && currentParsed.sizesMap?.[sizeKey] && (vNode.isSelected || (stateKey === 'default' && typeKey === 'default'))) {
+      // 1. Check size metrics on primary default variant (or explicitly selected variant)
+      const isCanonicalSizeVariant = !styleKey || styleKey === 'primary';
+      if (sizeKey && currentParsed.sizesMap?.[sizeKey] && (vNode.isSelected || (isCanonicalSizeVariant && stateKey === 'default' && typeKey === 'default'))) {
         const sizeSpec = currentParsed.sizesMap[sizeKey];
 
         // Font size check
-        if (
-          typeof vNode.fontSize === 'number' &&
-          vNode.fontSize > 0 &&
-          sizeSpec['font-sizePx'] !== undefined &&
-          Math.round(vNode.fontSize) !== Math.round(sizeSpec['font-sizePx']) &&
-          !checkedSizes.has(`${sizeKey}:font-size`)
-        ) {
-          const tokenVar = pxToTokenVar(vNode.fontSize, 'font-size');
-          if (updateComponentScssMapProperty(scssPath, sizeKey, 'font-size', tokenVar)) {
-            checkedSizes.add(`${sizeKey}:font-size`);
-            propUpdates++;
-            console.log(`[FigmaSync] Updated "${kebab}" (${sizeKey}): font-size -> ${tokenVar} (${vNode.fontSize}px)`);
+        if (typeof vNode.fontSize === 'number' && vNode.fontSize > 0 && !checkedSizes.has(`${sizeKey}:font-size`)) {
+          checkedSizes.add(`${sizeKey}:font-size`);
+          if (sizeSpec['font-sizePx'] !== undefined && Math.round(vNode.fontSize) !== Math.round(sizeSpec['font-sizePx'])) {
+            const tokenVar = pxToTokenVar(vNode.fontSize, 'font-size');
+            if (updateComponentScssMapProperty(scssPath, sizeKey, 'font-size', tokenVar)) {
+              propUpdates++;
+              console.log(`[FigmaSync] Updated "${kebab}" (${sizeKey}): font-size -> ${tokenVar} (${vNode.fontSize}px)`);
+            }
           }
         }
 
         // Height check
-        if (
-          typeof vNode.height === 'number' &&
-          vNode.height > 0 &&
-          sizeSpec.heightPx !== undefined &&
-          Math.round(vNode.height) !== Math.round(sizeSpec.heightPx) &&
-          !checkedSizes.has(`${sizeKey}:height`)
-        ) {
-          const tokenVar = pxToTokenVar(vNode.height, 'height');
-          if (updateComponentScssMapProperty(scssPath, sizeKey, 'height', tokenVar)) {
-            checkedSizes.add(`${sizeKey}:height`);
-            propUpdates++;
-            console.log(`[FigmaSync] Updated "${kebab}" (${sizeKey}): height -> ${tokenVar} (${vNode.height}px)`);
+        if (typeof vNode.height === 'number' && vNode.height > 0 && !checkedSizes.has(`${sizeKey}:height`)) {
+          checkedSizes.add(`${sizeKey}:height`);
+          if (sizeSpec.heightPx !== undefined && Math.round(vNode.height) !== Math.round(sizeSpec.heightPx)) {
+            const tokenVar = pxToTokenVar(vNode.height, 'height');
+            if (updateComponentScssMapProperty(scssPath, sizeKey, 'height', tokenVar)) {
+              propUpdates++;
+              console.log(`[FigmaSync] Updated "${kebab}" (${sizeKey}): height -> ${tokenVar} (${vNode.height}px)`);
+            }
           }
         }
 
         // Padding check
-        if (
-          typeof vNode.paddingLeft === 'number' &&
-          vNode.paddingLeft >= 0 &&
-          typeKey !== 'icon' &&
-          sizeSpec.paddingPx !== undefined &&
-          Math.round(vNode.paddingLeft) !== Math.round(sizeSpec.paddingPx) &&
-          !checkedSizes.has(`${sizeKey}:padding`)
-        ) {
-          const tokenVar = pxToTokenVar(vNode.paddingLeft, 'padding');
-          if (updateComponentScssMapProperty(scssPath, sizeKey, 'padding', tokenVar)) {
-            checkedSizes.add(`${sizeKey}:padding`);
-            propUpdates++;
-            console.log(`[FigmaSync] Updated "${kebab}" (${sizeKey}): padding -> ${tokenVar} (${vNode.paddingLeft}px)`);
+        if (typeof vNode.paddingLeft === 'number' && vNode.paddingLeft >= 0 && typeKey !== 'icon' && !checkedSizes.has(`${sizeKey}:padding`)) {
+          checkedSizes.add(`${sizeKey}:padding`);
+          if (sizeSpec.paddingPx !== undefined && Math.round(vNode.paddingLeft) !== Math.round(sizeSpec.paddingPx)) {
+            const tokenVar = pxToTokenVar(vNode.paddingLeft, 'padding');
+            if (updateComponentScssMapProperty(scssPath, sizeKey, 'padding', tokenVar)) {
+              propUpdates++;
+              console.log(`[FigmaSync] Updated "${kebab}" (${sizeKey}): padding -> ${tokenVar} (${vNode.paddingLeft}px)`);
+            }
           }
         }
 
         // Corner radius check
-        if (
-          typeof vNode.cornerRadius === 'number' &&
-          vNode.cornerRadius >= 0 &&
-          sizeSpec.radiusPx !== undefined &&
-          Math.round(vNode.cornerRadius) !== Math.round(sizeSpec.radiusPx) &&
-          !checkedSizes.has(`${sizeKey}:radius`)
-        ) {
-          const tokenVar = pxToTokenVar(vNode.cornerRadius, 'radius');
-          if (updateComponentScssMapProperty(scssPath, sizeKey, 'radius', tokenVar)) {
-            checkedSizes.add(`${sizeKey}:radius`);
-            propUpdates++;
-            console.log(`[FigmaSync] Updated "${kebab}" (${sizeKey}): radius -> ${tokenVar} (${vNode.cornerRadius}px)`);
+        if (typeof vNode.cornerRadius === 'number' && vNode.cornerRadius >= 0 && !checkedSizes.has(`${sizeKey}:radius`)) {
+          checkedSizes.add(`${sizeKey}:radius`);
+          if (sizeSpec.radiusPx !== undefined && Math.round(vNode.cornerRadius) !== Math.round(sizeSpec.radiusPx)) {
+            const tokenVar = pxToTokenVar(vNode.cornerRadius, 'radius');
+            if (updateComponentScssMapProperty(scssPath, sizeKey, 'radius', tokenVar)) {
+              propUpdates++;
+              console.log(`[FigmaSync] Updated "${kebab}" (${sizeKey}): radius -> ${tokenVar} (${vNode.cornerRadius}px)`);
+            }
           }
         }
 
         // Gap (itemSpacing) check
-        if (
-          typeof vNode.itemSpacing === 'number' &&
-          vNode.itemSpacing >= 0 &&
-          sizeSpec.gapPx !== undefined &&
-          Math.round(vNode.itemSpacing) !== Math.round(sizeSpec.gapPx) &&
-          !checkedSizes.has(`${sizeKey}:gap`)
-        ) {
-          const tokenVar = pxToTokenVar(vNode.itemSpacing, 'gap');
-          if (updateComponentScssMapProperty(scssPath, sizeKey, 'gap', tokenVar)) {
-            checkedSizes.add(`${sizeKey}:gap`);
-            propUpdates++;
-            console.log(`[FigmaSync] Updated "${kebab}" (${sizeKey}): gap -> ${tokenVar} (${vNode.itemSpacing}px)`);
+        if (typeof vNode.itemSpacing === 'number' && vNode.itemSpacing >= 0 && !checkedSizes.has(`${sizeKey}:gap`)) {
+          checkedSizes.add(`${sizeKey}:gap`);
+          if (sizeSpec.gapPx !== undefined && Math.round(vNode.itemSpacing) !== Math.round(sizeSpec.gapPx)) {
+            const tokenVar = pxToTokenVar(vNode.itemSpacing, 'gap');
+            if (updateComponentScssMapProperty(scssPath, sizeKey, 'gap', tokenVar)) {
+              propUpdates++;
+              console.log(`[FigmaSync] Updated "${kebab}" (${sizeKey}): gap -> ${tokenVar} (${vNode.itemSpacing}px)`);
+            }
           }
         }
       }
 
       // 2. Check variant colors (background, foreground/text, border)
-      if (styleKey && currentParsed.variantsMap?.[styleKey] && (vNode.isSelected || typeKey === 'default')) {
+      const isCanonicalColorVariant = !sizeKey || sizeKey === 'large';
+      if (styleKey && currentParsed.variantsMap?.[styleKey] && (vNode.isSelected || (isCanonicalColorVariant && typeKey === 'default'))) {
         const variantSpec = currentParsed.variantsMap[styleKey];
         const statePrefix = stateKey === 'hover' ? 'hover-'
           : (stateKey === 'pressed' || stateKey === 'active') ? 'active-'
@@ -437,18 +481,15 @@ function applyCanvasComponentEditsToCode(compNode, semanticsPath) {
         const currentBgHex = rgbObjToHex(currentBgRgb);
         const incomingBgHex = vNode.backgroundColor?.hex;
 
-        if (
-          incomingBgHex &&
-          currentBgHex &&
-          colorsAreDifferent(incomingBgHex, currentBgHex) &&
-          !checkedVariantStates.has(`${styleKey}:${bgPropName}`)
-        ) {
-          const colorTokenVar = hexToTokenVar(incomingBgHex);
-          const propKeyInMap = variantSpec[bgPropName] !== undefined ? bgPropName : 'background-color';
-          if (updateComponentScssMapProperty(scssPath, styleKey, propKeyInMap, colorTokenVar)) {
-            checkedVariantStates.add(`${styleKey}:${bgPropName}`);
-            propUpdates++;
-            console.log(`[FigmaSync] Updated "${kebab}" (${styleKey}/${stateKey}): ${propKeyInMap} -> ${colorTokenVar} (${incomingBgHex})`);
+        if (incomingBgHex && !checkedVariantStates.has(`${styleKey}:${bgPropName}`)) {
+          checkedVariantStates.add(`${styleKey}:${bgPropName}`);
+          if (currentBgHex && colorsAreDifferent(incomingBgHex, currentBgHex)) {
+            const colorTokenVar = hexToTokenVar(incomingBgHex);
+            const propKeyInMap = variantSpec[bgPropName] !== undefined ? bgPropName : 'background-color';
+            if (updateComponentScssMapProperty(scssPath, styleKey, propKeyInMap, colorTokenVar)) {
+              propUpdates++;
+              console.log(`[FigmaSync] Updated "${kebab}" (${styleKey}/${stateKey}): ${propKeyInMap} -> ${colorTokenVar} (${incomingBgHex})`);
+            }
           }
         }
       }
@@ -507,35 +548,51 @@ function applyFigmaLivePayload(payload) {
   }
 
   // 2. Apply Selected Component Direct Edits on Canvas -> Token Variables & Component SCSS
+  codeParser.invalidateTokenCache();
   const processedComponentNames = new Set();
   if (Array.isArray(payload.selectedItems) && payload.selectedItems.length > 0) {
     for (const item of payload.selectedItems) {
-      const edits = applyCanvasComponentEditsToCode(item, semanticsPath);
-      if (edits > 0) {
-        updatedCount += edits;
-        processedComponentNames.add(codeGenerator.toKebabCase(item.parentComponentName || item.name));
+      const edits = applyCanvasComponentEditsToCode(item, semanticsPath, payload.currentPageName);
+      if (edits > 0) updatedCount += edits;
+      const resolvedName = (item.parentComponentName || item.name || '').includes('=')
+        ? (item.pageName || payload.currentPageName || 'button')
+        : (item.parentComponentName || item.name);
+      if (resolvedName) {
+        processedComponentNames.add(codeGenerator.toKebabCase(resolvedName));
       }
     }
   }
 
   // 3. Apply Component Additions, Canvas Property Edits & Deletions
-  if (Array.isArray(payload.components) && payload.components.length > 0) {
+  if (Array.isArray(payload.components)) {
     const syncState = loadSyncState();
     const seenIds = new Set();
+    const seenKebabs = new Set();
+    const protectedKebabs = new Set(['button', 'text-field', 'text-area', 'header', 'card', 'badge', 'chips', 'avatar', 'checkbox', 'radio', 'switch', 'tabs', 'tooltip', 'toast', 'snackbar']);
 
     for (const comp of payload.components) {
       if (!comp || !comp.id || !comp.name) continue;
       seenIds.add(comp.id);
       const kebab = codeGenerator.toKebabCase(comp.name);
+      seenKebabs.add(kebab);
       const compDir = path.join(COMPONENTS_DIR, kebab);
+      const hasAllFourFiles =
+        fs.existsSync(compDir) &&
+        fs.existsSync(path.join(compDir, `${kebab}.tsx`)) &&
+        fs.existsSync(path.join(compDir, `${kebab}.types.ts`)) &&
+        fs.existsSync(path.join(compDir, `${kebab}.scss`)) &&
+        fs.existsSync(path.join(compDir, `${kebab}.dart`));
 
-      if (!fs.existsSync(compDir)) {
+      if (!hasAllFourFiles) {
         suppressWatcherUntil = Date.now() + 3000;
-        console.log(`[FigmaSync] ADDED: Component <${comp.name}> in src/components/${kebab}`);
+        console.log(`[FigmaSync] ADDED: Component <${comp.name}> -> created 4 files in src/components/${kebab} & page in src/app/pages/`);
         codeGenerator.generateComponentFiles(comp);
+        applyCanvasComponentEditsToCode(comp, semanticsPath);
+        touchMainStylesheet();
         syncState.components[comp.id] = {
           id: comp.id,
           name: comp.name,
+          kebab,
           type: comp.type || 'COMPONENT',
           pageName: comp.pageName || 'Canvas',
           generated: true,
@@ -543,7 +600,8 @@ function applyFigmaLivePayload(payload) {
         };
         createdCount++;
       } else {
-        if (!processedComponentNames.has(kebab)) {
+        const isOnActivePage = Boolean(payload.currentPageName && comp.pageName === payload.currentPageName);
+        if (!processedComponentNames.has(kebab) && (comp.isSelected || isOnActivePage)) {
           const edits = applyCanvasComponentEditsToCode(comp, semanticsPath);
           if (edits > 0) updatedCount += edits;
         }
@@ -551,22 +609,32 @@ function applyFigmaLivePayload(payload) {
           syncState.components[comp.id] = {
             id: comp.id,
             name: comp.name,
+            kebab,
             type: comp.type || 'COMPONENT',
             pageName: comp.pageName || 'Canvas',
-            generated: false,
+            generated: true,
             updatedAt: new Date().toISOString()
           };
         }
       }
     }
 
-    // Check for deleted components when a full scan was performed
-    if (payload.reason === 'manual' || payload.reason === 'document-change') {
+    // Check for deleted components when a full scan or canvas lifecycle scan was performed
+    const isLifecycleScan = Boolean(payload.isFullScan);
+
+    if (isLifecycleScan && payload.components.length > 0) {
       for (const [id, prev] of Object.entries(syncState.components)) {
-        if (prev && prev.generated && !seenIds.has(id)) {
+        if (!prev || !prev.name) continue;
+        // If the scan only covered the active page, only delete components that belonged to that page
+        if (payload.currentPageName && prev.pageName && prev.pageName !== 'Canvas' && prev.pageName !== payload.currentPageName) {
+          continue;
+        }
+        const prevKebab = prev.kebab || codeGenerator.toKebabCase(prev.name);
+        if (!seenIds.has(id) && !seenKebabs.has(prevKebab) && !protectedKebabs.has(prevKebab)) {
           suppressWatcherUntil = Date.now() + 3000;
-          console.log(`[FigmaSync] DELETED: Variant <${prev.name}> removed from src/components and UI pages`);
+          console.log(`[FigmaSync] DELETED: Component <${prev.name}> removed from src/components/${prevKebab}, src/components/index.ts, and src/app/pages/`);
           codeGenerator.deleteComponentFiles(prev.name);
+          touchMainStylesheet();
           delete syncState.components[id];
           deletedCount++;
         }
@@ -580,10 +648,11 @@ function applyFigmaLivePayload(payload) {
   // Ensure all documentation pages in src/app/pages/ follow the strict 3-file structure
   appPageGenerator.syncAppComponentPages();
 
-  if (createdCount === 0 && updatedCount === 0 && deletedCount === 0 && tokensUpdated === 0) {
-    console.log(`[FigmaSync] Checked ${payload.components?.length || 0} component(s) & ${payload.variablesCount || 0} variable(s) — all values in sync.`);
-  } else {
+  if (createdCount > 0 || updatedCount > 0 || deletedCount > 0 || tokensUpdated > 0) {
+    touchMainStylesheet();
     console.log(`[FigmaSync] Sync Summary: ${tokensUpdated} token(s) updated, ${updatedCount} component property change(s), ${createdCount} added, ${deletedCount} deleted.`);
+  } else {
+    console.log(`[FigmaSync] Checked ${payload.components?.length || 0} component(s) & ${payload.variablesCount || 0} variable(s) — all values in sync.`);
   }
 
   return { createdCount, updatedCount, deletedCount, tokensUpdated };

@@ -113,30 +113,98 @@ $button-variants: (
   transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 
   &:hover:not(:disabled),
-  &--show-hover:not(:disabled) {
+  &--show-hover:not(:disabled),
+  &--state-hover:not(:disabled) {
     background-color: var(--btn-hover-background);
     border-color: var(--btn-hover-border);
     color: var(--btn-hover-foreground);
   }
 
   &:active:not(:disabled),
-  &--selected:not(:disabled) {
+  &--selected:not(:disabled),
+  &--state-pressed:not(:disabled) {
     background-color: var(--btn-active-background);
     border-color: var(--btn-active-border);
     color: var(--btn-active-foreground);
   }
 
-  &:focus-visible {
+  &:focus-visible,
+  &--state-focus {
     outline: var(--button-focus-border-width) solid var(--button-focus-brand);
     outline-offset: var(--layout-spacing-2xs);
   }
 
   &:disabled,
-  &--disabled {
+  &--disabled,
+  &--state-disabled {
     background-color: var(--btn-disabled-background);
     border-color: var(--btn-disabled-border);
     color: var(--btn-disabled-foreground);
     cursor: not-allowed;
+  }
+
+  &--type-icon {
+    width: var(--button-height);
+    min-width: var(--button-height);
+    padding: var(--global-scale-0);
+  }
+
+  &--type-gradient {
+    background-image: linear-gradient(to right, var(--surface-primary-base), var(--surface-primary-on-light));
+    color: var(--button-primary-foreground-color-static);
+    border-color: var(--surface-root-opacity);
+  }
+
+  &--type-white {
+    &.btn-primary {
+      --btn-background: var(--button-white-primary-background-color-default);
+      --btn-foreground: var(--button-white-primary-foreground-color-default);
+      --btn-border: var(--surface-root-opacity);
+      --btn-hover-background: var(--button-white-primary-background-color-hover);
+      --btn-hover-foreground: var(--button-white-primary-foreground-color-hover);
+      --btn-active-background: var(--button-white-primary-background-color-pressed);
+      --btn-active-foreground: var(--button-white-primary-foreground-color-pressed);
+      --btn-disabled-background: var(--button-white-primary-background-color-disabled);
+      --btn-disabled-foreground: var(--button-white-primary-foreground-color-disabled);
+    }
+
+    &.btn-secondary {
+      --btn-background: var(--button-white-secondary-background-color-default);
+      --btn-foreground: var(--button-white-secondary-foreground-color-default);
+      --btn-border: var(--border-static);
+      --btn-hover-background: var(--button-white-secondary-background-color-hover);
+      --btn-hover-foreground: var(--button-white-secondary-foreground-color-hover);
+      --btn-active-background: var(--button-white-secondary-background-color-pressed);
+      --btn-active-foreground: var(--button-white-secondary-foreground-color-pressed);
+      --btn-disabled-background: var(--button-white-secondary-background-color-disabled);
+      --btn-disabled-foreground: var(--button-white-secondary-foreground-color-disabled);
+    }
+
+    &.btn-tertiary {
+      --btn-background: var(--button-white-tertiary-background-color-default);
+      --btn-foreground: var(--button-white-tertiary-foreground-color-default);
+      --btn-border: var(--surface-root-opacity);
+      --btn-hover-background: var(--button-white-tertiary-background-color-hover);
+      --btn-hover-foreground: var(--button-white-tertiary-foreground-color-hover);
+      --btn-active-background: var(--button-white-tertiary-background-color-pressed);
+      --btn-active-foreground: var(--button-white-tertiary-foreground-color-pressed);
+      --btn-disabled-background: var(--button-white-tertiary-background-color-disabled);
+      --btn-disabled-foreground: var(--button-white-tertiary-foreground-color-disabled);
+    }
+
+    &.btn-link {
+      --btn-background: var(--surface-root-opacity);
+      --btn-foreground: var(--button-white-link-foreground-color-default);
+      --btn-border: var(--surface-root-opacity);
+      --btn-hover-foreground: var(--button-white-link-foreground-color-hover);
+      --btn-active-foreground: var(--button-white-link-foreground-color-pressed);
+      --btn-disabled-foreground: var(--button-white-link-foreground-color-disabled);
+    }
+
+    &:focus-visible,
+    &.btn--state-focus {
+      outline-color: var(--button-focus-white);
+    }
   }
 
   &--full-width {

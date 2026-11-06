@@ -5,12 +5,12 @@ $toggleSize-sizes: (
   small: (
     font-size: var(--font-size-paragraph-xs),
     line-height: var(--global-scale-200),
-    padding: var(--global-scale-50) var(--global-scale-100),
+    padding: var(--global-scale-75) var(--global-scale-100),
   ),
   medium: (
     font-size: var(--font-size-paragraph-sm),
     line-height: var(--global-scale-250),
-    padding: var(--global-scale-25) var(--global-scale-25),
+    padding: var(--global-scale-75) var(--global-scale-25),
   ),
   large: (
     font-size: var(--font-size-paragraph-md),

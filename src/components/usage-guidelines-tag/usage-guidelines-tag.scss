@@ -2,32 +2,27 @@
 
 // Size tokens
 $usageGuidelinesTag-sizes: (
-  small: (
-    font-size: var(--font-size-paragraph-xs),
+  small: (font-size: var(--font-size-paragraph-xs),
     line-height: var(--global-scale-200),
     padding: var(--global-scale-87) var(--global-scale-137),
   ),
-  medium: (
-    font-size: var(--font-size-paragraph-sm),
+  medium: (font-size: var(--font-size-paragraph-sm),
     line-height: var(--global-scale-250),
     padding: var(--global-scale-125) var(--global-scale-200),
   ),
-  large: (
-    font-size: var(--font-size-paragraph-md),
+  large: (font-size: var(--font-size-paragraph-md),
     line-height: var(--global-scale-300),
-    padding: var(--global-scale-162) var(--global-scale-262),
+    padding: var(--layout-spacing-lg) var(--global-scale-262),
   ),
 );
 
 // Variant tokens
 $usageGuidelinesTag-variants: (
-  primary: (
-    background-color: var(--color-interactive-primary),
+  primary: (background-color: var(--color-interactive-primary),
     color: var(--control-icon-color-default),
     border-color: transparent,
   ),
-  secondary: (
-    background-color: transparent,
+  secondary: (background-color: transparent,
     color: var(--color-interactive-primary),
     border-color: var(--color-border-subtle),
   ),
@@ -60,4 +55,5 @@ $usageGuidelinesTag-variants: (
 
   to {
     transform: rotate(360deg);
-  } }
+  }
+}

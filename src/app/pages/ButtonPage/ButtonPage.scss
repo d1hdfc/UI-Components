@@ -501,3 +501,248 @@
     padding: 10px;
   }
 }
+
+.playground-preview--on-dark {
+  background-color: var(--surface-primary-on-light);
+  background-image: radial-gradient(var(--surface-opacity-lighter) 0.7px, transparent 0.7px);
+}
+
+.docs-heading-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.docs-token-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.token-pill {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 118px;
+  padding: 10px 14px;
+  border: 1px solid #dfe1e6;
+  border-radius: 8px;
+  background: #fafbfc;
+
+  span {
+    font-size: 11px;
+    font-weight: 600;
+    color: #626f86;
+  }
+
+  strong {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #172b4d;
+    font-family: 'SFMono-Regular', Consolas, monospace;
+  }
+
+  .color-dot {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    border: 1px solid rgba(9, 30, 66, 0.16);
+  }
+}
+
+.playground-text-input {
+  min-width: 130px;
+  height: 36px;
+  border: 1px solid #8590a2;
+  border-radius: 4px;
+  padding: 0 10px;
+  background: #fff;
+  color: #172b4d;
+  font: inherit;
+}
+
+.playground-toggles {
+  display: flex;
+  align-items: flex-end;
+  gap: 14px;
+  padding-bottom: 6px;
+}
+
+.playground-checkbox {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 6px !important;
+  cursor: pointer;
+  user-select: none;
+
+  input {
+    width: 15px;
+    height: 15px;
+    margin: 0;
+  }
+}
+
+.playground-output--three-col {
+  grid-template-columns: minmax(280px, 1.1fr) minmax(260px, 1fr) minmax(300px, 1.15fr);
+}
+
+.playground-preview-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.playground-dimension-badge {
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  padding: 5px 10px;
+  border-radius: 6px;
+  background: rgba(9, 30, 66, 0.06);
+  color: #44546f;
+  font-family: 'SFMono-Regular', Consolas, monospace;
+  font-size: 11px;
+
+  span {
+    padding: 1px 6px;
+    border-radius: 4px;
+    background: #fff;
+    border: 1px solid #dfe1e6;
+  }
+}
+
+.playground-code {
+  flex-direction: column;
+  align-items: stretch;
+  border-right: 1px solid #dfe1e6;
+
+  &:last-child {
+    border-right: 0;
+  }
+
+  pre {
+    padding: 14px 16px;
+  }
+}
+
+.playground-code--css {
+  background: #f8f9fb;
+}
+
+.playground-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 14px;
+  border-bottom: 1px solid #ebecf0;
+  background: #fafbfc;
+  font-size: 11px;
+  font-weight: 600;
+  color: #44546f;
+
+  button {
+    position: static !important;
+    padding: 3px 8px !important;
+  }
+}
+
+.figma-matrix-card {
+  display: grid;
+  gap: 20px;
+}
+
+.figma-matrix-group {
+  border: 1px solid #dfe1e6;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.figma-matrix-group-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid #ebecf0;
+  background: #fafbfc;
+
+  h3 {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #172b4d;
+  }
+
+  code {
+    font-size: 11px;
+    color: #0c66e4;
+    background: #e9f2ff;
+    padding: 3px 8px;
+    border-radius: 4px;
+  }
+}
+
+.figma-matrix-table-scroll {
+  overflow-x: auto;
+}
+
+.figma-matrix-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  th,
+  td {
+    padding: 14px 16px;
+    border-bottom: 1px solid #f1f2f4;
+    text-align: center;
+    vertical-align: middle;
+  }
+
+  th {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #626f86;
+    background: #fff;
+  }
+
+  th:first-child,
+  .figma-matrix-state-label {
+    text-align: left;
+    font-size: 12px;
+    font-weight: 600;
+    color: #44546f;
+    width: 110px;
+    background: #fafbfc;
+    border-right: 1px solid #f1f2f4;
+  }
+}
+
+.figma-matrix-cell {
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+
+  &:hover {
+    background-color: #f4f5f7;
+  }
+}
+
+@media (max-width: 1024px) {
+  .playground-output--three-col {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .playground-code {
+    border-right: 0;
+    border-bottom: 1px solid #dfe1e6;
+  }
+}

@@ -19,6 +19,7 @@ const IGNORED_PAGES = new Set([
 let isApplyingCodeUpdate = false;
 let lastVariablesHash = '';
 let lastSelectionHash = '';
+let lastPageComponentsHash = '';
 let allPagesLoaded = false;
 
 // ── Logging & Naming Helpers ────────────────────────────────
@@ -397,7 +398,14 @@ async function exportFullFigmaState(reason = 'manual') {
     }
   };
 
-  if (reason === 'manual' || reason === 'document-change') {
+  const isFullScan = (
+    reason === 'manual' ||
+    reason === 'auto-connect' ||
+    reason === 'document-change' ||
+    reason === 'canvas-add-or-delete'
+  );
+
+  if (isFullScan) {
     await ensureAllPagesLoaded();
     for (const page of figma.root.children) {
       collectFromPage(page);
@@ -410,6 +418,7 @@ async function exportFullFigmaState(reason = 'manual') {
     type: 'FIGMA_LIVE_SYNC_PAYLOAD',
     payload: {
       reason,
+      isFullScan,
       fileName: figma.root.name,
       currentPageName: figma.currentPage.name,
       tokenMap,
@@ -845,11 +854,11 @@ async function initRealtimeWatchers() {
       );
       if (!relevant) return;
 
-      if (docChangeTimer) clearTimeout(docChangeTimer);
+      if ( docChangeTimer ) clearTimeout(docChangeTimer);
       docChangeTimer = setTimeout(() => {
         docChangeTimer = null;
         exportFullFigmaState('document-change');
-      }, 1500);
+      }, 800);
     });
     log('Real-time Figma canvas watcher active');
   } catch (e) {
@@ -865,15 +874,50 @@ async function initRealtimeWatchers() {
         lastVariablesHash = currentHash;
         log('🔄 Detected Figma Variables change — auto-syncing to VS Code...');
         await exportFullFigmaState('variables-change');
+        return;
       } else if (!lastVariablesHash) {
         lastVariablesHash = currentHash;
+      }
+
+      // Snapshot all components on current page to detect hands-free ADD / EDIT / DELETE
+      const pageComps = [];
+      const visitPage = (n) => {
+        if (!n || n.type === 'INSTANCE') return;
+        if ((n.type === 'COMPONENT_SET' || n.type === 'COMPONENT') && n.name) {
+          const clean = n.name.trim();
+          if (!clean.startsWith('@') && !clean.startsWith('_') && !clean.startsWith('rowAlpha') && clean !== 'Component') {
+            const sample = (n.type === 'COMPONENT_SET' && Array.isArray(n.children) && n.children[0]) ? n.children[0] : n;
+            const txt = findAllTextChildren(sample)[0];
+            const fill = ('fills' in sample) ? extractFirstSolidColor(sample.fills)?.hex : '';
+            pageComps.push(`${n.id}:${clean}:${Math.round(sample.width || 0)}x${Math.round(sample.height || 0)}:p${'paddingLeft' in sample ? Math.round(sample.paddingLeft) : ''}:r${'cornerRadius' in sample ? String(sample.cornerRadius) : ''}:fs${txt ? String(txt.fontSize) : ''}:bg${fill}`);
+            return;
+          }
+        }
+        if ('children' in n && Array.isArray(n.children)) {
+          for (const c of n.children) visitPage(c);
+        }
+      };
+      if (!IGNORED_PAGES.has(figma.currentPage.name) && 'children' in figma.currentPage) {
+        for (const child of figma.currentPage.children) visitPage(child);
+      }
+      const pageCompSnap = `${figma.currentPage.id}::${pageComps.join('|')}`;
+      if (lastPageComponentsHash && pageCompSnap !== lastPageComponentsHash) {
+        const prevPageId = lastPageComponentsHash.split('::')[0];
+        lastPageComponentsHash = pageCompSnap;
+        if (prevPageId === figma.currentPage.id) {
+          log('🔄 Detected canvas component lifecycle change (ADD / EDIT / DELETE) — auto-syncing to VS Code...');
+          await exportFullFigmaState('canvas-add-or-delete');
+          return;
+        }
+      } else {
+        lastPageComponentsHash = pageCompSnap;
       }
 
       if (figma.currentPage.selection.length > 0) {
         const selSnap = figma.currentPage.selection.map(n => {
           const txt = findAllTextChildren(n)[0];
           const fill = ('fills' in n) ? extractFirstSolidColor(n.fills)?.hex : '';
-          return `${n.id}:${Math.round(n.width)}x${Math.round(n.height)}:r${'cornerRadius' in n ? String(n.cornerRadius) : ''}:fs${txt ? String(txt.fontSize) : ''}:bg${fill}`;
+          return `${n.id}:${Math.round(n.width)}x${Math.round(n.height)}:p${'paddingLeft' in n ? Math.round(n.paddingLeft) : ''}:r${'cornerRadius' in n ? String(n.cornerRadius) : ''}:fs${txt ? String(txt.fontSize) : ''}:bg${fill}`;
         }).join('|');
         if (lastSelectionHash && selSnap !== lastSelectionHash) {
           lastSelectionHash = selSnap;
@@ -886,7 +930,7 @@ async function initRealtimeWatchers() {
     } catch {
       // Ignore transient errors
     }
-  }, 3000);
+  }, 2000);
 }
 
 initRealtimeWatchers();

@@ -5,7 +5,7 @@ $checkboxSize-sizes: (
   small: (
     font-size: var(--font-size-paragraph-xs),
     line-height: var(--global-scale-200),
-    padding: var(--global-scale-50) var(--global-scale-100),
+    padding: var(--global-scale-75) var(--global-scale-100),
   ),
   medium: (
     font-size: var(--font-size-paragraph-sm),
@@ -15,7 +15,7 @@ $checkboxSize-sizes: (
   large: (
     font-size: var(--font-size-paragraph-md),
     line-height: var(--global-scale-300),
-    padding: var(--global-scale-62) var(--global-scale-62),
+    padding: var(--global-scale-75) var(--global-scale-62),
   ),
 );
 

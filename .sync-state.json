@@ -1060,7 +1060,15 @@
       "type": "COMPONENT",
       "pageName": "Components",
       "updatedAt": "2026-11-02T09:45:06.924Z"
+    },
+    "6066:1292": {
+      "id": "6066:1292",
+      "name": "Button",
+      "type": "COMPONENT_SET",
+      "pageName": "copy button",
+      "generated": false,
+      "updatedAt": "2026-11-06T08:59:56.138Z"
     }
   },
-  "lastSync": "2026-11-03T11:30:36.369Z"
+  "lastSync": "2026-11-06T10:20:51.395Z"
 }

@@ -3,12 +3,12 @@
 // Size tokens
 $inputField-sizes: (
   small: (
-    font-size: var(--font-size-paragraph-xs),
+    font-size: var(--font-size-paragraph-md),
     line-height: var(--global-scale-200),
     padding: var(--global-scale-87) var(--global-scale-137),
   ),
   medium: (
-    font-size: var(--font-size-paragraph-sm),
+    font-size: var(--font-size-paragraph-md),
     line-height: var(--global-scale-250),
     padding: var(--global-scale-125) var(--global-scale-200),
   ),

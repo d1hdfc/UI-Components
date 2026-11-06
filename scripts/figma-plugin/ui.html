@@ -144,8 +144,14 @@
         socket.onopen = () => {
           statusBadge.className = 'badge badge-connected';
           statusBadge.textContent = 'Live Connected';
-          log('Connected to sync server!');
+          log('Connected to sync server! Auto-sync lifecycle active.');
           socket.send(JSON.stringify({ type: 'join', channel: 'figma-sync' }));
+          parent.postMessage({
+            pluginMessage: {
+              type: 'REQUEST_FULL_FIGMA_EXPORT',
+              reason: 'auto-connect'
+            }
+          }, '*');
         };
 
         socket.onmessage = (event) => {

@@ -506,8 +506,8 @@ function updateCollectionMap(
     try {
       const nextVal = getTokenLiteral(variable, collection, idToNameMap, variableById, currentCollections);
       const prevVal = previousValues.get(name);
-      // Preserve existing var(--...) token references over raw px/hex values
-      if (prevVal && prevVal.startsWith('var(--') && !nextVal.startsWith('var(--')) {
+      // Preserve existing var(--...) token references in local SCSS files (updated live via WebSocket bridge)
+      if (prevVal && prevVal.startsWith('var(--')) {
         entries.set(name, prevVal);
       } else {
         entries.set(name, nextVal);

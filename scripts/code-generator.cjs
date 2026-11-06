@@ -97,7 +97,16 @@ function parseVariantsAndProps(node) {
   const paddingTop = sample.paddingTop ?? 10;
   const paddingBottom = sample.paddingBottom ?? 10;
   const cornerRadius = sample.cornerRadius ?? 8;
+  const height = sample.height ?? node.height ?? null;
+  const gap = sample.itemSpacing ?? node.itemSpacing ?? null;
+  const fontSize = sample.fontSize ?? node.fontSize ?? null;
+  const backgroundColor = sample.backgroundColor?.hex ?? node.backgroundColor?.hex ?? null;
+  const textColor = sample.textColor?.hex ?? node.textColor?.hex ?? null;
+  const borderColor = sample.borderColor?.hex ?? node.borderColor?.hex ?? null;
   const layoutMode = sample.layoutMode === 'VERTICAL' ? 'column' : 'row';
+  if (node.textContent && defaultLabel === 'Component') {
+    defaultLabel = String(node.textContent);
+  }
 
   return {
     variants: Array.from(variants),
@@ -110,6 +119,12 @@ function parseVariantsAndProps(node) {
       bottom: paddingBottom
     },
     cornerRadius,
+    height,
+    gap,
+    fontSize,
+    backgroundColor,
+    textColor,
+    borderColor,
     layoutMode
   };
 }
@@ -118,6 +133,10 @@ function parseVariantsAndProps(node) {
  * Generate React Types (<component-name>.types.ts)
  */
 function generateReactTypes(pascalName, kebabName, meta) {
+  const isButton = kebabName.includes('button') || pascalName.toLowerCase().includes('button');
+  const htmlAttrType = isButton
+    ? 'React.ButtonHTMLAttributes<HTMLButtonElement>'
+    : 'React.HTMLAttributes<HTMLDivElement>';
   const variantType = meta.variants.map(v => `'${v}'`).join(' | ') || "'primary' | 'secondary'";
   const sizeType = meta.sizes.map(s => `'${s}'`).join(' | ') || "'small' | 'medium' | 'large'";
 
@@ -127,7 +146,7 @@ import type React from 'react';
 export type ${pascalName}Variant = ${variantType};
 export type ${pascalName}Size = ${sizeType};
 
-export interface ${pascalName}Props extends React.HTMLAttributes<HTMLDivElement> {
+export interface ${pascalName}Props extends ${htmlAttrType} {
   children?: React.ReactNode;
   variant?: ${pascalName}Variant;
   size?: ${pascalName}Size;
@@ -487,7 +506,15 @@ function enforceFourFileStructure(componentDir, kebabName) {
     `${kebabName}.types.ts`
   ]);
   for (const file of fs.readdirSync(componentDir)) {
-    if (!allowed.has(file)) {
+    const lowerFile = file.toLowerCase();
+    if (allowed.has(lowerFile) && file !== lowerFile) {
+      // Force rename on case-insensitive file systems (Windows) via temporary name
+      const srcPath = path.join(componentDir, file);
+      const tmpPath = path.join(componentDir, `${lowerFile}.__case_tmp__`);
+      const dstPath = path.join(componentDir, lowerFile);
+      fs.renameSync(srcPath, tmpPath);
+      fs.renameSync(tmpPath, dstPath);
+    } else if (!allowed.has(file)) {
       fs.rmSync(path.join(componentDir, file), { recursive: true, force: true });
     }
   }
@@ -500,8 +527,10 @@ function ensureExportInIndex(pascalName, folder) {
   if (!fs.existsSync(INDEX_FILE)) return;
   let content = fs.readFileSync(INDEX_FILE, 'utf8');
 
-  const exportLine = `export { ${pascalName} } from './${folder}/${folder}'`;
-  if (!content.includes(exportLine)) {
+  const alreadyHasFolder = content.includes(`./${folder}/${folder}`);
+  const alreadyHasSymbol = new RegExp(`\\b${pascalName}\\b`).test(content);
+  if (!alreadyHasFolder && !alreadyHasSymbol) {
+    const exportLine = `export { ${pascalName} } from './${folder}/${folder}'`;
     content += `\n${exportLine}\nexport type { ${pascalName}Props } from './${folder}/${folder}.types'\n`;
     fs.writeFileSync(INDEX_FILE, content, 'utf8');
     console.log(`[CodeGenerator] Added export for ${pascalName} to src/components/index.ts`);
@@ -524,6 +553,19 @@ function removeExportFromIndex(pascalName, folder) {
 }
 
 /**
+ * Remove @use './<folder>/<folder>'; from src/components/library.scss if present
+ */
+function removeFromLibraryScss(folder) {
+  const libScss = path.join(COMPONENTS_DIR, 'library.scss');
+  if (!fs.existsSync(libScss)) return;
+  const content = fs.readFileSync(libScss, 'utf8');
+  const lines = content.split('\n').filter(line => !line.includes(`./${folder}/${folder}`));
+  if (lines.length !== content.split('\n').length) {
+    fs.writeFileSync(libScss, lines.join('\n'), 'utf8');
+  }
+}
+
+/**
  * Main entry: Generate strictly the 4 files (<kebab>.dart, <kebab>.scss, <kebab>.tsx, <kebab>.types.ts)
  */
 function generateComponentFiles(figmaNode, options = {}) {
@@ -543,10 +585,14 @@ function generateComponentFiles(figmaNode, options = {}) {
 
   if (!options.preserveExistingReact || !fs.existsSync(tsxPath)) {
     fs.writeFileSync(tsxPath, generateReactComponent(pascalName, kebabName, meta), 'utf8');
-    fs.writeFileSync(typesPath, generateReactTypes(pascalName, kebabName, meta), 'utf8');
-    fs.writeFileSync(scssPath, generateScss(pascalName, kebabName, meta), 'utf8');
-    ensureExportInIndex(pascalName, kebabName);
   }
+  if (!options.preserveExistingReact || !fs.existsSync(typesPath)) {
+    fs.writeFileSync(typesPath, generateReactTypes(pascalName, kebabName, meta), 'utf8');
+  }
+  if (!options.preserveExistingReact || !fs.existsSync(scssPath)) {
+    fs.writeFileSync(scssPath, generateScss(pascalName, kebabName, meta), 'utf8');
+  }
+  ensureExportInIndex(pascalName, kebabName);
 
   fs.writeFileSync(flutterPath, generateFlutterWidget(pascalName, kebabName, meta), 'utf8');
 
@@ -579,6 +625,7 @@ function deleteComponentFiles(rawName) {
     fs.rmSync(componentDir, { recursive: true, force: true });
     console.log(`[CodeGenerator] Deleted component folder: ${componentDir}`);
     removeExportFromIndex(pascalName, kebabName);
+    removeFromLibraryScss(kebabName);
     appPageGenerator.syncAppComponentPages();
     return true;
   }
@@ -595,13 +642,28 @@ function generateForExistingComponents() {
   const entries = fs.readdirSync(COMPONENTS_DIR, { withFileTypes: true });
   for (const entry of entries) {
     if (!entry.isDirectory() || entry.name === 'assets') continue;
+    const rawDirPath = path.join(COMPONENTS_DIR, entry.name);
     const folder = toKebabCase(entry.name);
     const folderPath = path.join(COMPONENTS_DIR, folder);
-    if (!fs.existsSync(folderPath)) continue;
 
-    const files = fs.readdirSync(folderPath);
-    const tsxFile = files.find(f => f.endsWith('.tsx') && !f.endsWith('.test.tsx'));
-    if (!tsxFile) continue;
+    if (entry.name !== folder) {
+      fs.mkdirSync(folderPath, { recursive: true });
+      const rawFiles = fs.readdirSync(rawDirPath);
+      for (const rf of rawFiles) {
+        const ext = rf.endsWith('.types.ts')
+          ? '.types.ts'
+          : path.extname(rf);
+        if (['.tsx', '.types.ts', '.scss', '.dart'].includes(ext)) {
+          const destFile = path.join(folderPath, `${folder}${ext}`);
+          if (!fs.existsSync(destFile)) {
+            fs.copyFileSync(path.join(rawDirPath, rf), destFile);
+          }
+        }
+      }
+      fs.rmSync(rawDirPath, { recursive: true, force: true });
+    }
+
+    if (!fs.existsSync(folderPath)) continue;
 
     const pascalName = toPascalCase(folder);
     const mockMeta = {
@@ -613,10 +675,24 @@ function generateForExistingComponents() {
       layoutMode: 'row'
     };
 
+    const tsxPath = path.join(folderPath, `${folder}.tsx`);
+    const typesPath = path.join(folderPath, `${folder}.types.ts`);
+    const scssPath = path.join(folderPath, `${folder}.scss`);
     const flutterPath = path.join(folderPath, `${folder}.dart`);
+
+    if (!fs.existsSync(tsxPath)) {
+      fs.writeFileSync(tsxPath, generateReactComponent(pascalName, folder, mockMeta), 'utf8');
+    }
+    if (!fs.existsSync(typesPath)) {
+      fs.writeFileSync(typesPath, generateReactTypes(pascalName, folder, mockMeta), 'utf8');
+    }
+    if (!fs.existsSync(scssPath)) {
+      fs.writeFileSync(scssPath, generateScss(pascalName, folder, mockMeta), 'utf8');
+    }
     if (!fs.existsSync(flutterPath)) {
       fs.writeFileSync(flutterPath, generateFlutterWidget(pascalName, folder, mockMeta), 'utf8');
     }
+    ensureExportInIndex(pascalName, folder);
     enforceFourFileStructure(folderPath, folder);
   }
 

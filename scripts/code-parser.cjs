@@ -51,7 +51,7 @@ function loadTokenValues(forceReload = false) {
     const mapPrefix = file === 'layout.scss' ? 'layout-' : '';
 
     // Token maps use quoted keys, for example: "button-size-medium-height": var(--global-scale-1000),
-    const mapEntry = /["']([a-zA-Z0-9_-]+)["']\s*:\s*([^,\n)]+(?:\([^)]*\))?)/g;
+    const mapEntry = /["']([a-zA-Z0-9_-]+)["']\s*:\s*((?:var\([^)]*\)|rgba?\([^)]*\)|[^,\r\n()])+)/g;
     let match;
     while ((match = mapEntry.exec(source)) !== null) {
       const val = match[2].trim();
@@ -238,7 +238,7 @@ function parseSassMap(scss, mapName) {
     const body = mapMatch[1].slice(bodyStart, index - 1);
     entryRe.lastIndex = index;
     result[key] = {};
-    const propRe = /([\w-]+)\s*:\s*([^,\n]+(?:\([^\n]*?\))?)/g;
+    const propRe = /([\w-]+)\s*:\s*((?:var\([^)]*\)|rgba?\([^)]*\)|[^,\r\n()])+)/g;
     let prop;
     while ((prop = propRe.exec(body)) !== null) {
       const propName = prop[1].trim();

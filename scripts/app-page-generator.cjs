@@ -100,7 +100,7 @@ function cleanInvalidDigitPrefixedComponents() {
 
 function normalizeCustomPageDirs() {
   if (!fs.existsSync(PAGES_DIR)) return;
-  for (const dirName of ['ButtonPage', 'TextAreaPage', 'TextFieldPage', 'HeaderPage', 'SidebarPage', 'FigmaComponentsPage']) {
+  for (const dirName of ['ButtonPage', 'TextAreaPage', 'TextFieldPage', 'HeaderPage', 'SidebarPage', 'FigmaComponentsPage', 'ComponentPage']) {
     const dirPath = path.join(PAGES_DIR, dirName);
     if (!fs.existsSync(dirPath)) continue;
 
@@ -116,6 +116,16 @@ function normalizeCustomPageDirs() {
   }
 }
 
+function touchHmrEntryPoints() {
+  const now = new Date();
+  const registryPath = path.join(PAGES_DIR, 'ComponentPage', 'componentRegistry.tsx');
+  const appPath = path.join(process.cwd(), 'src', 'app', 'App.tsx');
+  const mainScss = path.join(process.cwd(), 'src', 'app', 'main.scss');
+  try { if (fs.existsSync(registryPath)) fs.utimesSync(registryPath, now, now); } catch {}
+  try { if (fs.existsSync(appPath)) fs.utimesSync(appPath, now, now); } catch {}
+  try { if (fs.existsSync(mainScss)) fs.utimesSync(mainScss, now, now); } catch {}
+}
+
 function syncAppComponentPages() {
   if (!fs.existsSync(COMPONENTS_DIR)) return;
 
@@ -123,7 +133,9 @@ function syncAppComponentPages() {
   normalizeCustomPageDirs();
 
   const validPageDirs = new Set(PROTECTED_PAGE_DIRS);
+  const seenLowerPageDirs = new Set(Array.from(PROTECTED_PAGE_DIRS).map((d) => d.toLowerCase()));
   const entries = fs.readdirSync(COMPONENTS_DIR, { withFileTypes: true });
+  let pagesChanged = 0;
 
   for (const entry of entries) {
     if (!entry.isDirectory() || entry.name === 'assets' || CUSTOM_PAGE_SLUGS.has(entry.name)) continue;
@@ -133,11 +145,17 @@ function syncAppComponentPages() {
       .some((file) => file.endsWith('.tsx') && !file.endsWith('.test.tsx'));
     if (!hasReactComponent) continue;
 
-    const pageName = toPageName(entry.name);
+    let pageName = toPageName(entry.name);
     if (!pageName) continue;
 
-    const fullPageName = `${pageName}Page`;
+    let fullPageName = `${pageName}Page`;
+    if (seenLowerPageDirs.has(fullPageName.toLowerCase())) {
+      pageName = `${pageName}Base`;
+      fullPageName = `${pageName}Page`;
+    }
+    seenLowerPageDirs.add(fullPageName.toLowerCase());
     const pageDir = path.join(PAGES_DIR, fullPageName);
+    const isNewPage = !fs.existsSync(pageDir);
     validPageDirs.add(fullPageName);
 
     fs.mkdirSync(pageDir, { recursive: true });
@@ -153,9 +171,15 @@ function syncAppComponentPages() {
       }
     }
 
-    writeFileIfChanged(tsxPath, getPageTsxSource(entry.name, pageName));
-    writeFileIfChanged(tsPath, getPageTsSource(pageName));
-    writeFileIfChanged(scssPath, getPageScssSource(entry.name));
+    const c1 = writeFileIfChanged(tsxPath, getPageTsxSource(entry.name, pageName));
+    const c2 = writeFileIfChanged(tsPath, getPageTsSource(pageName));
+    const c3 = writeFileIfChanged(scssPath, getPageScssSource(entry.name));
+    if (isNewPage || c1 || c2 || c3) {
+      pagesChanged++;
+      if (isNewPage) {
+        console.log(`[PageGenerator] CREATED: src/app/pages/${fullPageName} (${fullPageName}.tsx, .ts, .scss)`);
+      }
+    }
   }
 
   if (!fs.existsSync(PAGES_DIR)) return;
@@ -165,7 +189,13 @@ function syncAppComponentPages() {
     if (!entry.isDirectory()) continue;
     if (!validPageDirs.has(entry.name)) {
       fs.rmSync(path.join(PAGES_DIR, entry.name), { recursive: true, force: true });
+      pagesChanged++;
+      console.log(`[PageGenerator] DELETED: Removed page src/app/pages/${entry.name}`);
     }
+  }
+
+  if (pagesChanged > 0) {
+    touchHmrEntryPoints();
   }
 }
 
@@ -173,4 +203,4 @@ if (require.main === module) {
   syncAppComponentPages();
 }
 
-module.exports = { syncAppComponentPages, toPageName };
+module.exports = { syncAppComponentPages, toPageName, touchHmrEntryPoints };
