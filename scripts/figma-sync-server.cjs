@@ -14,6 +14,9 @@ const appPageGenerator = require('./app-page-generator.cjs');
 const PORT = Number(process.env.PORT || 3055);
 const HOST = process.env.HOST || '0.0.0.0';
 const POLL_INTERVAL_MS = Number(process.env.SYNC_POLL_INTERVAL_MS || 30_000);
+// When "false", Figma edits on existing components only refresh <component>.md docs and
+// never rewrite component code (.scss / .tsx / .types.ts / .dart). New components are still scaffolded.
+const SYNC_CODE_UPDATES = String(process.env.SYNC_CODE_UPDATES ?? 'true').toLowerCase() !== 'false';
 const COMPONENTS_DIR = path.join(process.cwd(), 'src', 'components');
 const PAGES_DIR = path.join(process.cwd(), 'src', 'app', 'pages');
 const TOKENS_VARIABLES_DIR = path.join(process.cwd(), 'src', 'tokens', 'variables');
@@ -552,7 +555,7 @@ function applyFigmaLivePayload(payload) {
   const processedComponentNames = new Set();
   if (Array.isArray(payload.selectedItems) && payload.selectedItems.length > 0) {
     for (const item of payload.selectedItems) {
-      const edits = applyCanvasComponentEditsToCode(item, semanticsPath, payload.currentPageName);
+      const edits = SYNC_CODE_UPDATES ? applyCanvasComponentEditsToCode(item, semanticsPath, payload.currentPageName) : 0;
       if (edits > 0) updatedCount += edits;
       const resolvedName = (item.parentComponentName || item.name || '').includes('=')
         ? (item.pageName || payload.currentPageName || 'button')
@@ -601,7 +604,7 @@ function applyFigmaLivePayload(payload) {
         createdCount++;
       } else {
         const isOnActivePage = Boolean(payload.currentPageName && comp.pageName === payload.currentPageName);
-        if (!processedComponentNames.has(kebab) && (comp.isSelected || isOnActivePage)) {
+        if (SYNC_CODE_UPDATES && !processedComponentNames.has(kebab) && (comp.isSelected || isOnActivePage)) {
           const edits = applyCanvasComponentEditsToCode(comp, semanticsPath);
           if (edits > 0) updatedCount += edits;
         }
@@ -645,17 +648,51 @@ function applyFigmaLivePayload(payload) {
     saveSyncState(syncState);
   }
 
+  // 4. Create / update <component-name>.md docs from exact Figma properties (docs only, no code changes)
+  const docsUpdated = syncComponentDocs(payload);
+
   // Ensure all documentation pages in src/app/pages/ follow the strict 3-file structure
   appPageGenerator.syncAppComponentPages();
 
-  if (createdCount > 0 || updatedCount > 0 || deletedCount > 0 || tokensUpdated > 0) {
+  if (createdCount > 0 || updatedCount > 0 || deletedCount > 0 || tokensUpdated > 0 || docsUpdated > 0) {
     touchMainStylesheet();
-    console.log(`[FigmaSync] Sync Summary: ${tokensUpdated} token(s) updated, ${updatedCount} component property change(s), ${createdCount} added, ${deletedCount} deleted.`);
+    console.log(`[FigmaSync] Sync Summary: ${tokensUpdated} token(s) updated, ${updatedCount} component property change(s), ${createdCount} added, ${deletedCount} deleted, ${docsUpdated} doc(s) written.`);
   } else {
     console.log(`[FigmaSync] Checked ${payload.components?.length || 0} component(s) & ${payload.variablesCount || 0} variable(s) — all values in sync.`);
   }
 
-  return { createdCount, updatedCount, deletedCount, tokensUpdated };
+  return { createdCount, updatedCount, deletedCount, tokensUpdated, docsUpdated };
+}
+
+/**
+ * Write src/components/<kebab>/<kebab>.md for every component in the payload.
+ * Selected COMPONENT_SET / COMPONENT nodes take precedence over the page scan copy.
+ * Writes only when Figma-derived content changed; never modifies component code files.
+ */
+function syncComponentDocs(payload) {
+  const byKebab = new Map();
+  const collect = (node) => {
+    if (!node || !node.name || String(node.name).includes('=')) return;
+    if (node.type && node.type !== 'COMPONENT' && node.type !== 'COMPONENT_SET') return;
+    byKebab.set(codeGenerator.toKebabCase(node.name), node);
+  };
+  if (Array.isArray(payload.components)) payload.components.forEach(collect);
+  if (Array.isArray(payload.selectedItems)) payload.selectedItems.forEach(collect);
+
+  let written = 0;
+  for (const [kebab, node] of byKebab) {
+    suppressWatcherUntil = Math.max(suppressWatcherUntil, Date.now() + 1500);
+    const { result, changes } = codeGenerator.writeComponentDocs(node);
+    if (changes.length > 0) {
+      console.log(`[DocsSync] FIGMA DIFF <${node.name}>: ${changes.length} change(s)`);
+      for (const change of changes) console.log(`           • ${change.replace(/`/g, '')}`);
+    }
+    if (result) {
+      written++;
+      console.log(`[DocsSync] ${result.toUpperCase()}: src/components/${kebab}/${kebab}.md (${changes.length > 0 ? `${changes.length} change(s) logged` : 'Nothing changed'})`);
+    }
+  }
+  return written;
 }
 
 // ==========================================
@@ -873,7 +910,7 @@ function setupCodeWatcher() {
     if (Date.now() < suppressWatcherUntil) return;
     if (!filename) return;
 
-    if (filename.includes('.git') || filename.includes('node_modules') || filename.endsWith('.tmp') || filename.endsWith('.__tmp__')) {
+    if (filename.includes('.git') || filename.includes('node_modules') || filename.endsWith('.tmp') || filename.endsWith('.__tmp__') || filename.endsWith('.md')) {
       return;
     }
 

@@ -3,6 +3,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const appPageGenerator = require('./app-page-generator.cjs');
+const docsGenerator = require('./docs-generator.cjs');
 
 const COMPONENTS_DIR = path.join(process.cwd(), 'src', 'components');
 const INDEX_FILE = path.join(COMPONENTS_DIR, 'index.ts');
@@ -495,7 +496,8 @@ class ${widgetClass} extends StatelessWidget {
 
 /**
  * Clean up any extra/non-standard files inside a component directory so only
- * the 4 canonical files (<kebab>.dart, <kebab>.scss, <kebab>.tsx, <kebab>.types.ts) remain.
+ * the canonical files remain: the 4 code files (<kebab>.dart, <kebab>.scss, <kebab>.tsx,
+ * <kebab>.types.ts) plus the optional Figma docs file (<kebab>.md).
  */
 function enforceFourFileStructure(componentDir, kebabName) {
   if (!fs.existsSync(componentDir)) return;
@@ -503,7 +505,8 @@ function enforceFourFileStructure(componentDir, kebabName) {
     `${kebabName}.dart`,
     `${kebabName}.scss`,
     `${kebabName}.tsx`,
-    `${kebabName}.types.ts`
+    `${kebabName}.types.ts`,
+    `${kebabName}.md`
   ]);
   for (const file of fs.readdirSync(componentDir)) {
     const lowerFile = file.toLowerCase();
@@ -595,6 +598,10 @@ function generateComponentFiles(figmaNode, options = {}) {
   ensureExportInIndex(pascalName, kebabName);
 
   fs.writeFileSync(flutterPath, generateFlutterWidget(pascalName, kebabName, meta), 'utf8');
+  const docsResult = docsGenerator.writeComponentDocs(figmaNode).result;
+  if (docsResult) {
+    console.log(`[DocsSync] ${docsResult.toUpperCase()}: src/components/${kebabName}/${kebabName}.md`);
+  }
 
   enforceFourFileStructure(componentDir, kebabName);
   appPageGenerator.syncAppComponentPages();
@@ -626,6 +633,7 @@ function deleteComponentFiles(rawName) {
     console.log(`[CodeGenerator] Deleted component folder: ${componentDir}`);
     removeExportFromIndex(pascalName, kebabName);
     removeFromLibraryScss(kebabName);
+    docsGenerator.forgetComponent(kebabName);
     appPageGenerator.syncAppComponentPages();
     return true;
   }
@@ -705,6 +713,7 @@ module.exports = {
   toSnakeCase,
   parseVariantsAndProps,
   generateScss,
+  writeComponentDocs: (node) => docsGenerator.writeComponentDocs(node),
   generateComponentFiles,
   deleteComponentFiles,
   generateForExistingComponents,

@@ -1,0 +1,245 @@
+/* Component .md documentation (rendered by MarkdownView.tsx) — Atlassian-style docs palette */
+
+.md-docs-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.md-source-badge {
+  flex-shrink: 0;
+  border: 1px solid #dfe1e6;
+  border-radius: 10px;
+  padding: 3px 10px;
+  background: #f7f8f9;
+  color: #44546f;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+
+  &--figma {
+    border-color: #cce0ff;
+    background: #e9f2ff;
+    color: #0055cc;
+  }
+}
+
+.md-docs-card {
+  border: 1px solid #dfe1e6;
+  border-radius: 8px;
+  padding: 8px 28px 24px;
+  background: #ffffff;
+}
+
+.md-view {
+  color: #172b4d;
+  font-size: 14px;
+  line-height: 1.65;
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    scroll-margin-top: 80px;
+    color: #172b4d;
+    line-height: 1.3;
+  }
+
+  h1 {
+    margin: 24px 0 8px;
+    font-size: 24px;
+  }
+
+  h2 {
+    margin: 32px 0 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #ebecf0;
+    font-size: 17px;
+    font-weight: 650;
+  }
+
+  h3 {
+    margin: 20px 0 8px;
+    font-size: 14px;
+    font-weight: 650;
+  }
+
+  h4 {
+    margin: 16px 0 6px;
+    font-size: 13px;
+  }
+
+  p {
+    margin: 0 0 12px;
+  }
+
+  ul,
+  ol {
+    margin: 0 0 14px;
+    padding-left: 22px;
+  }
+
+  li {
+    margin-bottom: 4px;
+  }
+
+  a {
+    color: #0c66e4;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  code {
+    border-radius: 4px;
+    padding: 1px 6px;
+    background: #f1f2f4;
+    color: #172b4d;
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    font-size: 0.86em;
+  }
+
+  hr {
+    margin: 24px 0;
+    border: 0;
+    border-top: 1px solid #ebecf0;
+  }
+
+  blockquote {
+    margin: 0 0 14px;
+    border-left: 3px solid #dfe1e6;
+    padding: 2px 0 2px 12px;
+    color: #626f86;
+    font-size: 12px;
+
+    p {
+      margin: 0;
+    }
+  }
+}
+
+.md-code {
+  position: relative;
+  margin: 0 0 14px;
+  border-radius: 6px;
+  background: #1d2125;
+
+  pre {
+    margin: 0;
+    padding: 14px 16px;
+    overflow-x: auto;
+  }
+
+  code {
+    padding: 0;
+    background: transparent;
+    color: #dee4ea;
+    font-size: 12.5px;
+    line-height: 1.6;
+  }
+}
+
+.md-code-lang {
+  position: absolute;
+  top: 6px;
+  right: 10px;
+  color: #8c9bab;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.md-table-wrap {
+  margin: 0 0 16px;
+  border: 1px solid #dfe1e6;
+  border-radius: 6px;
+  overflow-x: auto;
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12.5px;
+  }
+
+  th {
+    border-bottom: 1px solid #dfe1e6;
+    padding: 8px 12px;
+    background: #f7f8f9;
+    color: #44546f;
+    font-weight: 600;
+    text-align: left;
+    white-space: nowrap;
+  }
+
+  td {
+    border-bottom: 1px solid #ebecf0;
+    padding: 8px 12px;
+    vertical-align: top;
+  }
+
+  tr:last-child td {
+    border-bottom: 0;
+  }
+
+  tbody tr:hover {
+    background: #fafbfc;
+  }
+}
+
+.md-alert {
+  margin: 0 0 14px;
+  border: 1px solid #dfe1e6;
+  border-left-width: 4px;
+  border-radius: 6px;
+  padding: 10px 14px;
+  background: #f7f8f9;
+
+  p {
+    margin: 0;
+  }
+
+  &--note {
+    border-color: #cce0ff;
+    border-left-color: #0c66e4;
+    background: #e9f2ff;
+  }
+
+  &--tip {
+    border-color: #baf3db;
+    border-left-color: #22a06b;
+    background: #dcfff1;
+  }
+
+  &--important {
+    border-color: #dfd8fd;
+    border-left-color: #6e5dc6;
+    background: #f3f0ff;
+  }
+
+  &--warning {
+    border-color: #f8e6a0;
+    border-left-color: #e2b203;
+    background: #fff7d6;
+  }
+
+  &--caution {
+    border-color: #ffd5d2;
+    border-left-color: #c9372c;
+    background: #ffeceb;
+  }
+}
+
+.md-alert-title {
+  display: block;
+  margin-bottom: 2px;
+  color: #44546f;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+

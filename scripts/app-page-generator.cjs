@@ -131,6 +131,9 @@ function syncAppComponentPages() {
 
   cleanInvalidDigitPrefixedComponents();
   normalizeCustomPageDirs();
+  // Every component folder gets a <kebab>.md (local baseline until synced from Figma).
+  // The docs pages render it via src/app/pages/ComponentPage/componentMarkdown.ts.
+  require('./docs-generator.cjs').ensureLocalDocsForAll();
 
   const validPageDirs = new Set(PROTECTED_PAGE_DIRS);
   const seenLowerPageDirs = new Set(Array.from(PROTECTED_PAGE_DIRS).map((d) => d.toLowerCase()));

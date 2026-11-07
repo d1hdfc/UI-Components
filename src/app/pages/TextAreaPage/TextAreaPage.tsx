@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { TextArea } from '../../../components';
 import type { TextAreaSize, TextAreaStatus } from '../../../components';
 import './TextAreaPage.scss';
+import { ComponentMarkdownSection } from '../../components/MarkdownView';
 
 
 const states: Array<{
@@ -52,6 +53,8 @@ export function TextAreaPage() {
           </div>
         </div>
       </header>
+
+      <ComponentMarkdownSection slug="text-area" title="Text Area" />
 
       <section className="docs-section" id="textarea-installation">
         <div className="docs-section-heading">

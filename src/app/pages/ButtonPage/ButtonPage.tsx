@@ -7,6 +7,7 @@ import type {
   ButtonVisualType
 } from '../../../components/button/button.types';
 import './ButtonPage.scss';
+import { ComponentMarkdownSection } from '../../components/MarkdownView';
 
 const buttonSourceUrl = 'https://github.com/d1hdfc/UI-Components/tree/main/src/components/button';
 const installCode = `npm install @d1hdfc/ui-components@main`;
@@ -267,6 +268,9 @@ font-size: var(${fontSizeTokenName}, ${computedMetrics.fontSize});`;
           <a href="#api">API Reference</a>
         </div>
       </header>
+
+      {/* Component .md documentation (src/components/button/button.md, synced from Figma) */}
+      <ComponentMarkdownSection slug="button" title="Button" />
 
       <section className="docs-section" id="playground">
         <div className="docs-section-heading">

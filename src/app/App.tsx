@@ -40,7 +40,21 @@ export default function App() {
   const [currentPage, setCurrentPage] = useState(getCurrentPage);
 
   useEffect(() => {
-    const updatePage = () => setCurrentPage(getCurrentPage());
+    const updatePage = () => {
+      const hash = window.location.hash.slice(1);
+      const isRouteHash =
+        !hash ||
+        hash.startsWith('figma-components') ||
+        hash.startsWith('textarea') ||
+        hash.startsWith('text-area') ||
+        hash.startsWith('textfield') ||
+        hash.startsWith('text-field') ||
+        hash.startsWith('installation') ||
+        componentDocumentation.some((component) => hash === component.slug || hash === component.routeSlug);
+      // In-page anchors (e.g. #component-docs, #md-figma-changelog-diff-status) scroll within the current page
+      if (!isRouteHash && document.getElementById(hash)) return;
+      setCurrentPage(getCurrentPage());
+    };
     window.addEventListener('hashchange', updatePage);
     return () => window.removeEventListener('hashchange', updatePage);
   }, []);
@@ -57,11 +71,18 @@ export default function App() {
     ? componentPages.get(genericComponent.slug)
     : undefined;
 
+  // Links into the rendered <component>.md (see MarkdownView.tsx / slugifyHeading)
+  const markdownTocLinks = [
+    { href: '#component-docs', label: 'Documentation', nested: false },
+    { href: '#md-figma-changelog-diff-status', label: 'Figma changelog', nested: true },
+  ];
+
   // Dynamic TOC links based on page
   const tocLinks = isFigmaComponentsPage
     ? [{ href: '#figma-catalog', label: 'Components' }]
     : genericComponent
     ? [
+        ...markdownTocLinks,
         { href: '#component-installation', label: 'Installation' },
         { href: '#component-examples', label: 'Examples' },
         { href: '#component-guidelines', label: 'Usage guidelines' },
@@ -69,6 +90,7 @@ export default function App() {
       ]
     : isTextAreaPage
     ? [
+        ...markdownTocLinks,
         { href: '#textarea-installation', label: 'Installation' },
         { href: '#textarea-examples', label: 'States and sizes', nested: false },
         { href: '#textarea-playground', label: 'Try it out', nested: true },
@@ -77,6 +99,7 @@ export default function App() {
       ]
     : isTextFieldPage
     ? [
+        ...markdownTocLinks,
         { href: '#textfield-installation', label: 'Installation' },
         { href: '#textfield-examples', label: 'Examples' },
         { href: '#textfield-playground', label: 'Try it out', nested: true },
@@ -84,6 +107,7 @@ export default function App() {
         { href: '#textfield-api', label: 'API reference' },
       ]
     : [
+        ...markdownTocLinks,
         { href: '#installation', label: 'Installation' },
         { href: '#examples', label: 'Examples' },
         { href: '#variant-examples', label: 'Variants', nested: true },

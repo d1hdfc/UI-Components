@@ -1,5 +1,6 @@
 import { createElement, useState } from 'react';
 import type { ComponentDocumentation } from './componentRegistry';
+import { ComponentMarkdownSection } from '../../components/MarkdownView';
 import './ComponentPage.scss';
 
 function formatValue(value: unknown): string | undefined {
@@ -126,6 +127,9 @@ export function ComponentPage({ component }: { component: ComponentDocumentation
           </div>
         </div>
       </header>
+
+      {/* Component .md documentation (src/components/<slug>/<slug>.md, synced from Figma) */}
+      <ComponentMarkdownSection slug={component.slug} title={component.title} />
 
       {/* Installation */}
       <section className="docs-section" id="component-installation">

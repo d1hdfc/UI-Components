@@ -2,6 +2,7 @@ import { useState, type FormEvent, type ReactNode } from 'react';
 import { Button, TextField } from '../../../components';
 import type { TextFieldAppearance, TextFieldSize, TextFieldStatus } from '../../../components';
 import './TextFieldPage.scss';
+import { ComponentMarkdownSection } from '../../components/MarkdownView';
 
 const installCode = 'npm install @d1hdfc/ui-components@main';
 const importCode = `import { TextField } from '@d1hdfc/ui-components';
@@ -79,6 +80,8 @@ export function TextFieldPage() {
           </div>
         </div>
       </header>
+
+      <ComponentMarkdownSection slug="text-field" title="Text Field" />
 
       <section className="docs-section" id="textfield-installation">
         <div className="docs-section-heading">
