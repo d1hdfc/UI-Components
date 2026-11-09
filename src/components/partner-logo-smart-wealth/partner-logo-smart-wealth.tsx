@@ -1,10 +1,10 @@
 import React from 'react';
-import type { PartnerLogoSmartwealthProps } from './partner-logo-smart-wealth.types';
+import type { PartnerLogoSmartWealthProps } from './partner-logo-smart-wealth.types';
 import './partner-logo-smart-wealth.scss';
 
 const cx = (...parts: Array<string | false | undefined>) => parts.filter(Boolean).join(' ');
 
-export const PartnerLogoSmartwealth: React.FC<PartnerLogoSmartwealthProps> = ({
+export const PartnerLogoSmartWealth: React.FC<PartnerLogoSmartWealthProps> = ({
   children = 'Component',
   size = 'medium',
   variant = 'primary',
@@ -39,4 +39,4 @@ export const PartnerLogoSmartwealth: React.FC<PartnerLogoSmartwealthProps> = ({
   );
 };
 
-export default PartnerLogoSmartwealth;
+export default PartnerLogoSmartWealth;

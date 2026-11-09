@@ -1,12 +1,12 @@
 import type React from 'react';
 
-export type BrowserStatusbarVariant = 'primary' | 'secondary' | 'tertiary' | 'outlined';
-export type BrowserStatusbarSize = 'small' | 'medium' | 'large';
+export type BrowserStatusBarVariant = 'primary' | 'secondary' | 'tertiary' | 'outlined';
+export type BrowserStatusBarSize = 'small' | 'medium' | 'large';
 
-export interface BrowserStatusbarProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface BrowserStatusBarProps extends React.HTMLAttributes<HTMLDivElement> {
   children?: React.ReactNode;
-  variant?: BrowserStatusbarVariant;
-  size?: BrowserStatusbarSize;
+  variant?: BrowserStatusBarVariant;
+  size?: BrowserStatusBarSize;
   disabled?: boolean;
   loading?: boolean;
   fullWidth?: boolean;

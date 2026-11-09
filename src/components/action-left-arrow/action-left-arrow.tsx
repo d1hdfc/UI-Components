@@ -1,10 +1,10 @@
 import React from 'react';
-import type { ActionleftarrowProps } from './action-left-arrow.types';
+import type { ActionLeftArrowProps } from './action-left-arrow.types';
 import './action-left-arrow.scss';
 
 const cx = (...parts: Array<string | false | undefined>) => parts.filter(Boolean).join(' ');
 
-export const Actionleftarrow: React.FC<ActionleftarrowProps> = ({
+export const ActionLeftArrow: React.FC<ActionLeftArrowProps> = ({
   children = 'Component',
   size = 'medium',
   variant = 'primary',
@@ -39,4 +39,4 @@ export const Actionleftarrow: React.FC<ActionleftarrowProps> = ({
   );
 };
 
-export default Actionleftarrow;
+export default ActionLeftArrow;

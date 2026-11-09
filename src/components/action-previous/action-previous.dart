@@ -4,7 +4,7 @@ enum UIActionpreviousVariant { primary, secondary, tertiary, outlined }
 enum UIActionpreviousSize { small, medium, large }
 
 /// Auto-generated Flutter widget for [Actionprevious] from Figma.
-class UIActionprevious extends StatelessWidget {
+class UIActionPrevious extends StatelessWidget {
   final String label;
   final Widget? child;
   final VoidCallback? onPressed;
@@ -16,7 +16,7 @@ class UIActionprevious extends StatelessWidget {
   final Widget? leadingIcon;
   final Widget? trailingIcon;
 
-  const UIActionprevious({
+  const UIActionPrevious({
     Key? key,
     this.label = 'Component',
     this.child,

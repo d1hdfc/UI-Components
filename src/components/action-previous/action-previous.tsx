@@ -1,10 +1,10 @@
 import React from 'react';
-import type { ActionpreviousProps } from './action-previous.types';
+import type { ActionPreviousProps } from './action-previous.types';
 import './action-previous.scss';
 
 const cx = (...parts: Array<string | false | undefined>) => parts.filter(Boolean).join(' ');
 
-export const Actionprevious: React.FC<ActionpreviousProps> = ({
+export const ActionPrevious: React.FC<ActionPreviousProps> = ({
   children = 'Component',
   size = 'medium',
   variant = 'primary',
@@ -39,4 +39,4 @@ export const Actionprevious: React.FC<ActionpreviousProps> = ({
   );
 };
 
-export default Actionprevious;
+export default ActionPrevious;

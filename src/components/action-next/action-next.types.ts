@@ -1,12 +1,12 @@
 import type React from 'react';
 
-export type ActionnextVariant = 'primary' | 'secondary' | 'tertiary' | 'outlined';
-export type ActionnextSize = 'small' | 'medium' | 'large';
+export type ActionNextVariant = 'primary' | 'secondary' | 'tertiary' | 'outlined';
+export type ActionNextSize = 'small' | 'medium' | 'large';
 
-export interface ActionnextProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface ActionNextProps extends React.HTMLAttributes<HTMLDivElement> {
   children?: React.ReactNode;
-  variant?: ActionnextVariant;
-  size?: ActionnextSize;
+  variant?: ActionNextVariant;
+  size?: ActionNextSize;
   disabled?: boolean;
   loading?: boolean;
   fullWidth?: boolean;

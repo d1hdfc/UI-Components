@@ -14,3 +14,5 @@ export interface MPinInputProps extends Omit<React.InputHTMLAttributes<HTMLInput
   defaultValue?: string;
   onChange?: (value: string) => void;
 }
+
+export type MpinInputProps = MPinInputProps;

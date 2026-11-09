@@ -1,12 +1,12 @@
 import type React from 'react';
 
-export type ActionleftarrowVariant = 'primary' | 'secondary' | 'tertiary' | 'outlined';
-export type ActionleftarrowSize = 'small' | 'medium' | 'large';
+export type ActionLeftArrowVariant = 'primary' | 'secondary' | 'tertiary' | 'outlined';
+export type ActionLeftArrowSize = 'small' | 'medium' | 'large';
 
-export interface ActionleftarrowProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface ActionLeftArrowProps extends React.HTMLAttributes<HTMLDivElement> {
   children?: React.ReactNode;
-  variant?: ActionleftarrowVariant;
-  size?: ActionleftarrowSize;
+  variant?: ActionLeftArrowVariant;
+  size?: ActionLeftArrowSize;
   disabled?: boolean;
   loading?: boolean;
   fullWidth?: boolean;

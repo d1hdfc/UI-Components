@@ -1,12 +1,12 @@
 import type React from 'react';
 
-export type ActionlastVariant = 'primary' | 'secondary' | 'tertiary' | 'outlined';
-export type ActionlastSize = 'small' | 'medium' | 'large';
+export type ActionLastVariant = 'primary' | 'secondary' | 'tertiary' | 'outlined';
+export type ActionLastSize = 'small' | 'medium' | 'large';
 
-export interface ActionlastProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface ActionLastProps extends React.HTMLAttributes<HTMLDivElement> {
   children?: React.ReactNode;
-  variant?: ActionlastVariant;
-  size?: ActionlastSize;
+  variant?: ActionLastVariant;
+  size?: ActionLastSize;
   disabled?: boolean;
   loading?: boolean;
   fullWidth?: boolean;

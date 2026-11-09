@@ -4,7 +4,7 @@ enum UIActionleftarrowVariant { primary, secondary, tertiary, outlined }
 enum UIActionleftarrowSize { small, medium, large }
 
 /// Auto-generated Flutter widget for [Actionleftarrow] from Figma.
-class UIActionleftarrow extends StatelessWidget {
+class UIActionLeftArrow extends StatelessWidget {
   final String label;
   final Widget? child;
   final VoidCallback? onPressed;
@@ -16,7 +16,7 @@ class UIActionleftarrow extends StatelessWidget {
   final Widget? leadingIcon;
   final Widget? trailingIcon;
 
-  const UIActionleftarrow({
+  const UIActionLeftArrow({
     Key? key,
     this.label = 'Component',
     this.child,

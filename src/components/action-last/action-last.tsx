@@ -1,10 +1,10 @@
 import React from 'react';
-import type { ActionlastProps } from './action-last.types';
+import type { ActionLastProps } from './action-last.types';
 import './action-last.scss';
 
 const cx = (...parts: Array<string | false | undefined>) => parts.filter(Boolean).join(' ');
 
-export const Actionlast: React.FC<ActionlastProps> = ({
+export const ActionLast: React.FC<ActionLastProps> = ({
   children = 'Component',
   size = 'medium',
   variant = 'primary',
@@ -39,4 +39,4 @@ export const Actionlast: React.FC<ActionlastProps> = ({
   );
 };
 
-export default Actionlast;
+export default ActionLast;

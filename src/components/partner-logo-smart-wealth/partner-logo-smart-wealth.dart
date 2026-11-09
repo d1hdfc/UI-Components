@@ -4,7 +4,7 @@ enum UIPartnerLogoSmartwealthVariant { primary, secondary, tertiary }
 enum UIPartnerLogoSmartwealthSize { small, medium, large }
 
 /// Auto-generated Flutter widget for [PartnerLogoSmartwealth] from Figma.
-class UIPartnerLogoSmartwealth extends StatelessWidget {
+class UIPartnerLogoSmartWealth extends StatelessWidget {
   final String label;
   final Widget? child;
   final VoidCallback? onPressed;
@@ -16,7 +16,7 @@ class UIPartnerLogoSmartwealth extends StatelessWidget {
   final Widget? leadingIcon;
   final Widget? trailingIcon;
 
-  const UIPartnerLogoSmartwealth({
+  const UIPartnerLogoSmartWealth({
     Key? key,
     this.label = 'PartnerLogoSmartwealth',
     this.child,

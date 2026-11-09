@@ -1,12 +1,12 @@
 import type React from 'react';
 
-export type PartnerLogoSmartwealthVariant = 'primary' | 'secondary' | 'tertiary' | 'outlined' | 'main' | 'reverse';
-export type PartnerLogoSmartwealthSize = 'small' | 'medium' | 'large';
+export type PartnerLogoSmartWealthVariant = 'primary' | 'secondary' | 'tertiary' | 'outlined' | 'main' | 'reverse';
+export type PartnerLogoSmartWealthSize = 'small' | 'medium' | 'large';
 
-export interface PartnerLogoSmartwealthProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface PartnerLogoSmartWealthProps extends React.HTMLAttributes<HTMLDivElement> {
   children?: React.ReactNode;
-  variant?: PartnerLogoSmartwealthVariant;
-  size?: PartnerLogoSmartwealthSize;
+  variant?: PartnerLogoSmartWealthVariant;
+  size?: PartnerLogoSmartWealthSize;
   disabled?: boolean;
   loading?: boolean;
   fullWidth?: boolean;

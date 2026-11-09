@@ -1,10 +1,10 @@
 import React from 'react';
-import type { ActionrightarrowProps } from './action-right-arrow.types';
+import type { ActionRightArrowProps } from './action-right-arrow.types';
 import './action-right-arrow.scss';
 
 const cx = (...parts: Array<string | false | undefined>) => parts.filter(Boolean).join(' ');
 
-export const Actionrightarrow: React.FC<ActionrightarrowProps> = ({
+export const ActionRightArrow: React.FC<ActionRightArrowProps> = ({
   children = 'Component',
   size = 'medium',
   variant = 'primary',
@@ -39,4 +39,4 @@ export const Actionrightarrow: React.FC<ActionrightarrowProps> = ({
   );
 };
 
-export default Actionrightarrow;
+export default ActionRightArrow;

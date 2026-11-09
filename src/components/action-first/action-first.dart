@@ -4,7 +4,7 @@ enum UIActionfirstVariant { primary, secondary, tertiary, outlined }
 enum UIActionfirstSize { small, medium, large }
 
 /// Auto-generated Flutter widget for [Actionfirst] from Figma.
-class UIActionfirst extends StatelessWidget {
+class UIActionFirst extends StatelessWidget {
   final String label;
   final Widget? child;
   final VoidCallback? onPressed;
@@ -16,7 +16,7 @@ class UIActionfirst extends StatelessWidget {
   final Widget? leadingIcon;
   final Widget? trailingIcon;
 
-  const UIActionfirst({
+  const UIActionFirst({
     Key? key,
     this.label = 'Component',
     this.child,

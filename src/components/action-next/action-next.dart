@@ -4,7 +4,7 @@ enum UIActionnextVariant { primary, secondary, tertiary, outlined }
 enum UIActionnextSize { small, medium, large }
 
 /// Auto-generated Flutter widget for [Actionnext] from Figma.
-class UIActionnext extends StatelessWidget {
+class UIActionNext extends StatelessWidget {
   final String label;
   final Widget? child;
   final VoidCallback? onPressed;
@@ -16,7 +16,7 @@ class UIActionnext extends StatelessWidget {
   final Widget? leadingIcon;
   final Widget? trailingIcon;
 
-  const UIActionnext({
+  const UIActionNext({
     Key? key,
     this.label = 'Component',
     this.child,

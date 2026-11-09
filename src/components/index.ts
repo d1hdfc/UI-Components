@@ -61,8 +61,8 @@ export type { CarouselProps } from './carousel/carousel.types'
 export { PartnerLogoPayzapp } from './partner-logo-payzapp/partner-logo-payzapp'
 export type { PartnerLogoPayzappProps } from './partner-logo-payzapp/partner-logo-payzapp.types'
 
-export { PartnerLogoSmartwealth } from './partner-logo-smart-wealth/partner-logo-smart-wealth'
-export type { PartnerLogoSmartwealthProps } from './partner-logo-smart-wealth/partner-logo-smart-wealth.types'
+export { PartnerLogoSmartWealth } from './partner-logo-smart-wealth/partner-logo-smart-wealth'
+export type { PartnerLogoSmartWealthProps } from './partner-logo-smart-wealth/partner-logo-smart-wealth.types'
 
 export { PartnerLogoMaster } from './partner-logo-master/partner-logo-master'
 export type { PartnerLogoMasterProps } from './partner-logo-master/partner-logo-master.types'
@@ -133,8 +133,8 @@ export type { BottomsheetFooterProps } from './bottomsheet-footer/bottomsheet-fo
 export { Browser } from './browser/browser'
 export type { BrowserProps } from './browser/browser.types'
 
-export { BrowserStatusbar } from './browser-status-bar/browser-status-bar'
-export type { BrowserStatusbarProps } from './browser-status-bar/browser-status-bar.types'
+export { BrowserStatusBar } from './browser-status-bar/browser-status-bar'
+export type { BrowserStatusBarProps } from './browser-status-bar/browser-status-bar.types'
 
 export { CardComponentPlaceholder } from './card-component-placeholder/card-component-placeholder'
 export type { CardComponentPlaceholderProps } from './card-component-placeholder/card-component-placeholder.types'
@@ -250,26 +250,26 @@ export type { RadioSizeProps } from './radio-size/radio-size.types'
 export { ToggleSize } from './toggle-size/toggle-size'
 export type { ToggleSizeProps } from './toggle-size/toggle-size.types'
 
-export { Actionprevious } from './action-previous/action-previous'
-export type { ActionpreviousProps } from './action-previous/action-previous.types'
+export { ActionPrevious } from './action-previous/action-previous'
+export type { ActionPreviousProps } from './action-previous/action-previous.types'
 
-export { Actionnext } from './action-next/action-next'
-export type { ActionnextProps } from './action-next/action-next.types'
+export { ActionNext } from './action-next/action-next'
+export type { ActionNextProps } from './action-next/action-next.types'
 
 export { Base } from './base/base'
 export type { BaseProps } from './base/base.types'
 
-export { Actionfirst } from './action-first/action-first'
-export type { ActionfirstProps } from './action-first/action-first.types'
+export { ActionFirst } from './action-first/action-first'
+export type { ActionFirstProps } from './action-first/action-first.types'
 
-export { Actionlast } from './action-last/action-last'
-export type { ActionlastProps } from './action-last/action-last.types'
+export { ActionLast } from './action-last/action-last'
+export type { ActionLastProps } from './action-last/action-last.types'
 
-export { Actionleftarrow } from './action-left-arrow/action-left-arrow'
-export type { ActionleftarrowProps } from './action-left-arrow/action-left-arrow.types'
+export { ActionLeftArrow } from './action-left-arrow/action-left-arrow'
+export type { ActionLeftArrowProps } from './action-left-arrow/action-left-arrow.types'
 
-export { Actionrightarrow } from './action-right-arrow/action-right-arrow'
-export type { ActionrightarrowProps } from './action-right-arrow/action-right-arrow.types'
+export { ActionRightArrow } from './action-right-arrow/action-right-arrow'
+export type { ActionRightArrowProps } from './action-right-arrow/action-right-arrow.types'
 
 export { BottomSh } from './bottom-sh/bottom-sh'
 export type { BottomShProps } from './bottom-sh/bottom-sh.types'

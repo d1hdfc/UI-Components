@@ -1,10 +1,10 @@
 import React from 'react';
-import type { BrowserStatusbarProps } from './browser-status-bar.types';
+import type { BrowserStatusBarProps } from './browser-status-bar.types';
 import './browser-status-bar.scss';
 
 const cx = (...parts: Array<string | false | undefined>) => parts.filter(Boolean).join(' ');
 
-export const BrowserStatusbar: React.FC<BrowserStatusbarProps> = ({
+export const BrowserStatusBar: React.FC<BrowserStatusBarProps> = ({
   children = 'Component',
   size = 'medium',
   variant = 'primary',
@@ -39,4 +39,4 @@ export const BrowserStatusbar: React.FC<BrowserStatusbarProps> = ({
   );
 };
 
-export default BrowserStatusbar;
+export default BrowserStatusBar;

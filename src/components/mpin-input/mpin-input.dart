@@ -4,7 +4,7 @@ enum UIMPinInputVariant { primary, secondary, tertiary }
 enum UIMPinInputSize { small, medium, large }
 
 /// Auto-generated Flutter widget for [MPinInput] from Figma.
-class UIMPinInput extends StatelessWidget {
+class UIMpinInput extends StatelessWidget {
   final String label;
   final Widget? child;
   final VoidCallback? onPressed;
@@ -16,7 +16,7 @@ class UIMPinInput extends StatelessWidget {
   final Widget? leadingIcon;
   final Widget? trailingIcon;
 
-  const UIMPinInput({
+  const UIMpinInput({
     Key? key,
     this.label = 'MPinInput',
     this.child,

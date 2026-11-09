@@ -8,6 +8,13 @@ const rootDirectory = fileURLToPath(new URL('.', import.meta.url));
 export default defineConfig({
   plugins: [react()],
   publicDir: false,
+  css: {
+    preprocessorOptions: {
+      scss: {
+        api: 'modern-compiler'
+      }
+    }
+  },
   build: {
     outDir: 'lib',
     lib: {

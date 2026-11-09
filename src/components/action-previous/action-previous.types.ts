@@ -1,12 +1,12 @@
 import type React from 'react';
 
-export type ActionpreviousVariant = 'primary' | 'secondary' | 'tertiary' | 'outlined';
-export type ActionpreviousSize = 'small' | 'medium' | 'large';
+export type ActionPreviousVariant = 'primary' | 'secondary' | 'tertiary' | 'outlined';
+export type ActionPreviousSize = 'small' | 'medium' | 'large';
 
-export interface ActionpreviousProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface ActionPreviousProps extends React.HTMLAttributes<HTMLDivElement> {
   children?: React.ReactNode;
-  variant?: ActionpreviousVariant;
-  size?: ActionpreviousSize;
+  variant?: ActionPreviousVariant;
+  size?: ActionPreviousSize;
   disabled?: boolean;
   loading?: boolean;
   fullWidth?: boolean;

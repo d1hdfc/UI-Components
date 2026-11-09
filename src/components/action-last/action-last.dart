@@ -4,7 +4,7 @@ enum UIActionlastVariant { primary, secondary, tertiary, outlined }
 enum UIActionlastSize { small, medium, large }
 
 /// Auto-generated Flutter widget for [Actionlast] from Figma.
-class UIActionlast extends StatelessWidget {
+class UIActionLast extends StatelessWidget {
   final String label;
   final Widget? child;
   final VoidCallback? onPressed;
@@ -16,7 +16,7 @@ class UIActionlast extends StatelessWidget {
   final Widget? leadingIcon;
   final Widget? trailingIcon;
 
-  const UIActionlast({
+  const UIActionLast({
     Key? key,
     this.label = 'Component',
     this.child,

@@ -4,7 +4,7 @@ enum UIActionrightarrowVariant { primary, secondary, tertiary, outlined }
 enum UIActionrightarrowSize { small, medium, large }
 
 /// Auto-generated Flutter widget for [Actionrightarrow] from Figma.
-class UIActionrightarrow extends StatelessWidget {
+class UIActionRightArrow extends StatelessWidget {
   final String label;
   final Widget? child;
   final VoidCallback? onPressed;
@@ -16,7 +16,7 @@ class UIActionrightarrow extends StatelessWidget {
   final Widget? leadingIcon;
   final Widget? trailingIcon;
 
-  const UIActionrightarrow({
+  const UIActionRightArrow({
     Key? key,
     this.label = 'Component',
     this.child,

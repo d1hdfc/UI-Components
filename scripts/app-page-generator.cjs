@@ -78,7 +78,16 @@ function cleanInvalidDigitPrefixedComponents() {
   if (!fs.existsSync(COMPONENTS_DIR)) return;
 
   for (const entry of fs.readdirSync(COMPONENTS_DIR, { withFileTypes: true })) {
-    if (!entry.isDirectory()) continue;
+    if (!entry.isDirectory()) {
+      if (entry.name !== 'index.ts' && entry.name !== 'library.scss') {
+        fs.rmSync(path.join(COMPONENTS_DIR, entry.name), { force: true });
+      }
+      continue;
+    }
+    if (entry.name === 'assets') {
+      fs.rmSync(path.join(COMPONENTS_DIR, entry.name), { recursive: true, force: true });
+      continue;
+    }
     if (/^\d+-/.test(entry.name)) {
       const stripped = entry.name.replace(/^\d+-/, '');
       if (fs.existsSync(path.join(COMPONENTS_DIR, stripped))) {

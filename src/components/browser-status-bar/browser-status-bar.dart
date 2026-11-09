@@ -4,7 +4,7 @@ enum UIBrowserStatusbarVariant { primary, secondary, tertiary }
 enum UIBrowserStatusbarSize { small, medium, large }
 
 /// Auto-generated Flutter widget for [BrowserStatusbar] from Figma.
-class UIBrowserStatusbar extends StatelessWidget {
+class UIBrowserStatusBar extends StatelessWidget {
   final String label;
   final Widget? child;
   final VoidCallback? onPressed;
@@ -16,7 +16,7 @@ class UIBrowserStatusbar extends StatelessWidget {
   final Widget? leadingIcon;
   final Widget? trailingIcon;
 
-  const UIBrowserStatusbar({
+  const UIBrowserStatusBar({
     Key? key,
     this.label = 'BrowserStatusbar',
     this.child,

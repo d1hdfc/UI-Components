@@ -1,10 +1,10 @@
 import React from 'react';
-import type { ActionfirstProps } from './action-first.types';
+import type { ActionFirstProps } from './action-first.types';
 import './action-first.scss';
 
 const cx = (...parts: Array<string | false | undefined>) => parts.filter(Boolean).join(' ');
 
-export const Actionfirst: React.FC<ActionfirstProps> = ({
+export const ActionFirst: React.FC<ActionFirstProps> = ({
   children = 'Component',
   size = 'medium',
   variant = 'primary',
@@ -39,4 +39,4 @@ export const Actionfirst: React.FC<ActionfirstProps> = ({
   );
 };
 
-export default Actionfirst;
+export default ActionFirst;

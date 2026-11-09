@@ -1,10 +1,10 @@
 import React from 'react';
-import type { ActionnextProps } from './action-next.types';
+import type { ActionNextProps } from './action-next.types';
 import './action-next.scss';
 
 const cx = (...parts: Array<string | false | undefined>) => parts.filter(Boolean).join(' ');
 
-export const Actionnext: React.FC<ActionnextProps> = ({
+export const ActionNext: React.FC<ActionNextProps> = ({
   children = 'Component',
   size = 'medium',
   variant = 'primary',
@@ -39,4 +39,4 @@ export const Actionnext: React.FC<ActionnextProps> = ({
   );
 };
 
-export default Actionnext;
+export default ActionNext;

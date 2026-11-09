@@ -67,4 +67,6 @@ export function MPinInput({
   );
 }
 
+export const MpinInput = MPinInput;
+
 export default MPinInput;

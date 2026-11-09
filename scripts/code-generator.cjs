@@ -13,11 +13,9 @@ const INDEX_FILE = path.join(COMPONENTS_DIR, 'index.ts');
  */
 function toPascalCase(str) {
   if (!str) return 'Component';
-  const clean = str
-    .replace(/^[@_\d.\s-]+/, '')
-    .replace(/[^a-zA-Z0-9\s_-]/g, ' ');
-  const result = clean
-    .split(/[\s_-]+/)
+  const kebab = toKebabCase(str);
+  const result = kebab
+    .split('-')
     .filter(Boolean)
     .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
     .join('');
@@ -529,14 +527,54 @@ function enforceFourFileStructure(componentDir, kebabName) {
   }
 
   // Ensure internal relative imports inside <kebab>.tsx use lowercase './<kebab>.types' and './<kebab>.scss'
+  // and synchronize component/props PascalCase symbol names with toPascalCase(kebabName)
+  const pascalName = toPascalCase(kebabName);
+  const typesPath = path.join(componentDir, `${kebabName}.types.ts`);
+  if (fs.existsSync(typesPath)) {
+    const typesSrc = fs.readFileSync(typesPath, 'utf8');
+    const hasExactProps = new RegExp(`\\b${pascalName}Props\\b`).test(typesSrc);
+    if (!hasExactProps) {
+      const updatedTypes = typesSrc.replace(
+        new RegExp(`\\b(${pascalName})(Props|Variant|Size|State|VisualType)\\b`, 'gi'),
+        (_, _prefix, suffix) => `${pascalName}${suffix}`
+      );
+      if (updatedTypes !== typesSrc) {
+        fs.writeFileSync(typesPath, updatedTypes, 'utf8');
+      }
+    }
+  }
+
   const tsxPath = path.join(componentDir, `${kebabName}.tsx`);
   if (fs.existsSync(tsxPath)) {
     const src = fs.readFileSync(tsxPath, 'utf8');
-    const updated = src
+    let updated = src
       .replace(new RegExp(`(['"])\\./${kebabName}\\.types(['"])`, 'gi'), `$1./${kebabName}.types$2`)
       .replace(new RegExp(`(['"])\\./${kebabName}\\.scss(['"])`, 'gi'), `$1./${kebabName}.scss$2`);
+
+    const hasExactComp = new RegExp(`export\\s+(?:const|function)\\s+${pascalName}\\b|export\\s*\\{[^}]*\\b${pascalName}\\b`).test(updated);
+    if (!hasExactComp) {
+      updated = updated
+        .replace(
+          new RegExp(`\\b(${pascalName})(Props|Variant|Size|State|VisualType)\\b`, 'gi'),
+          (_, _prefix, suffix) => `${pascalName}${suffix}`
+        )
+        .replace(
+          new RegExp(`((?:export\\s+)?(?:const|function)\\s+|export\\s+default\\s+)(${pascalName})\\b`, 'gi'),
+          (_, kw) => `${kw}${pascalName}`
+        );
+    }
+
     if (updated !== src) {
       fs.writeFileSync(tsxPath, updated, 'utf8');
+    }
+  }
+
+  const dartPath = path.join(componentDir, `${kebabName}.dart`);
+  if (fs.existsSync(dartPath)) {
+    const dartSrc = fs.readFileSync(dartPath, 'utf8');
+    const updatedDart = dartSrc.replace(new RegExp(`\\bUI${pascalName}\\b`, 'gi'), `UI${pascalName}`);
+    if (updatedDart !== dartSrc) {
+      fs.writeFileSync(dartPath, updatedDart, 'utf8');
     }
   }
 }
@@ -545,7 +583,7 @@ function enforceFourFileStructure(componentDir, kebabName) {
  * Add or update export in src/components/index.ts
  */
 function ensureExportInIndex(pascalName, folder) {
-  if (!fs.existsSync(INDEX_FILE)) return;
+  if (!fs.existsSync(INDEX_FILE) || !folder || folder === 'assets') return;
   let content = fs.readFileSync(INDEX_FILE, 'utf8');
 
   // Verify the component folder and .tsx file actually exist before adding an export
@@ -600,8 +638,35 @@ function removeExportFromIndex(pascalName, folder) {
 }
 
 /**
+ * Extract all named exports declared in a .tsx or .types.ts file
+ */
+function extractExportedSymbols(filePath) {
+  const symbols = new Set();
+  if (!fs.existsSync(filePath)) return symbols;
+  const src = fs.readFileSync(filePath, 'utf8');
+
+  const declRe = /\bexport\s+(?:const|let|var|function|class|interface|type|enum)\s+([A-Za-z_$][\w$]*)/g;
+  let m;
+  while ((m = declRe.exec(src)) !== null) {
+    symbols.add(m[1]);
+  }
+
+  const listRe = /\bexport\s+(?:type\s+)?\{([^}]*)\}/g;
+  while ((m = listRe.exec(src)) !== null) {
+    for (const part of m[1].split(',')) {
+      const cleaned = part.replace(/^\s*type\s+/, '').trim();
+      if (!cleaned) continue;
+      const asMatch = cleaned.match(/^([A-Za-z_$][\w$]*)\s+as\s+([A-Za-z_$][\w$]*)$/);
+      symbols.add(asMatch ? asMatch[2] : cleaned);
+    }
+  }
+  return symbols;
+}
+
+/**
  * Build-time safety check & sanitizer for src/components/index.ts and src/components/library.scss:
  * - Normalizes any './<folder>/<File>' path to lowercase './<folder>/<folder>' (or './<folder>/<folder>.types')
+ * - Synchronizes exported symbol casing in index.ts with actual exports in <folder>.tsx / <folder>.types.ts
  * - Strips any export statements whose target folder/file does not exist on disk
  * - Strips any @use statements in src/components/library.scss whose target .scss file does not exist
  */
@@ -612,8 +677,8 @@ function sanitizeComponentIndex() {
     let removedCount = 0;
     let normalizedCount = 0;
 
-    const exportBlockRe = /^[ \t]*export\s+(?:type\s+)?\{[^}]*\}\s*from\s*(['"])(\.\/([^/'"]+)(?:\/([^'"]+))?)\1;?[ \t]*\r?\n?/gm;
-    content = content.replace(exportBlockRe, (fullMatch, quote, relPath, rawFolder, rawSubpath) => {
+    const exportBlockRe = /^[ \t]*export\s+(type\s+)?\{([^}]*)\}\s*from\s*(['"])(\.\/([^/'"]+)(?:\/([^'"]+))?)\3;?[ \t]*\r?\n?/gm;
+    content = content.replace(exportBlockRe, (fullMatch, typeKw, specifiersBlock, quote, relPath, rawFolder, rawSubpath) => {
       const folder = toKebabCase(rawFolder);
       if (folder === 'assets') {
         removedCount++;
@@ -637,21 +702,60 @@ function sanitizeComponentIndex() {
         return '';
       }
 
+      const availableSymbols = extractExportedSymbols(expectedTargetFile);
+      const lowerToExact = new Map();
+      for (const sym of availableSymbols) {
+        lowerToExact.set(sym.toLowerCase(), sym);
+      }
+
+      let updatedBlock = fullMatch;
+      const specifiers = specifiersBlock.split(',').map(s => s.trim()).filter(Boolean);
+      let blockSymbolChanged = false;
+      for (const spec of specifiers) {
+        const asParts = spec.match(/^([A-Za-z_$][\w$]*)(\s+as\s+[A-Za-z_$][\w$]*)?$/);
+        if (!asParts) continue;
+        const importedSym = asParts[1];
+        if (!availableSymbols.has(importedSym)) {
+          const exactSym = lowerToExact.get(importedSym.toLowerCase());
+          if (exactSym && exactSym !== importedSym) {
+            updatedBlock = updatedBlock.replace(
+              new RegExp(`\\b${importedSym}\\b`),
+              exactSym
+            );
+            blockSymbolChanged = true;
+          }
+        }
+      }
+      if (blockSymbolChanged) {
+        normalizedCount++;
+      }
+
       const canonicalRelPath = isTypesImport
         ? `./${folder}/${folder}.types`
         : `./${folder}/${folder}`;
 
       if (relPath !== canonicalRelPath) {
         normalizedCount++;
-        return fullMatch.replace(`${quote}${relPath}${quote}`, `${quote}${canonicalRelPath}${quote}`);
+        updatedBlock = updatedBlock.replace(`${quote}${relPath}${quote}`, `${quote}${canonicalRelPath}${quote}`);
       }
-      return fullMatch;
+      return updatedBlock;
     });
 
     content = content.replace(/\n{3,}/g, '\n\n').trimEnd() + '\n';
     if (content !== original) {
       fs.writeFileSync(INDEX_FILE, content, 'utf8');
-      console.log(`[IndexValidator] Sanitized src/components/index.ts (removed ${removedCount} missing export(s), normalized ${normalizedCount} path(s))`);
+      console.log(`[IndexValidator] Sanitized src/components/index.ts (removed ${removedCount} missing export(s), normalized ${normalizedCount} path(s)/symbol(s))`);
+    }
+
+    // Ensure every existing component folder in src/components/ is exported in src/components/index.ts
+    if (fs.existsSync(COMPONENTS_DIR)) {
+      for (const entry of fs.readdirSync(COMPONENTS_DIR, { withFileTypes: true })) {
+        if (!entry.isDirectory() || entry.name === 'assets') continue;
+        const folder = toKebabCase(entry.name);
+        const compDir = path.join(COMPONENTS_DIR, folder);
+        enforceFourFileStructure(compDir, folder);
+        ensureExportInIndex(toPascalCase(folder), folder);
+      }
     }
   }
 
@@ -719,6 +823,7 @@ function generateComponentFiles(figmaNode, options = {}) {
   const rawName = figmaNode.name || 'Component';
   const pascalName = toPascalCase(rawName);
   const kebabName = toKebabCase(rawName);
+  if (kebabName === 'assets') return null;
 
   const componentDir = path.join(COMPONENTS_DIR, kebabName);
   fs.mkdirSync(componentDir, { recursive: true });
