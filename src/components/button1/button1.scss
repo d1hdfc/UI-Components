@@ -1,0 +1,131 @@
+@use 'sass:map';
+
+$button1-sizes: (
+  small: (
+    height: var(--button-size-small-height),
+    padding: var(--button-size-small-padding-x),
+    radius: var(--button-size-small-radius),
+    gap: var(--button-size-small-gap),
+    font-size: var(--button-size-small-font-size),
+    line-height: var(--font-line-height-paragraph-xsm)
+  ),
+  medium: (
+    height: var(--button-size-medium-height),
+    padding: var(--button-size-medium-padding-x),
+    radius: var(--button-size-medium-radius),
+    gap: var(--button-size-medium-gap),
+    font-size: var(--button-size-medium-font-size),
+    line-height: var(--font-line-height-paragraph-md)
+  ),
+  large: (
+    height: var(--button-size-large-height),
+    padding: var(--button-size-large-padding-x),
+    radius: var(--button-size-large-radius),
+    gap: var(--button-size-large-gap),
+    font-size: var(--button-size-large-font-size),
+    line-height: var(--font-line-height-paragraph-lg)
+  )
+);
+
+$button1-variants: (
+  primary: (
+    background: var(--button-primary-background-color-default),
+    foreground: var(--button-primary-foreground-color-static),
+    border: var(--surface-root-opacity),
+    hover-background: var(--button-primary-background-color-hover)
+  ),
+  secondary: (
+    background: var(--button-secondary-background-color-default),
+    foreground: var(--button-secondary-foreground-color-default),
+    border: var(--button-secondary-border-color-default),
+    hover-background: var(--button-secondary-background-color-hover)
+  ),
+  tertiary: (
+    background: var(--button-tertiary-background-color-default),
+    foreground: var(--button-tertiary-foreground-color-default),
+    border: var(--surface-root-opacity),
+    hover-background: var(--button-tertiary-background-color-hover)
+  ),
+  outlined: (
+    background: var(--surface-root-opacity),
+    foreground: var(--color-interactive-primary),
+    border: var(--color-border-subtle),
+    hover-background: var(--button-secondary-background-color-hover)
+  )
+);
+
+.ui-button1 {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: var(--global-scale-100);
+  box-sizing: border-box;
+  font-family: var(--font-family-inter);
+  font-weight: var(--font-weight-500);
+  text-decoration: none;
+  cursor: pointer;
+  border: var(--button-size-border-width) solid var(--surface-root-opacity);
+  border-radius: var(--button-size-medium-radius);
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  user-select: none;
+  outline: none;
+
+  &__content {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--global-scale-75);
+  }
+
+  &__spinner {
+    width: var(--global-scale-175);
+    height: var(--global-scale-175);
+    border: var(--global-scale-25) solid currentColor;
+    border-right-color: var(--surface-root-opacity);
+    border-radius: var(--layout-radius-full);
+    animation: ui-button1-spin 0.75s linear infinite;
+  }
+
+  @each $size, $props in $button1-sizes {
+    &--#{$size} {
+      min-height: map.get($props, height);
+      font-size: map.get($props, font-size);
+      line-height: map.get($props, line-height);
+      padding: var(--global-scale-100) map.get($props, padding);
+      border-radius: map.get($props, radius);
+      gap: map.get($props, gap);
+    }
+  }
+
+  @each $variant, $props in $button1-variants {
+    &--#{$variant} {
+      background-color: map.get($props, background);
+      color: map.get($props, foreground);
+      border-color: map.get($props, border);
+
+      &:hover:not(.ui-button1--disabled) {
+        background-color: map.get($props, hover-background);
+      }
+    }
+  }
+
+  &--full-width {
+    width: 100%;
+    display: flex;
+  }
+
+  &--disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+}
+
+@keyframes ui-button1-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

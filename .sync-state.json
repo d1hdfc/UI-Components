@@ -6,469 +6,536 @@
       "name": "Partner Logo\\Payzapp",
       "type": "COMPONENT_SET",
       "pageName": "Logo",
-      "updatedAt": "2026-10-30T05:59:09.587Z"
+      "updatedAt": "2026-10-30T05:59:09.587Z",
+      "kebab": "partner-logo-payzapp"
     },
     "1869:3911": {
       "id": "1869:3911",
       "name": "Partner Logo\\SmartWealth",
       "type": "COMPONENT_SET",
       "pageName": "Logo",
-      "updatedAt": "2026-10-30T05:59:09.602Z"
+      "updatedAt": "2026-10-30T05:59:09.602Z",
+      "kebab": "partner-logo-smart-wealth"
     },
     "2143:840": {
       "id": "2143:840",
       "name": "Partner Logo_Master",
       "type": "COMPONENT_SET",
       "pageName": "Logo",
-      "updatedAt": "2026-10-30T05:59:09.611Z"
+      "updatedAt": "2026-10-30T05:59:09.611Z",
+      "kebab": "partner-logo-master"
     },
     "3972:30799": {
       "id": "3972:30799",
       "name": "Button",
       "type": "COMPONENT_SET",
       "pageName": "Button",
-      "updatedAt": "2026-10-30T05:59:09.614Z"
+      "updatedAt": "2026-10-30T05:59:09.614Z",
+      "kebab": "button"
     },
     "4129:2348": {
       "id": "4129:2348",
       "name": "Chips",
       "type": "COMPONENT_SET",
       "pageName": "Chips",
-      "updatedAt": "2026-10-30T05:59:09.617Z"
+      "updatedAt": "2026-10-30T05:59:09.617Z",
+      "kebab": "chips"
     },
     "4535:81329": {
       "id": "4535:81329",
       "name": "focus ring",
       "type": "COMPONENT",
       "pageName": "Focus ring",
-      "updatedAt": "2026-10-30T05:59:09.624Z"
+      "updatedAt": "2026-10-30T05:59:09.624Z",
+      "kebab": "focus-ring"
     },
     "3991:3115": {
       "id": "3991:3115",
       "name": "Badge/size",
       "type": "COMPONENT_SET",
       "pageName": "Badge",
-      "updatedAt": "2026-10-30T05:59:09.633Z"
+      "updatedAt": "2026-10-30T05:59:09.633Z",
+      "kebab": "badge-size"
     },
     "3991:3173": {
       "id": "3991:3173",
       "name": "Badge",
       "type": "COMPONENT_SET",
       "pageName": "Badge",
-      "updatedAt": "2026-10-30T05:59:09.637Z"
+      "updatedAt": "2026-10-30T05:59:09.637Z",
+      "kebab": "badge"
     },
     "4331:381": {
       "id": "4331:381",
       "name": "Badge",
       "type": "COMPONENT_SET",
       "pageName": "Badge",
-      "updatedAt": "2026-10-30T05:59:09.639Z"
+      "updatedAt": "2026-10-30T05:59:09.639Z",
+      "kebab": "badge"
     },
     "3032:10171": {
       "id": "3032:10171",
       "name": "Color fallback",
       "type": "COMPONENT_SET",
       "pageName": "Avatar",
-      "updatedAt": "2026-10-30T05:59:09.647Z"
+      "updatedAt": "2026-10-30T05:59:09.647Z",
+      "kebab": "color-fallback"
     },
     "3032:10175": {
       "id": "3032:10175",
       "name": "Status",
       "type": "COMPONENT_SET",
       "pageName": "Avatar",
-      "updatedAt": "2026-10-30T05:59:09.656Z"
+      "updatedAt": "2026-10-30T05:59:09.656Z",
+      "kebab": "status"
     },
     "3032:10198": {
       "id": "3032:10198",
       "name": "Profile picture",
       "type": "COMPONENT_SET",
       "pageName": "Avatar",
-      "updatedAt": "2026-10-30T05:59:09.670Z"
+      "updatedAt": "2026-10-30T05:59:09.670Z",
+      "kebab": "profile-picture"
     },
     "3032:10221": {
       "id": "3032:10221",
       "name": "Avatar",
       "type": "COMPONENT_SET",
       "pageName": "Avatar",
-      "updatedAt": "2026-10-30T05:59:09.673Z"
+      "updatedAt": "2026-10-30T05:59:09.673Z",
+      "kebab": "avatar"
     },
     "3032:10251": {
       "id": "3032:10251",
       "name": "Style",
       "type": "COMPONENT_SET",
       "pageName": "Avatar",
-      "updatedAt": "2026-10-30T05:59:09.682Z"
+      "updatedAt": "2026-10-30T05:59:09.682Z",
+      "kebab": "style"
     },
     "3686:42299": {
       "id": "3686:42299",
       "name": "Text Colour",
       "type": "COMPONENT_SET",
       "pageName": "Avatar",
-      "updatedAt": "2026-10-30T05:59:09.692Z"
+      "updatedAt": "2026-10-30T05:59:09.692Z",
+      "kebab": "text-colour"
     },
     "3557:23728": {
       "id": "3557:23728",
       "name": "tag",
       "type": "COMPONENT_SET",
       "pageName": "tag",
-      "updatedAt": "2026-10-30T05:59:09.694Z"
+      "updatedAt": "2026-10-30T05:59:09.694Z",
+      "kebab": "tag"
     },
     "3557:23721": {
       "id": "3557:23721",
       "name": "tag/size",
       "type": "COMPONENT_SET",
       "pageName": "tag",
-      "updatedAt": "2026-10-30T05:59:09.705Z"
+      "updatedAt": "2026-10-30T05:59:09.705Z",
+      "kebab": "tag-size"
     },
     "4205:22967": {
       "id": "4205:22967",
       "name": "Checkbox",
       "type": "COMPONENT_SET",
       "pageName": "Controls",
-      "updatedAt": "2026-10-30T05:59:09.708Z"
+      "updatedAt": "2026-10-30T05:59:09.708Z",
+      "kebab": "checkbox"
     },
     "4205:23025": {
       "id": "4205:23025",
       "name": "Toggle",
       "type": "COMPONENT_SET",
       "pageName": "Controls",
-      "updatedAt": "2026-10-30T05:59:09.718Z"
+      "updatedAt": "2026-10-30T05:59:09.718Z",
+      "kebab": "toggle"
     },
     "4205:23059": {
       "id": "4205:23059",
       "name": "Radio",
       "type": "COMPONENT_SET",
       "pageName": "Controls",
-      "updatedAt": "2026-10-30T05:59:09.721Z"
+      "updatedAt": "2026-10-30T05:59:09.721Z",
+      "kebab": "radio"
     },
     "4205:23093": {
       "id": "4205:23093",
       "name": "Controls",
       "type": "COMPONENT_SET",
       "pageName": "Controls",
-      "updatedAt": "2026-10-30T05:59:09.735Z"
+      "updatedAt": "2026-10-30T05:59:09.735Z",
+      "kebab": "controls"
     },
     "4201:21995": {
       "id": "4201:21995",
       "name": "Rating-base",
       "type": "COMPONENT_SET",
       "pageName": "Rating",
-      "updatedAt": "2026-10-30T05:59:09.744Z"
+      "updatedAt": "2026-10-30T05:59:09.744Z",
+      "kebab": "rating-base"
     },
     "4201:22017": {
       "id": "4201:22017",
       "name": "Ratings",
       "type": "COMPONENT_SET",
       "pageName": "Rating",
-      "updatedAt": "2026-10-30T05:59:09.753Z"
+      "updatedAt": "2026-10-30T05:59:09.753Z",
+      "kebab": "ratings"
     },
     "3557:23145": {
       "id": "3557:23145",
       "name": "Progress-bar/circular",
       "type": "COMPONENT_SET",
       "pageName": "Progress bar",
-      "updatedAt": "2026-10-30T05:59:09.767Z"
+      "updatedAt": "2026-10-30T05:59:09.767Z",
+      "kebab": "progress-bar-circular"
     },
     "3557:23132": {
       "id": "3557:23132",
       "name": "Progress-bar/linear",
       "type": "COMPONENT_SET",
       "pageName": "Progress bar",
-      "updatedAt": "2026-10-30T05:59:09.778Z"
+      "updatedAt": "2026-10-30T05:59:09.778Z",
+      "kebab": "progress-bar-linear"
     },
     "3557:23311": {
       "id": "3557:23311",
       "name": "Pagination",
       "type": "COMPONENT_SET",
       "pageName": "Pagination",
-      "updatedAt": "2026-10-30T05:59:09.780Z"
+      "updatedAt": "2026-10-30T05:59:09.780Z",
+      "kebab": "pagination"
     },
     "2690:3262": {
       "id": "2690:3262",
       "name": "Seperator",
       "type": "COMPONENT_SET",
       "pageName": "seperator",
-      "updatedAt": "2026-10-30T05:59:09.793Z"
+      "updatedAt": "2026-10-30T05:59:09.793Z",
+      "kebab": "seperator"
     },
     "4235:1824": {
       "id": "4235:1824",
       "name": "Toast",
       "type": "COMPONENT_SET",
       "pageName": "Toast",
-      "updatedAt": "2026-10-30T05:59:09.796Z"
+      "updatedAt": "2026-10-30T05:59:09.796Z",
+      "kebab": "toast"
     },
     "3242:4332": {
       "id": "3242:4332",
       "name": "Grabber",
       "type": "COMPONENT",
       "pageName": "bottomsheet",
-      "updatedAt": "2026-10-30T05:59:09.809Z"
+      "updatedAt": "2026-10-30T05:59:09.809Z",
+      "kebab": "grabber"
     },
     "3242:4397": {
       "id": "3242:4397",
       "name": "Carousel hook",
       "type": "COMPONENT",
       "pageName": "bottomsheet",
-      "updatedAt": "2026-10-30T05:59:09.818Z"
+      "updatedAt": "2026-10-30T05:59:09.818Z",
+      "kebab": "carousel-hook"
     },
     "3287:20482": {
       "id": "3287:20482",
       "name": "header",
       "type": "COMPONENT_SET",
       "pageName": "bottomsheet",
-      "updatedAt": "2026-10-30T05:59:09.827Z"
+      "updatedAt": "2026-10-30T05:59:09.827Z",
+      "kebab": "header"
     },
     "3317:5765": {
       "id": "3317:5765",
       "name": "Grabber Notch",
       "type": "COMPONENT",
       "pageName": "bottomsheet",
-      "updatedAt": "2026-10-30T05:59:09.836Z"
+      "updatedAt": "2026-10-30T05:59:09.836Z",
+      "kebab": "grabber-notch"
     },
     "3125:4299": {
       "id": "3125:4299",
       "name": "bottomsheet",
       "type": "COMPONENT",
       "pageName": "bottomsheet",
-      "updatedAt": "2026-10-30T05:59:09.845Z"
+      "updatedAt": "2026-10-30T05:59:09.845Z",
+      "kebab": "bottomsheet"
     },
     "3346:30606": {
       "id": "3346:30606",
       "name": "Slot Block",
       "type": "COMPONENT",
       "pageName": "bottomsheet",
-      "updatedAt": "2026-10-30T05:59:09.856Z"
+      "updatedAt": "2026-10-30T05:59:09.856Z",
+      "kebab": "slot-block"
     },
     "3357:34111": {
       "id": "3357:34111",
       "name": "bottomsheet footer",
       "type": "COMPONENT_SET",
       "pageName": "bottomsheet",
-      "updatedAt": "2026-10-30T05:59:09.865Z"
+      "updatedAt": "2026-10-30T05:59:09.865Z",
+      "kebab": "bottomsheet-footer"
     },
     "3555:22871": {
       "id": "3555:22871",
       "name": "Status Bar",
       "type": "COMPONENT",
       "pageName": "status bar / browser",
-      "updatedAt": "2026-10-30T05:59:09.867Z"
+      "updatedAt": "2026-10-30T05:59:09.867Z",
+      "kebab": "status-bar"
     },
     "3555:22878": {
       "id": "3555:22878",
       "name": "Browser",
       "type": "COMPONENT_SET",
       "pageName": "status bar / browser",
-      "updatedAt": "2026-10-30T05:59:09.877Z"
+      "updatedAt": "2026-10-30T05:59:09.877Z",
+      "kebab": "browser"
     },
     "3555:23068": {
       "id": "3555:23068",
       "name": "Browser+StatusBar",
       "type": "COMPONENT",
       "pageName": "status bar / browser",
-      "updatedAt": "2026-10-30T05:59:09.890Z"
+      "updatedAt": "2026-10-30T05:59:09.890Z",
+      "kebab": "browser-status-bar"
     },
     "4333:940": {
       "id": "4333:940",
       "name": "Browser",
       "type": "COMPONENT_SET",
       "pageName": "status bar / browser",
-      "updatedAt": "2026-10-30T05:59:09.892Z"
+      "updatedAt": "2026-10-30T05:59:09.892Z",
+      "kebab": "browser"
     },
     "3612:11467": {
       "id": "3612:11467",
       "name": "Card/Component Placeholder",
       "type": "COMPONENT",
       "pageName": "Card",
-      "updatedAt": "2026-10-30T05:59:09.910Z"
+      "updatedAt": "2026-10-30T05:59:09.910Z",
+      "kebab": "card-component-placeholder"
     },
     "3612:11469": {
       "id": "3612:11469",
       "name": "Card",
       "type": "COMPONENT_SET",
       "pageName": "Card",
-      "updatedAt": "2026-10-30T05:59:09.912Z"
+      "updatedAt": "2026-10-30T05:59:09.912Z",
+      "kebab": "card"
     },
     "4242:28824": {
       "id": "4242:28824",
       "name": "Tooltip",
       "type": "COMPONENT_SET",
       "pageName": "Tooltip",
-      "updatedAt": "2026-10-30T05:59:09.914Z"
+      "updatedAt": "2026-10-30T05:59:09.914Z",
+      "kebab": "tooltip"
     },
     "3612:11390": {
       "id": "3612:11390",
       "name": "Snackbar",
       "type": "COMPONENT_SET",
       "pageName": "Snackbar",
-      "updatedAt": "2026-10-30T05:59:09.917Z"
+      "updatedAt": "2026-10-30T05:59:09.917Z",
+      "kebab": "snackbar"
     },
     "4276:19478": {
       "id": "4276:19478",
       "name": "Input Field",
       "type": "COMPONENT_SET",
       "pageName": "Testing",
-      "updatedAt": "2026-10-30T05:59:09.925Z"
+      "updatedAt": "2026-10-30T05:59:09.925Z",
+      "kebab": "input-field"
     },
     "4276:44675": {
       "id": "4276:44675",
       "name": "Input Field",
       "type": "COMPONENT_SET",
       "pageName": "Testing",
-      "updatedAt": "2026-10-30T05:59:09.928Z"
+      "updatedAt": "2026-10-30T05:59:09.928Z",
+      "kebab": "input-field"
     },
     "2011:26574": {
       "id": "2011:26574",
       "name": "Cover-card",
       "type": "COMPONENT",
       "pageName": "Components",
-      "updatedAt": "2026-10-30T05:59:09.936Z"
+      "updatedAt": "2026-10-30T05:59:09.936Z",
+      "kebab": "cover-card"
     },
     "2216:2270": {
       "id": "2216:2270",
       "name": "Badge",
       "type": "COMPONENT_SET",
       "pageName": "Components",
-      "updatedAt": "2026-10-30T05:59:09.938Z"
+      "updatedAt": "2026-10-30T05:59:09.938Z",
+      "kebab": "badge"
     },
     "1379:1073": {
       "id": "1379:1073",
       "name": "Usage_guidelines_tag",
       "type": "COMPONENT",
       "pageName": "Components",
-      "updatedAt": "2026-10-30T05:59:09.949Z"
+      "updatedAt": "2026-10-30T05:59:09.949Z",
+      "kebab": "usage-guidelines-tag"
     },
     "1379:1067": {
       "id": "1379:1067",
       "name": "Usage_guideline_tag",
       "type": "COMPONENT",
       "pageName": "Components",
-      "updatedAt": "2026-10-30T05:59:09.959Z"
+      "updatedAt": "2026-10-30T05:59:09.959Z",
+      "kebab": "usage-guideline-tag"
     },
     "1486:1544": {
       "id": "1486:1544",
       "name": "Footer_hyperlink",
       "type": "COMPONENT",
       "pageName": "Components",
-      "updatedAt": "2026-10-30T05:59:09.969Z"
+      "updatedAt": "2026-10-30T05:59:09.969Z",
+      "kebab": "footer-hyperlink"
     },
     "1486:1351": {
       "id": "1486:1351",
       "name": "Footer_down",
       "type": "COMPONENT",
       "pageName": "Components",
-      "updatedAt": "2026-10-30T05:59:09.979Z"
+      "updatedAt": "2026-10-30T05:59:09.979Z",
+      "kebab": "footer-down"
     },
     "2228:3754": {
       "id": "2228:3754",
       "name": "Label",
       "type": "COMPONENT",
       "pageName": "Components",
-      "updatedAt": "2026-10-30T05:59:09.989Z"
+      "updatedAt": "2026-10-30T05:59:09.989Z",
+      "kebab": "label"
     },
     "2228:4144": {
       "id": "2228:4144",
       "name": "Text Item",
       "type": "COMPONENT",
       "pageName": "Components",
-      "updatedAt": "2026-10-30T05:59:09.999Z"
+      "updatedAt": "2026-10-30T05:59:09.999Z",
+      "kebab": "text-item"
     },
     "1112:23398": {
       "id": "1112:23398",
       "name": "Container",
       "type": "COMPONENT",
       "pageName": "Components",
-      "updatedAt": "2026-10-30T05:59:10.009Z"
+      "updatedAt": "2026-10-30T05:59:10.009Z",
+      "kebab": "container"
     },
     "262:1055": {
       "id": "262:1055",
       "name": ".Color_ramp_card",
       "type": "COMPONENT",
       "pageName": "Components",
-      "updatedAt": "2026-10-30T05:59:10.017Z"
+      "updatedAt": "2026-10-30T05:59:10.017Z",
+      "kebab": "color-ramp-card"
     },
     "447:4202": {
       "id": "447:4202",
       "name": "Compliance",
       "type": "COMPONENT",
       "pageName": "Components",
-      "updatedAt": "2026-10-30T05:59:10.031Z"
+      "updatedAt": "2026-10-30T05:59:10.031Z",
+      "kebab": "compliance"
     },
     "1005:1919": {
       "id": "1005:1919",
       "name": "alias_roles",
       "type": "COMPONENT",
       "pageName": "Components",
-      "updatedAt": "2026-10-30T05:59:10.040Z"
+      "updatedAt": "2026-10-30T05:59:10.040Z",
+      "kebab": "alias-roles"
     },
     "999:1843": {
       "id": "999:1843",
       "name": "color_roles",
       "type": "COMPONENT",
       "pageName": "Components",
-      "updatedAt": "2026-10-30T05:59:10.125Z"
+      "updatedAt": "2026-10-30T05:59:10.125Z",
+      "kebab": "color-roles"
     },
     "3604:39265": {
       "id": "3604:39265",
       "name": "thumbnail_header",
       "type": "COMPONENT",
       "pageName": "Components",
-      "updatedAt": "2026-10-30T05:59:10.134Z"
+      "updatedAt": "2026-10-30T05:59:10.134Z",
+      "kebab": "thumbnail-header"
     },
     "3811:25706": {
       "id": "3811:25706",
       "name": "Token_name",
       "type": "COMPONENT",
       "pageName": "Components",
-      "updatedAt": "2026-10-30T05:59:10.141Z"
+      "updatedAt": "2026-10-30T05:59:10.141Z",
+      "kebab": "token-name"
     },
     "3811:25696": {
       "id": "3811:25696",
       "name": "Token_name_pill",
       "type": "COMPONENT",
       "pageName": "Components",
-      "updatedAt": "2026-10-30T05:59:10.150Z"
+      "updatedAt": "2026-10-30T05:59:10.150Z",
+      "kebab": "token-name-pill"
     },
     "3820:28368": {
       "id": "3820:28368",
       "name": "Usage_guidelines_tag",
       "type": "COMPONENT",
       "pageName": "Components",
-      "updatedAt": "2026-10-30T05:59:10.152Z"
+      "updatedAt": "2026-10-30T05:59:10.152Z",
+      "kebab": "usage-guidelines-tag"
     },
     "1180:2361": {
       "id": "1180:2361",
       "name": "Color Role",
       "type": "COMPONENT",
       "pageName": "Components",
-      "updatedAt": "2026-10-30T05:59:10.161Z"
+      "updatedAt": "2026-10-30T05:59:10.161Z",
+      "kebab": "color-role"
     },
     "1860:25021": {
       "id": "1860:25021",
       "name": "HDFC_Logo",
       "type": "COMPONENT_SET",
       "pageName": "Logo",
-      "updatedAt": "2026-11-02T09:43:13.920Z"
+      "updatedAt": "2026-11-02T09:43:13.920Z",
+      "kebab": "hdfc-logo"
     },
     "2126:16149": {
       "id": "2126:16149",
       "name": "HDFC_Logo_Master",
       "type": "COMPONENT_SET",
       "pageName": "Logo",
-      "updatedAt": "2026-11-02T09:43:15.975Z"
+      "updatedAt": "2026-11-02T09:43:15.975Z",
+      "kebab": "hdfc-logo-master"
     },
     "1862:34679": {
       "id": "1862:34679",
       "name": "Partner Logo",
       "type": "COMPONENT_SET",
       "pageName": "Logo",
-      "updatedAt": "2026-11-02T09:43:18.818Z"
+      "updatedAt": "2026-11-02T09:43:18.818Z",
+      "kebab": "partner-logo"
     },
     "1862:34716": {
       "id": "1862:34716",
       "name": "Partner Logo",
       "type": "COMPONENT_SET",
       "pageName": "Logo",
-      "updatedAt": "2026-11-02T09:43:20.033Z"
+      "updatedAt": "2026-11-02T09:43:20.033Z",
+      "kebab": "partner-logo"
     },
     "6343:1205": {
       "id": "6343:1205",
@@ -482,91 +549,104 @@
       "name": "Gradient Button",
       "type": "COMPONENT_SET",
       "pageName": "Button",
-      "updatedAt": "2026-11-02T09:43:22.847Z"
+      "updatedAt": "2026-11-02T09:43:22.847Z",
+      "kebab": "gradient-button"
     },
     "3718:88340": {
       "id": "3718:88340",
       "name": "Input Field",
       "type": "COMPONENT_SET",
       "pageName": "Text-input",
-      "updatedAt": "2026-11-02T09:43:27.517Z"
+      "updatedAt": "2026-11-02T09:43:27.517Z",
+      "kebab": "input-field"
     },
     "3810:20370": {
       "id": "3810:20370",
       "name": "Input Field",
       "type": "COMPONENT_SET",
       "pageName": "Text-input",
-      "updatedAt": "2026-11-02T09:43:30.348Z"
+      "updatedAt": "2026-11-02T09:43:30.348Z",
+      "kebab": "input-field"
     },
     "3826:60237": {
       "id": "3826:60237",
       "name": "Helper Text | Small",
       "type": "COMPONENT_SET",
       "pageName": "Text-input",
-      "updatedAt": "2026-11-02T09:43:31.927Z"
+      "updatedAt": "2026-11-02T09:43:31.927Z",
+      "kebab": "helper-text-small"
     },
     "3826:61122": {
       "id": "3826:61122",
       "name": "Leading Area | Small",
       "type": "COMPONENT_SET",
       "pageName": "Text-input",
-      "updatedAt": "2026-11-02T09:43:32.535Z"
+      "updatedAt": "2026-11-02T09:43:32.535Z",
+      "kebab": "leading-area-small"
     },
     "2690:2503": {
       "id": "2690:2503",
       "name": "Input Field",
       "type": "COMPONENT_SET",
       "pageName": "Text-input",
-      "updatedAt": "2026-11-02T09:43:33.200Z"
+      "updatedAt": "2026-11-02T09:43:33.200Z",
+      "kebab": "input-field"
     },
     "2690:2770": {
       "id": "2690:2770",
       "name": "Trailing Area | Small",
       "type": "COMPONENT",
       "pageName": "Text-input",
-      "updatedAt": "2026-11-02T09:43:34.605Z"
+      "updatedAt": "2026-11-02T09:43:34.605Z",
+      "kebab": "trailing-area-small"
     },
     "2690:2773": {
       "id": "2690:2773",
       "name": "Label",
       "type": "COMPONENT_SET",
       "pageName": "Text-input",
-      "updatedAt": "2026-11-02T09:43:35.176Z"
+      "updatedAt": "2026-11-02T09:43:35.176Z",
+      "kebab": "label"
     },
     "2690:2778": {
       "id": "2690:2778",
       "name": "Helper Text | Small",
       "type": "COMPONENT_SET",
       "pageName": "Text-input",
-      "updatedAt": "2026-11-02T09:43:37.238Z"
+      "updatedAt": "2026-11-02T09:43:37.238Z",
+      "kebab": "helper-text-small"
     },
     "2690:2797": {
       "id": "2690:2797",
       "name": "Helper Text | Medium",
       "type": "COMPONENT_SET",
       "pageName": "Text-input",
-      "updatedAt": "2026-11-02T09:43:39.048Z"
+      "updatedAt": "2026-11-02T09:43:39.048Z",
+      "kebab": "helper-text-medium"
     },
     "2690:2834": {
       "id": "2690:2834",
       "name": "Leading Area | Small",
       "type": "COMPONENT_SET",
       "pageName": "Text-input",
-      "updatedAt": "2026-11-02T09:43:39.378Z"
+      "updatedAt": "2026-11-02T09:43:39.378Z",
+      "kebab": "leading-area-small"
     },
     "2690:3046": {
       "id": "2690:3046",
       "name": "Leading Area | Medium",
       "type": "COMPONENT_SET",
       "pageName": "Text-input",
-      "updatedAt": "2026-11-02T09:43:41.409Z"
+      "updatedAt": "2026-11-02T09:43:41.409Z",
+      "kebab": "leading-area-medium"
     },
     "2690:3259": {
       "id": "2690:3259",
       "name": "Trailing Area | Medium",
       "type": "COMPONENT",
       "pageName": "Text-input",
-      "updatedAt": "2026-11-02T09:43:42.221Z"
+      "updatedAt": "2026-11-02T09:43:42.221Z",
+      "kebab": "trailing-area-medium"
     },
     "2922:5360": {
       "id": "2922:5360",
@@ -574,14 +654,16 @@
       "type": "COMPONENT_SET",
       "pageName": "Input-Area",
       "generated": true,
-      "updatedAt": "2026-11-03T11:30:02.316Z"
+      "updatedAt": "2026-11-03T11:30:02.316Z",
+      "kebab": "final-input-area-component"
     },
     "3198:12013": {
       "id": "3198:12013",
       "name": "Icons/Light/20/Essential/Sort",
       "type": "COMPONENT",
       "pageName": "Input-Area",
-      "updatedAt": "2026-11-02T09:43:44.550Z"
+      "updatedAt": "2026-11-02T09:43:44.550Z",
+      "kebab": "icons-light-20-essential-sort"
     },
     "2922:5494": {
       "id": "2922:5494",
@@ -589,14 +671,16 @@
       "type": "COMPONENT_SET",
       "pageName": "MPIN-input",
       "generated": true,
-      "updatedAt": "2026-11-03T11:30:03.624Z"
+      "updatedAt": "2026-11-03T11:30:03.624Z",
+      "kebab": "final-mpin-component"
     },
     "2922:5536": {
       "id": "2922:5536",
       "name": "MPIN | Types (4,6)",
       "type": "COMPONENT_SET",
       "pageName": "MPIN-input",
-      "updatedAt": "2026-11-02T09:43:46.615Z"
+      "updatedAt": "2026-11-02T09:43:46.615Z",
+      "kebab": "mpin-types-4-6"
     },
     "3557:23845": {
       "id": "3557:23845",
@@ -604,462 +688,528 @@
       "type": "COMPONENT_SET",
       "pageName": "Search bar",
       "generated": true,
-      "updatedAt": "2026-11-03T11:30:05.127Z"
+      "updatedAt": "2026-11-03T11:30:05.127Z",
+      "kebab": "final-search-component"
     },
     "3557:23891": {
       "id": "3557:23891",
       "name": "right-area",
       "type": "COMPONENT",
       "pageName": "Search bar",
-      "updatedAt": "2026-11-02T09:43:48.850Z"
+      "updatedAt": "2026-11-02T09:43:48.850Z",
+      "kebab": "right-area"
     },
     "3557:23895": {
       "id": "3557:23895",
       "name": "Search Field",
       "type": "COMPONENT_SET",
       "pageName": "Search bar",
-      "updatedAt": "2026-11-02T09:43:49.618Z"
+      "updatedAt": "2026-11-02T09:43:49.618Z",
+      "kebab": "search-field"
     },
     "4285:41338": {
       "id": "4285:41338",
       "name": "Avatar",
       "type": "COMPONENT_SET",
       "pageName": "Avatar",
-      "updatedAt": "2026-11-02T09:43:50.529Z"
+      "updatedAt": "2026-11-02T09:43:50.529Z",
+      "kebab": "avatar"
     },
     "4285:40975": {
       "id": "4285:40975",
       "name": "Avatar",
       "type": "COMPONENT_SET",
       "pageName": "Avatar",
-      "updatedAt": "2026-11-02T09:43:51.112Z"
+      "updatedAt": "2026-11-02T09:43:51.112Z",
+      "kebab": "avatar"
     },
     "2999:10007": {
       "id": "2999:10007",
       "name": "checkbox/size",
       "type": "COMPONENT_SET",
       "pageName": "Controls",
-      "updatedAt": "2026-11-02T09:43:52.549Z"
+      "updatedAt": "2026-11-02T09:43:52.549Z",
+      "kebab": "checkbox-size"
     },
     "2999:10014": {
       "id": "2999:10014",
       "name": "checkbox",
       "type": "COMPONENT_SET",
       "pageName": "Controls",
-      "updatedAt": "2026-11-02T09:43:53.062Z"
+      "updatedAt": "2026-11-02T09:43:53.062Z",
+      "kebab": "checkbox"
     },
     "2999:10024": {
       "id": "2999:10024",
       "name": "radio/size",
       "type": "COMPONENT_SET",
       "pageName": "Controls",
-      "updatedAt": "2026-11-02T09:43:53.525Z"
+      "updatedAt": "2026-11-02T09:43:53.525Z",
+      "kebab": "radio-size"
     },
     "3219:4512": {
       "id": "3219:4512",
       "name": "radio",
       "type": "COMPONENT_SET",
       "pageName": "Controls",
-      "updatedAt": "2026-11-02T09:43:54.751Z"
+      "updatedAt": "2026-11-02T09:43:54.751Z",
+      "kebab": "radio"
     },
     "3225:4398": {
       "id": "3225:4398",
       "name": "toggle/size",
       "type": "COMPONENT_SET",
       "pageName": "Controls",
-      "updatedAt": "2026-11-02T09:43:55.417Z"
+      "updatedAt": "2026-11-02T09:43:55.417Z",
+      "kebab": "toggle-size"
     },
     "3225:4419": {
       "id": "3225:4419",
       "name": "toggle",
       "type": "COMPONENT_SET",
       "pageName": "Controls",
-      "updatedAt": "2026-11-02T09:43:56.375Z"
+      "updatedAt": "2026-11-02T09:43:56.375Z",
+      "kebab": "toggle"
     },
     "3234:12064": {
       "id": "3234:12064",
       "name": "controls",
       "type": "COMPONENT_SET",
       "pageName": "Controls",
-      "updatedAt": "2026-11-02T09:43:57.542Z"
+      "updatedAt": "2026-11-02T09:43:57.542Z",
+      "kebab": "controls"
     },
     "3557:23269": {
       "id": "3557:23269",
       "name": "actionPrevious",
       "type": "COMPONENT_SET",
       "pageName": "Pagination",
-      "updatedAt": "2026-11-02T09:43:58.443Z"
+      "updatedAt": "2026-11-02T09:43:58.443Z",
+      "kebab": "action-previous"
     },
     "3557:23276": {
       "id": "3557:23276",
       "name": "actionNext",
       "type": "COMPONENT_SET",
       "pageName": "Pagination",
-      "updatedAt": "2026-11-02T09:43:59.056Z"
+      "updatedAt": "2026-11-02T09:43:59.056Z",
+      "kebab": "action-next"
     },
     "3557:23283": {
       "id": "3557:23283",
       "name": "base",
       "type": "COMPONENT_SET",
       "pageName": "Pagination",
-      "updatedAt": "2026-11-02T09:44:00.452Z"
+      "updatedAt": "2026-11-02T09:44:00.452Z",
+      "kebab": "base"
     },
     "3928:1701": {
       "id": "3928:1701",
       "name": "Pagination",
       "type": "COMPONENT_SET",
       "pageName": "Pagination",
-      "updatedAt": "2026-11-02T09:44:00.976Z"
+      "updatedAt": "2026-11-02T09:44:00.976Z",
+      "kebab": "pagination"
     },
     "3557:23387": {
       "id": "3557:23387",
       "name": "actionFirst",
       "type": "COMPONENT_SET",
       "pageName": "Pagination",
-      "updatedAt": "2026-11-02T09:44:03.502Z"
+      "updatedAt": "2026-11-02T09:44:03.502Z",
+      "kebab": "action-first"
     },
     "3557:23404": {
       "id": "3557:23404",
       "name": "actionLast",
       "type": "COMPONENT_SET",
       "pageName": "Pagination",
-      "updatedAt": "2026-11-02T09:44:04.845Z"
+      "updatedAt": "2026-11-02T09:44:04.845Z",
+      "kebab": "action-last"
     },
     "3557:23421": {
       "id": "3557:23421",
       "name": "actionLeftArrow",
       "type": "COMPONENT_SET",
       "pageName": "Pagination",
-      "updatedAt": "2026-11-02T09:44:06.557Z"
+      "updatedAt": "2026-11-02T09:44:06.557Z",
+      "kebab": "action-left-arrow"
     },
     "3928:2199": {
       "id": "3928:2199",
       "name": "actionRightArrow",
       "type": "COMPONENT_SET",
       "pageName": "Pagination",
-      "updatedAt": "2026-11-02T09:44:08.919Z"
+      "updatedAt": "2026-11-02T09:44:08.919Z",
+      "kebab": "action-right-arrow"
     },
     "3612:11201": {
       "id": "3612:11201",
       "name": "Tab item",
       "type": "COMPONENT_SET",
       "pageName": "Tabs",
-      "updatedAt": "2026-11-02T09:44:09.201Z"
+      "updatedAt": "2026-11-02T09:44:09.201Z",
+      "kebab": "tab-item"
     },
     "3278:15371": {
       "id": "3278:15371",
       "name": "Bottom Sh",
       "type": "COMPONENT_SET",
       "pageName": "bottomsheet",
-      "updatedAt": "2026-11-02T09:44:10.850Z"
+      "updatedAt": "2026-11-02T09:44:10.850Z",
+      "kebab": "bottom-sh"
     },
     "3333:28941": {
       "id": "3333:28941",
       "name": "OTP",
       "type": "COMPONENT",
       "pageName": "bottomsheet",
-      "updatedAt": "2026-11-02T09:44:11.445Z"
+      "updatedAt": "2026-11-02T09:44:11.445Z",
+      "kebab": "otp"
     },
     "3612:11322": {
       "id": "3612:11322",
       "name": "Carousel Hook",
       "type": "COMPONENT_SET",
       "pageName": "Carousel hook",
-      "updatedAt": "2026-11-02T09:44:13.463Z"
+      "updatedAt": "2026-11-02T09:44:13.463Z",
+      "kebab": "carousel-hook"
     },
     "3612:11335": {
       "id": "3612:11335",
       "name": "Arrow",
       "type": "COMPONENT_SET",
       "pageName": "Carousel hook",
-      "updatedAt": "2026-11-02T09:44:15.229Z"
+      "updatedAt": "2026-11-02T09:44:15.229Z",
+      "kebab": "arrow"
     },
     "4276:37729": {
       "id": "4276:37729",
       "name": "Input Field",
       "type": "COMPONENT_SET",
       "pageName": "Testing",
-      "updatedAt": "2026-11-02T09:44:19.344Z"
+      "updatedAt": "2026-11-02T09:44:19.344Z",
+      "kebab": "input-field"
     },
     "4276:3079": {
       "id": "4276:3079",
       "name": "Input Field",
       "type": "COMPONENT_SET",
       "pageName": "Testing",
-      "updatedAt": "2026-11-02T09:44:23.040Z"
+      "updatedAt": "2026-11-02T09:44:23.040Z",
+      "kebab": "input-field"
     },
     "4614:63695": {
       "id": "4614:63695",
       "name": "Input Field",
       "type": "COMPONENT_SET",
       "pageName": "Testing",
-      "updatedAt": "2026-11-02T09:44:24.379Z"
+      "updatedAt": "2026-11-02T09:44:24.379Z",
+      "kebab": "input-field"
     },
     "4276:7785": {
       "id": "4276:7785",
       "name": "Input Field",
       "type": "COMPONENT_SET",
       "pageName": "Testing",
-      "updatedAt": "2026-11-02T09:44:27.587Z"
+      "updatedAt": "2026-11-02T09:44:27.587Z",
+      "kebab": "input-field"
     },
     "4614:63810": {
       "id": "4614:63810",
       "name": "Input Field",
       "type": "COMPONENT_SET",
       "pageName": "Testing",
-      "updatedAt": "2026-11-02T09:44:29.733Z"
+      "updatedAt": "2026-11-02T09:44:29.733Z",
+      "kebab": "input-field"
     },
     "4278:40161": {
       "id": "4278:40161",
       "name": "Input Field",
       "type": "COMPONENT_SET",
       "pageName": "Testing",
-      "updatedAt": "2026-11-02T09:44:32.145Z"
+      "updatedAt": "2026-11-02T09:44:32.145Z",
+      "kebab": "input-field"
     },
     "4278:40389": {
       "id": "4278:40389",
       "name": "Input Field",
       "type": "COMPONENT_SET",
       "pageName": "Testing",
-      "updatedAt": "2026-11-02T09:44:34.400Z"
+      "updatedAt": "2026-11-02T09:44:34.400Z",
+      "kebab": "input-field"
     },
     "4278:40626": {
       "id": "4278:40626",
       "name": "Input Field",
       "type": "COMPONENT_SET",
       "pageName": "Testing",
-      "updatedAt": "2026-11-02T09:44:35.505Z"
+      "updatedAt": "2026-11-02T09:44:35.505Z",
+      "kebab": "input-field"
     },
     "4278:40930": {
       "id": "4278:40930",
       "name": "Input Field",
       "type": "COMPONENT_SET",
       "pageName": "Testing",
-      "updatedAt": "2026-11-02T09:44:36.023Z"
+      "updatedAt": "2026-11-02T09:44:36.023Z",
+      "kebab": "input-field"
     },
     "4278:41210": {
       "id": "4278:41210",
       "name": "Input Field",
       "type": "COMPONENT_SET",
       "pageName": "Testing",
-      "updatedAt": "2026-11-02T09:44:37.062Z"
+      "updatedAt": "2026-11-02T09:44:37.062Z",
+      "kebab": "input-field"
     },
     "4278:41444": {
       "id": "4278:41444",
       "name": "Input Field",
       "type": "COMPONENT_SET",
       "pageName": "Testing",
-      "updatedAt": "2026-11-02T09:44:37.649Z"
+      "updatedAt": "2026-11-02T09:44:37.649Z",
+      "kebab": "input-field"
     },
     "4278:41706": {
       "id": "4278:41706",
       "name": "Input Field",
       "type": "COMPONENT_SET",
       "pageName": "Testing",
-      "updatedAt": "2026-11-02T09:44:38.654Z"
+      "updatedAt": "2026-11-02T09:44:38.654Z",
+      "kebab": "input-field"
     },
     "4278:41986": {
       "id": "4278:41986",
       "name": "Input Field",
       "type": "COMPONENT_SET",
       "pageName": "Testing",
-      "updatedAt": "2026-11-02T09:44:39.024Z"
+      "updatedAt": "2026-11-02T09:44:39.024Z",
+      "kebab": "input-field"
     },
     "4278:42326": {
       "id": "4278:42326",
       "name": "Input Field",
       "type": "COMPONENT_SET",
       "pageName": "Testing",
-      "updatedAt": "2026-11-02T09:44:39.598Z"
+      "updatedAt": "2026-11-02T09:44:39.598Z",
+      "kebab": "input-field"
     },
     "4278:42593": {
       "id": "4278:42593",
       "name": "Input Field",
       "type": "COMPONENT_SET",
       "pageName": "Testing",
-      "updatedAt": "2026-11-02T09:44:40.346Z"
+      "updatedAt": "2026-11-02T09:44:40.346Z",
+      "kebab": "input-field"
     },
     "4278:42876": {
       "id": "4278:42876",
       "name": "Input Field",
       "type": "COMPONENT_SET",
       "pageName": "Testing",
-      "updatedAt": "2026-11-02T09:44:43.412Z"
+      "updatedAt": "2026-11-02T09:44:43.412Z",
+      "kebab": "input-field"
     },
     "4278:43161": {
       "id": "4278:43161",
       "name": "Input Field",
       "type": "COMPONENT_SET",
       "pageName": "Testing",
-      "updatedAt": "2026-11-02T09:44:44.214Z"
+      "updatedAt": "2026-11-02T09:44:44.214Z",
+      "kebab": "input-field"
     },
     "4278:43443": {
       "id": "4278:43443",
       "name": "Input Field",
       "type": "COMPONENT_SET",
       "pageName": "Testing",
-      "updatedAt": "2026-11-02T09:44:44.689Z"
+      "updatedAt": "2026-11-02T09:44:44.689Z",
+      "kebab": "input-field"
     },
     "4278:43784": {
       "id": "4278:43784",
       "name": "Input Field",
       "type": "COMPONENT_SET",
       "pageName": "Testing",
-      "updatedAt": "2026-11-02T09:44:46.143Z"
+      "updatedAt": "2026-11-02T09:44:46.143Z",
+      "kebab": "input-field"
     },
     "4278:44115": {
       "id": "4278:44115",
       "name": "Input Field",
       "type": "COMPONENT_SET",
       "pageName": "Testing",
-      "updatedAt": "2026-11-02T09:44:47.030Z"
+      "updatedAt": "2026-11-02T09:44:47.030Z",
+      "kebab": "input-field"
     },
     "4278:44399": {
       "id": "4278:44399",
       "name": "Input Field",
       "type": "COMPONENT_SET",
       "pageName": "Testing",
-      "updatedAt": "2026-11-02T09:44:47.816Z"
+      "updatedAt": "2026-11-02T09:44:47.816Z",
+      "kebab": "input-field"
     },
     "4278:44704": {
       "id": "4278:44704",
       "name": "Input Field",
       "type": "COMPONENT_SET",
       "pageName": "Testing",
-      "updatedAt": "2026-11-02T09:44:48.679Z"
+      "updatedAt": "2026-11-02T09:44:48.679Z",
+      "kebab": "input-field"
     },
     "4278:45021": {
       "id": "4278:45021",
       "name": "Input Field",
       "type": "COMPONENT_SET",
       "pageName": "Testing",
-      "updatedAt": "2026-11-02T09:44:49.598Z"
+      "updatedAt": "2026-11-02T09:44:49.598Z",
+      "kebab": "input-field"
     },
     "4278:45384": {
       "id": "4278:45384",
       "name": "Input Field",
       "type": "COMPONENT_SET",
       "pageName": "Testing",
-      "updatedAt": "2026-11-02T09:44:50.250Z"
+      "updatedAt": "2026-11-02T09:44:50.250Z",
+      "kebab": "input-field"
     },
     "4278:45729": {
       "id": "4278:45729",
       "name": "Input Field",
       "type": "COMPONENT_SET",
       "pageName": "Testing",
-      "updatedAt": "2026-11-02T09:44:50.958Z"
+      "updatedAt": "2026-11-02T09:44:50.958Z",
+      "kebab": "input-field"
     },
     "4278:46055": {
       "id": "4278:46055",
       "name": "Input Field",
       "type": "COMPONENT_SET",
       "pageName": "Testing",
-      "updatedAt": "2026-11-02T09:44:51.835Z"
+      "updatedAt": "2026-11-02T09:44:51.835Z",
+      "kebab": "input-field"
     },
     "4278:46375": {
       "id": "4278:46375",
       "name": "Input Field",
       "type": "COMPONENT_SET",
       "pageName": "Testing",
-      "updatedAt": "2026-11-02T09:44:52.860Z"
+      "updatedAt": "2026-11-02T09:44:52.860Z",
+      "kebab": "input-field"
     },
     "4278:46692": {
       "id": "4278:46692",
       "name": "Input Field",
       "type": "COMPONENT_SET",
       "pageName": "Testing",
-      "updatedAt": "2026-11-02T09:44:53.960Z"
+      "updatedAt": "2026-11-02T09:44:53.960Z",
+      "kebab": "input-field"
     },
     "4278:47097": {
       "id": "4278:47097",
       "name": "Input Field",
       "type": "COMPONENT_SET",
       "pageName": "Testing",
-      "updatedAt": "2026-11-02T09:44:54.740Z"
+      "updatedAt": "2026-11-02T09:44:54.740Z",
+      "kebab": "input-field"
     },
     "4278:47463": {
       "id": "4278:47463",
       "name": "Input Field",
       "type": "COMPONENT_SET",
       "pageName": "Testing",
-      "updatedAt": "2026-11-02T09:44:55.232Z"
+      "updatedAt": "2026-11-02T09:44:55.232Z",
+      "kebab": "input-field"
     },
     "4278:47796": {
       "id": "4278:47796",
       "name": "Input Field",
       "type": "COMPONENT_SET",
       "pageName": "Testing",
-      "updatedAt": "2026-11-02T09:44:56.177Z"
+      "updatedAt": "2026-11-02T09:44:56.177Z",
+      "kebab": "input-field"
     },
     "4278:48130": {
       "id": "4278:48130",
       "name": "Input Field",
       "type": "COMPONENT_SET",
       "pageName": "Testing",
-      "updatedAt": "2026-11-02T09:44:57.055Z"
+      "updatedAt": "2026-11-02T09:44:57.055Z",
+      "kebab": "input-field"
     },
     "4278:48475": {
       "id": "4278:48475",
       "name": "Input Field",
       "type": "COMPONENT_SET",
       "pageName": "Testing",
-      "updatedAt": "2026-11-02T09:44:57.580Z"
+      "updatedAt": "2026-11-02T09:44:57.580Z",
+      "kebab": "input-field"
     },
     "4278:48795": {
       "id": "4278:48795",
       "name": "Input Field",
       "type": "COMPONENT_SET",
       "pageName": "Testing",
-      "updatedAt": "2026-11-02T09:44:58.073Z"
+      "updatedAt": "2026-11-02T09:44:58.073Z",
+      "kebab": "input-field"
     },
     "4278:49219": {
       "id": "4278:49219",
       "name": "Input Field",
       "type": "COMPONENT_SET",
       "pageName": "Testing",
-      "updatedAt": "2026-11-02T09:44:58.769Z"
+      "updatedAt": "2026-11-02T09:44:58.769Z",
+      "kebab": "input-field"
     },
     "4278:49599": {
       "id": "4278:49599",
       "name": "Input Field",
       "type": "COMPONENT_SET",
       "pageName": "Testing",
-      "updatedAt": "2026-11-02T09:44:59.273Z"
+      "updatedAt": "2026-11-02T09:44:59.273Z",
+      "kebab": "input-field"
     },
     "4278:49938": {
       "id": "4278:49938",
       "name": "Input Field",
       "type": "COMPONENT_SET",
       "pageName": "Testing",
-      "updatedAt": "2026-11-02T09:44:59.868Z"
+      "updatedAt": "2026-11-02T09:44:59.868Z",
+      "kebab": "input-field"
     },
     "4278:33067": {
       "id": "4278:33067",
       "name": "Input Field",
       "type": "COMPONENT_SET",
       "pageName": "Testing",
-      "updatedAt": "2026-11-02T09:45:03.248Z"
+      "updatedAt": "2026-11-02T09:45:03.248Z",
+      "kebab": "input-field"
     },
     "4276:35339": {
       "id": "4276:35339",
       "name": "Input Field",
       "type": "COMPONENT_SET",
       "pageName": "Testing",
-      "updatedAt": "2026-11-02T09:45:03.812Z"
+      "updatedAt": "2026-11-02T09:45:03.812Z",
+      "kebab": "input-field"
     },
     "1268:2219": {
       "id": "1268:2219",
       "name": "row",
       "type": "COMPONENT",
       "pageName": "Components",
-      "updatedAt": "2026-11-02T09:45:06.452Z"
+      "updatedAt": "2026-11-02T09:45:06.452Z",
+      "kebab": "row"
     },
     "1272:3783": {
       "id": "1272:3783",
       "name": "container",
       "type": "COMPONENT",
       "pageName": "Components",
-      "updatedAt": "2026-11-02T09:45:06.924Z"
+      "updatedAt": "2026-11-02T09:45:06.924Z",
+      "kebab": "container"
     },
     "6066:1292": {
       "id": "6066:1292",
@@ -1085,7 +1235,7 @@
       "type": "COMPONENT",
       "pageName": "Avatar",
       "generated": true,
-      "updatedAt": "2026-11-09T07:52:17.248Z"
+      "updatedAt": "2026-11-09T10:46:17.603Z"
     },
     "local:bottom-sheet": {
       "id": "local:bottom-sheet",
@@ -1226,7 +1376,25 @@
       "source": "code",
       "generated": true,
       "updatedAt": "2026-11-09T10:02:41.916Z"
+    },
+    "6111:101920": {
+      "id": "6111:101920",
+      "name": "button1",
+      "kebab": "button1",
+      "type": "COMPONENT_SET",
+      "pageName": "button1",
+      "generated": true,
+      "updatedAt": "2026-11-09T10:46:14.640Z"
+    },
+    "6089:174991": {
+      "id": "6089:174991",
+      "name": "FinalInputAreaComponent",
+      "kebab": "final-input-area-component",
+      "type": "COMPONENT",
+      "pageName": "Chips",
+      "generated": true,
+      "updatedAt": "2026-11-09T10:46:14.669Z"
     }
   },
-  "lastSync": "2026-11-09T07:56:36.325Z"
+  "lastSync": "2026-11-09T10:46:28.873Z"
 }

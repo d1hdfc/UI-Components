@@ -282,3 +282,6 @@ export type { ArrowProps } from './arrow/arrow.types'
 
 export { Row } from './row/row'
 export type { RowProps } from './row/row.types'
+
+export { Button1 } from './button1/button1'
+export type { Button1Props } from './button1/button1.types'

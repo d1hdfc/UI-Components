@@ -72,13 +72,13 @@ export default function App() {
     : undefined;
 
   // Links into the rendered <component>.md (see MarkdownView.tsx / slugifyHeading)
-  const markdownTocLinks = [
+  const markdownTocLinks: Array<{ href: string; label: string; nested?: boolean }> = [
     { href: '#component-docs', label: 'Documentation', nested: false },
     { href: '#md-figma-changelog-diff-status', label: 'Figma changelog', nested: true },
   ];
 
   // Dynamic TOC links based on page
-  const tocLinks = isFigmaComponentsPage
+  const tocLinks: Array<{ href: string; label: string; nested?: boolean }> = isFigmaComponentsPage
     ? [{ href: '#figma-catalog', label: 'Components' }]
     : genericComponent
     ? [

@@ -576,7 +576,7 @@ function removeExportFromIndex(pascalName, folder) {
   if (escapedFolder) {
     // Remove single-line and multi-line export blocks referencing './<folder>/...'
     const folderExportRe = new RegExp(
-      `^[ \\t]*export\\s+(?:type\\s+)?\\{[\\s\\S]*?\\}\\s*from\\s*['"]\\./${escapedFolder}(?:/[^'"]*)?['"];?[ \\t]*\\r?\\n?`,
+      `^[ \\t]*export\\s+(?:type\\s+)?\\{[^}]*\\}\\s*from\\s*['"]\\./${escapedFolder}(?:/[^'"]*)?['"];?[ \\t]*\\r?\\n?`,
       'gm'
     );
     content = content.replace(folderExportRe, '');
@@ -612,9 +612,13 @@ function sanitizeComponentIndex() {
     let removedCount = 0;
     let normalizedCount = 0;
 
-    const exportBlockRe = /^[ \t]*export\s+(?:type\s+)?\{[\s\S]*?\}\s*from\s*(['"])(\.\/([^/'"]+)(?:\/([^'"]+))?)\1;?[ \t]*\r?\n?/gm;
+    const exportBlockRe = /^[ \t]*export\s+(?:type\s+)?\{[^}]*\}\s*from\s*(['"])(\.\/([^/'"]+)(?:\/([^'"]+))?)\1;?[ \t]*\r?\n?/gm;
     content = content.replace(exportBlockRe, (fullMatch, quote, relPath, rawFolder, rawSubpath) => {
       const folder = toKebabCase(rawFolder);
+      if (folder === 'assets') {
+        removedCount++;
+        return '';
+      }
       const compDir = path.join(COMPONENTS_DIR, folder);
       if (!fs.existsSync(compDir) || !fs.statSync(compDir).isDirectory()) {
         removedCount++;
