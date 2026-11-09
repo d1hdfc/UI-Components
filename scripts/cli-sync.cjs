@@ -87,21 +87,10 @@ function getComponentSignature(node) {
 }
 
 function removeFromIndexTs(componentName) {
-  const indexPath = path.join(process.cwd(), 'src', 'components', 'index.ts');
-  if (!fs.existsSync(indexPath)) return;
-
-  try {
-    const content = fs.readFileSync(indexPath, 'utf8');
-    const kebab = componentName.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
-    const lines = content.split('\n');
-    const filtered = lines.filter(line => !line.includes(`/${kebab}/`) && !line.includes(`/${kebab}'`));
-    if (filtered.length !== lines.length) {
-      fs.writeFileSync(indexPath, filtered.join('\n'), 'utf8');
-      console.log(`[FigmaToCode] Removed exports for "${componentName}" from index.ts`);
-    }
-  } catch (err) {
-    console.warn('[FigmaToCode] Could not update index.ts:', err.message);
-  }
+  const folder = codeGenerator.toKebabCase(componentName);
+  const pascal = codeGenerator.toPascalCase(componentName);
+  codeGenerator.removeExportFromIndex(pascal, folder);
+  codeGenerator.sanitizeComponentIndex();
 }
 
 async function notifyUIServer(event, data) {

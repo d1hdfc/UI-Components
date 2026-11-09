@@ -498,6 +498,7 @@ class ${widgetClass} extends StatelessWidget {
  * Clean up any extra/non-standard files inside a component directory so only
  * the canonical files remain: the 4 code files (<kebab>.dart, <kebab>.scss, <kebab>.tsx,
  * <kebab>.types.ts) plus the optional Figma docs file (<kebab>.md).
+ * Also normalizes internal relative imports (.types / .scss) to lowercase and updates git index casing.
  */
 function enforceFourFileStructure(componentDir, kebabName) {
   if (!fs.existsSync(componentDir)) return;
@@ -511,14 +512,31 @@ function enforceFourFileStructure(componentDir, kebabName) {
   for (const file of fs.readdirSync(componentDir)) {
     const lowerFile = file.toLowerCase();
     if (allowed.has(lowerFile) && file !== lowerFile) {
-      // Force rename on case-insensitive file systems (Windows) via temporary name
       const srcPath = path.join(componentDir, file);
       const tmpPath = path.join(componentDir, `${lowerFile}.__case_tmp__`);
       const dstPath = path.join(componentDir, lowerFile);
-      fs.renameSync(srcPath, tmpPath);
-      fs.renameSync(tmpPath, dstPath);
+      try {
+        const { execFileSync } = require('node:child_process');
+        execFileSync('git', ['mv', '-f', srcPath, tmpPath], { stdio: 'ignore' });
+        execFileSync('git', ['mv', '-f', tmpPath, dstPath], { stdio: 'ignore' });
+      } catch {
+        if (fs.existsSync(srcPath)) fs.renameSync(srcPath, tmpPath);
+        if (fs.existsSync(tmpPath)) fs.renameSync(tmpPath, dstPath);
+      }
     } else if (!allowed.has(file)) {
       fs.rmSync(path.join(componentDir, file), { recursive: true, force: true });
+    }
+  }
+
+  // Ensure internal relative imports inside <kebab>.tsx use lowercase './<kebab>.types' and './<kebab>.scss'
+  const tsxPath = path.join(componentDir, `${kebabName}.tsx`);
+  if (fs.existsSync(tsxPath)) {
+    const src = fs.readFileSync(tsxPath, 'utf8');
+    const updated = src
+      .replace(new RegExp(`(['"])\\./${kebabName}\\.types(['"])`, 'gi'), `$1./${kebabName}.types$2`)
+      .replace(new RegExp(`(['"])\\./${kebabName}\\.scss(['"])`, 'gi'), `$1./${kebabName}.scss$2`);
+    if (updated !== src) {
+      fs.writeFileSync(tsxPath, updated, 'utf8');
     }
   }
 }
@@ -530,29 +548,151 @@ function ensureExportInIndex(pascalName, folder) {
   if (!fs.existsSync(INDEX_FILE)) return;
   let content = fs.readFileSync(INDEX_FILE, 'utf8');
 
-  const alreadyHasFolder = content.includes(`./${folder}/${folder}`);
+  // Verify the component folder and .tsx file actually exist before adding an export
+  const tsxFile = path.join(COMPONENTS_DIR, folder, `${folder}.tsx`);
+  if (!fs.existsSync(tsxFile)) return;
+
+  const alreadyHasFolder = new RegExp(`['"]\\./${folder}/${folder}(?:\\.types)?['"]`).test(content);
   const alreadyHasSymbol = new RegExp(`\\b${pascalName}\\b`).test(content);
   if (!alreadyHasFolder && !alreadyHasSymbol) {
     const exportLine = `export { ${pascalName} } from './${folder}/${folder}'`;
-    content += `\n${exportLine}\nexport type { ${pascalName}Props } from './${folder}/${folder}.types'\n`;
+    content = content.replace(/\s*$/, '') + `\n\n${exportLine}\nexport type { ${pascalName}Props } from './${folder}/${folder}.types'\n`;
     fs.writeFileSync(INDEX_FILE, content, 'utf8');
     console.log(`[CodeGenerator] Added export for ${pascalName} to src/components/index.ts`);
   }
 }
 
 /**
- * Remove export from src/components/index.ts
+ * Remove all exports (single-line and multi-line value & type exports) for a component from src/components/index.ts
  */
 function removeExportFromIndex(pascalName, folder) {
   if (!fs.existsSync(INDEX_FILE)) return;
-  let content = fs.readFileSync(INDEX_FILE, 'utf8');
+  const original = fs.readFileSync(INDEX_FILE, 'utf8');
+  let content = original;
 
-  const lines = content.split('\n').filter(line => {
-    return !line.includes(`./${folder}/`) && !line.includes(`{ ${pascalName} }`);
-  });
+  const escapedFolder = String(folder || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const escapedPascal = String(pascalName || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
-  fs.writeFileSync(INDEX_FILE, lines.join('\n') + '\n', 'utf8');
-  console.log(`[CodeGenerator] Removed export for ${pascalName} from src/components/index.ts`);
+  if (escapedFolder) {
+    // Remove single-line and multi-line export blocks referencing './<folder>/...'
+    const folderExportRe = new RegExp(
+      `^[ \\t]*export\\s+(?:type\\s+)?\\{[\\s\\S]*?\\}\\s*from\\s*['"]\\./${escapedFolder}(?:/[^'"]*)?['"];?[ \\t]*\\r?\\n?`,
+      'gm'
+    );
+    content = content.replace(folderExportRe, '');
+  }
+
+  if (escapedPascal) {
+    // Also remove any single-line export referencing { <PascalName> } or { <PascalName>Props }
+    const symbolExportRe = new RegExp(
+      `^[ \\t]*export\\s+(?:type\\s+)?\\{\\s*${escapedPascal}(?:Props)?(?:\\s+as\\s+\\w+)?\\s*\\}\\s*from\\s*['"][^'"]+['"];?[ \\t]*\\r?\\n?`,
+      'gm'
+    );
+    content = content.replace(symbolExportRe, '');
+  }
+
+  content = content.replace(/\n{3,}/g, '\n\n').trimEnd() + '\n';
+
+  if (content !== original) {
+    fs.writeFileSync(INDEX_FILE, content, 'utf8');
+    console.log(`[CodeGenerator] Removed export for ${pascalName || folder} from src/components/index.ts`);
+  }
+}
+
+/**
+ * Build-time safety check & sanitizer for src/components/index.ts and src/components/library.scss:
+ * - Normalizes any './<folder>/<File>' path to lowercase './<folder>/<folder>' (or './<folder>/<folder>.types')
+ * - Strips any export statements whose target folder/file does not exist on disk
+ * - Strips any @use statements in src/components/library.scss whose target .scss file does not exist
+ */
+function sanitizeComponentIndex() {
+  if (fs.existsSync(INDEX_FILE)) {
+    const original = fs.readFileSync(INDEX_FILE, 'utf8');
+    let content = original;
+    let removedCount = 0;
+    let normalizedCount = 0;
+
+    const exportBlockRe = /^[ \t]*export\s+(?:type\s+)?\{[\s\S]*?\}\s*from\s*(['"])(\.\/([^/'"]+)(?:\/([^'"]+))?)\1;?[ \t]*\r?\n?/gm;
+    content = content.replace(exportBlockRe, (fullMatch, quote, relPath, rawFolder, rawSubpath) => {
+      const folder = toKebabCase(rawFolder);
+      const compDir = path.join(COMPONENTS_DIR, folder);
+      if (!fs.existsSync(compDir) || !fs.statSync(compDir).isDirectory()) {
+        removedCount++;
+        return '';
+      }
+
+      enforceFourFileStructure(compDir, folder);
+
+      const isTypesImport = Boolean(rawSubpath && /\.types$/i.test(rawSubpath));
+      const expectedTargetFile = isTypesImport
+        ? path.join(compDir, `${folder}.types.ts`)
+        : path.join(compDir, `${folder}.tsx`);
+
+      if (!fs.existsSync(expectedTargetFile)) {
+        removedCount++;
+        return '';
+      }
+
+      const canonicalRelPath = isTypesImport
+        ? `./${folder}/${folder}.types`
+        : `./${folder}/${folder}`;
+
+      if (relPath !== canonicalRelPath) {
+        normalizedCount++;
+        return fullMatch.replace(`${quote}${relPath}${quote}`, `${quote}${canonicalRelPath}${quote}`);
+      }
+      return fullMatch;
+    });
+
+    content = content.replace(/\n{3,}/g, '\n\n').trimEnd() + '\n';
+    if (content !== original) {
+      fs.writeFileSync(INDEX_FILE, content, 'utf8');
+      console.log(`[IndexValidator] Sanitized src/components/index.ts (removed ${removedCount} missing export(s), normalized ${normalizedCount} path(s))`);
+    }
+  }
+
+      const libScss = path.join(COMPONENTS_DIR, 'library.scss');
+  if (fs.existsSync(libScss)) {
+    const originalLib = fs.readFileSync(libScss, 'utf8');
+    const validLines = originalLib.split(/\r?\n/).filter((line) => {
+      const m = line.match(/^\s*@use\s+['"]\.\/([^/'"]+)\/([^'"]+)['"]/);
+      if (!m) return true;
+      const folder = m[1];
+      const scssFile = path.join(COMPONENTS_DIR, folder, `${folder}.scss`);
+      return fs.existsSync(scssFile);
+    });
+    const updatedLib = validLines.join('\n').trimEnd() + '\n';
+    if (updatedLib !== originalLib) {
+      fs.writeFileSync(libScss, updatedLib, 'utf8');
+      console.log('[IndexValidator] Cleaned missing component @use rules from src/components/library.scss');
+    }
+  }
+
+  // Ensure git index tracks lowercase filenames under src/components/<folder>/<file> for Linux CI builds
+  try {
+    const { execFileSync } = require('node:child_process');
+    const tracked = execFileSync('git', ['ls-files', 'src/components'], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] })
+      .split(/\r?\n/)
+      .map(s => s.trim())
+      .filter(Boolean);
+    for (const rel of tracked) {
+      const parts = rel.split('/');
+      if (parts.length !== 3) continue;
+      const [, folderPart, filePart] = parts;
+      const lowerFolder = folderPart.toLowerCase();
+      const lowerFile = filePart.toLowerCase();
+      if (folderPart !== lowerFolder || filePart !== lowerFile) {
+        const lowerRel = `src/components/${lowerFolder}/${lowerFile}`;
+        const tmpRel = `src/components/${lowerFolder}/${lowerFile}.__gitcase_tmp__`;
+        if (fs.existsSync(path.join(process.cwd(), rel))) {
+          execFileSync('git', ['mv', '-f', rel, tmpRel], { stdio: 'ignore' });
+          execFileSync('git', ['mv', '-f', tmpRel, lowerRel], { stdio: 'ignore' });
+        }
+      }
+    }
+  } catch {
+    // Ignore if git is unavailable or not a git repository
+  }
 }
 
 /**
@@ -649,6 +789,7 @@ function deleteComponentFiles(rawName) {
     removedAnything = true;
   }
 
+  sanitizeComponentIndex();
   appPageGenerator.syncAppComponentPages();
   appPageGenerator.touchHmrEntryPoints();
 
@@ -689,7 +830,7 @@ function normalizeSingleComponentFolder(rawFolderName) {
     const ext = rf.endsWith('.types.ts') ? '.types.ts' : path.extname(rf);
     if (!['.tsx', '.types.ts', '.scss', '.dart', '.md'].includes(ext)) continue;
     const expectedName = `${folder}${ext}`;
-    if (rf !== expectedName) {
+    if (rf.toLowerCase() !== expectedName.toLowerCase()) {
       const srcFile = path.join(folderPath, rf);
       const dstFile = path.join(folderPath, expectedName);
       const oldStem = rf.slice(0, rf.length - ext.length);
@@ -697,20 +838,22 @@ function normalizeSingleComponentFolder(rawFolderName) {
       let fileText = fs.readFileSync(srcFile, 'utf8');
       if (ext === '.tsx' || ext === '.types.ts') {
         fileText = fileText
-          .replace(new RegExp(`\\./${oldStem}\\.types`, 'g'), `./${folder}.types`)
-          .replace(new RegExp(`\\./${oldStem}\\.scss`, 'g'), `./${folder}.scss`)
+          .replace(new RegExp(`\\./${oldStem}\\.types`, 'gi'), `./${folder}.types`)
+          .replace(new RegExp(`\\./${oldStem}\\.scss`, 'gi'), `./${folder}.scss`)
           .replace(new RegExp(`\\b${oldPascal}Props\\b`, 'g'), `${pascalName}Props`)
           .replace(new RegExp(`\\b${oldPascal}Variant\\b`, 'g'), `${pascalName}Variant`)
           .replace(new RegExp(`\\b${oldPascal}Size\\b`, 'g'), `${pascalName}Size`)
-          .replace(new RegExp(`export\\s+(const|function)\\s+${oldPascal}\\b`, 'g'), `export $1 ${pascalName}`)
+          .replace(new RegExp(`\\b${oldPascal}State\\b`, 'g'), `${pascalName}State`)
+          .replace(new RegExp(`\\b${oldPascal}VisualType\\b`, 'g'), `${pascalName}VisualType`)
+          .replace(new RegExp(`(const|function)\\s+${oldPascal}\\b`, 'g'), `$1 ${pascalName}`)
+          .replace(new RegExp(`${oldPascal}\\.displayName\\b`, 'g'), `${pascalName}.displayName`)
+          .replace(new RegExp(`export\\s*\\{\\s*${oldPascal}\\b`, 'g'), `export { ${pascalName}`)
           .replace(new RegExp(`export\\s+default\\s+${oldPascal}\\b`, 'g'), `export default ${pascalName}`);
       } else if (ext === '.dart') {
         fileText = fileText.replace(new RegExp(`\\bUI${oldPascal}\\b`, 'g'), `UI${pascalName}`);
       }
       fs.writeFileSync(dstFile, fileText, 'utf8');
-      if (srcFile.toLowerCase() !== dstFile.toLowerCase()) {
-        fs.rmSync(srcFile, { force: true });
-      }
+      fs.rmSync(srcFile, { force: true });
     }
   }
 
@@ -800,5 +943,6 @@ module.exports = {
   generateForExistingComponents,
   ensureExportInIndex,
   removeExportFromIndex,
+  sanitizeComponentIndex,
   enforceFourFileStructure
 };

@@ -133,6 +133,10 @@ function syncAppComponentPages() {
 
   cleanInvalidDigitPrefixedComponents();
   normalizeCustomPageDirs();
+  // Validate and sanitize src/components/index.ts & library.scss before page generation or bundling
+  try {
+    require('./code-generator.cjs').sanitizeComponentIndex();
+  } catch {}
   // Every component folder gets a <kebab>.md (local baseline until synced from Figma).
   // The docs pages render it via src/app/pages/ComponentPage/componentMarkdown.ts.
   require('./docs-generator.cjs').ensureLocalDocsForAll();
