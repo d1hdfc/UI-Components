@@ -608,6 +608,11 @@ function applyFigmaLivePayload(payload) {
           const edits = applyCanvasComponentEditsToCode(comp, semanticsPath);
           if (edits > 0) updatedCount += edits;
         }
+        //Remove any synthetic local:<kebab> record once the real Figma node ID is synced
+        const syntheticKey = `local:${kebab}`;
+        if (syncState.components[syntheticKey] && comp.id !== syntheticKey) {
+          delete syncState.components[syntheticKey];
+        }
         if (!syncState.components[comp.id]) {
           syncState.components[comp.id] = {
             id: comp.id,
@@ -618,28 +623,67 @@ function applyFigmaLivePayload(payload) {
             generated: true,
             updatedAt: new Date().toISOString()
           };
+        } else {
+          syncState.components[comp.id].name = comp.name;
+          syncState.components[comp.id].kebab = kebab;
+          if (comp.pageName) syncState.components[comp.id].pageName = comp.pageName;
         }
       }
     }
 
-    // Check for deleted components when a full scan or canvas lifecycle scan was performed
-    const isLifecycleScan = Boolean(payload.isFullScan);
+    // Check for deleted components on both full document scans and active-page incremental scans
+    const isFullDocumentScan = Boolean(payload.isFullScan && payload.components.length >= 10);
+    const scannedPages = new Set(payload.components.map(c => c?.pageName).filter(Boolean));
+    if (payload.currentPageName) scannedPages.add(payload.currentPageName);
+    const allFigmaPages = Array.isArray(payload.allPageNames) ? new Set(payload.allPageNames) : null;
 
-    if (isLifecycleScan && payload.components.length > 0) {
+    if (payload.components.length > 0 || payload.currentPageName) {
       for (const [id, prev] of Object.entries(syncState.components)) {
         if (!prev || !prev.name) continue;
-        // If the scan only covered the active page, only delete components that belonged to that page
-        if (payload.currentPageName && prev.pageName && prev.pageName !== 'Canvas' && prev.pageName !== payload.currentPageName) {
+        const prevKebab = prev.kebab || codeGenerator.toKebabCase(prev.name);
+        if (seenIds.has(id) || seenKebabs.has(prevKebab) || protectedKebabs.has(prevKebab)) {
           continue;
         }
-        const prevKebab = prev.kebab || codeGenerator.toKebabCase(prev.name);
-        if (!seenIds.has(id) && !seenKebabs.has(prevKebab) && !protectedKebabs.has(prevKebab)) {
+
+        // Determine if this component's page was covered by the current scan, or if its Figma page was deleted
+        const pageWasDeleted = Boolean(allFigmaPages && prev.pageName && prev.pageName !== 'Canvas' && !allFigmaPages.has(prev.pageName));
+        // Only treat an active-page scan as authoritative for that page if it actually returned components on that page,
+        // or if it is a full document scan (which visits every page in the document).
+        const pageWasScanned = (
+          (isFullDocumentScan && prev.source !== 'code') ||
+          pageWasDeleted ||
+          (prev.pageName && prev.pageName !== 'Canvas' && scannedPages.has(prev.pageName) && payload.components.length > 0)
+        );
+
+        if (pageWasScanned) {
           suppressWatcherUntil = Date.now() + 3000;
-          console.log(`[FigmaSync] DELETED: Component <${prev.name}> removed from src/components/${prevKebab}, src/components/index.ts, and src/app/pages/`);
+          console.log(`[FigmaSync] 🗑️ AUTO-DELETED: Component <${prev.name}> removed from src/components and UI pages`);
           codeGenerator.deleteComponentFiles(prev.name);
           touchMainStylesheet();
           delete syncState.components[id];
           deletedCount++;
+        }
+      }
+
+      // Also clean up any orphan dynamically-created component directories
+      // that were tracked in .sync-state.json and deleted on a full document scan
+      if (isFullDocumentScan) {
+        const entries = fs.readdirSync(COMPONENTS_DIR, { withFileTypes: true });
+        for (const entry of entries) {
+          if (!entry.isDirectory() || entry.name === 'assets') continue;
+          const folderKebab = entry.name;
+          if (!seenKebabs.has(folderKebab) && !protectedKebabs.has(folderKebab)) {
+            const stateRecord = Object.values(syncState.components).find(
+              c => (c.kebab || codeGenerator.toKebabCase(c.name || '')) === folderKebab
+            );
+            if (stateRecord && stateRecord.source !== 'code') {
+              suppressWatcherUntil = Date.now() + 3000;
+              console.log(`[FigmaSync] 🗑️ AUTO-DELETED: Component <${folderKebab}> removed from src/components and UI pages`);
+              codeGenerator.deleteComponentFiles(folderKebab);
+              touchMainStylesheet();
+              deletedCount++;
+            }
+          }
         }
       }
     }
@@ -674,6 +718,9 @@ function syncComponentDocs(payload) {
   const collect = (node) => {
     if (!node || !node.name || String(node.name).includes('=')) return;
     if (node.type && node.type !== 'COMPONENT' && node.type !== 'COMPONENT_SET') return;
+    // Skip unhydrated state records that have no serialized layout/variant properties
+    const isHydrated = typeof node.width === 'number' || typeof node.height === 'number' || Array.isArray(node.children) || Boolean(node.componentPropertyDefinitions);
+    if (!isHydrated) return;
     byKebab.set(codeGenerator.toKebabCase(node.name), node);
   };
   if (Array.isArray(payload.components)) payload.components.forEach(collect);
@@ -788,9 +835,30 @@ function handleSocketMessage(socket, rawMessage) {
     if (payload?.event === 'CODE_TO_FIGMA_SYNC_REQUEST') {
       const targetFolder = payload.componentFolder || lastModifiedComponentFolder || 'button';
       console.log(`[Bridge] Code -> Figma sync requested from plugin for "${targetFolder}"`);
+      codeGenerator.generateForExistingComponents();
       triggerCodeToFigmaSync(targetFolder, 'update');
       if (targetFolder !== 'button' && fs.existsSync(path.join(COMPONENTS_DIR, 'button'))) {
         triggerCodeToFigmaSync('button', 'update');
+      }
+      // Also push any locally created components (source: 'code') so they appear on the Figma canvas
+      const syncState = loadSyncState();
+      for (const entry of Object.values(syncState.components)) {
+        if (entry?.source === 'code' && entry.kebab && entry.kebab !== targetFolder && fs.existsSync(path.join(COMPONENTS_DIR, entry.kebab))) {
+          triggerCodeToFigmaSync(entry.kebab, 'create');
+        }
+      }
+      return;
+    }
+
+    // 4. Auto-sync any locally-created components to Figma when plugin connects
+    if (payload?.event === 'CODE_TO_FIGMA_SYNC_ALL_LOCAL') {
+      codeGenerator.generateForExistingComponents();
+      const syncState = loadSyncState();
+      for (const entry of Object.values(syncState.components)) {
+        if (entry?.source === 'code' && entry.kebab && fs.existsSync(path.join(COMPONENTS_DIR, entry.kebab))) {
+          console.log(`[Bridge] Auto-pushing locally created component <${entry.kebab}> to Figma canvas`);
+          triggerCodeToFigmaSync(entry.kebab, 'create');
+        }
       }
       return;
     }
@@ -834,13 +902,34 @@ async function triggerFigmaToCodeSync(triggerSource = 'manual') {
 }
 
 async function triggerCodeToFigmaSync(componentFolder, action = 'update') {
-  lastModifiedComponentFolder = componentFolder;
-  console.log(`\n[SyncServer] >>> Triggering Code to Figma Auto-Sync (${action}: ${componentFolder})`);
+  let effectiveFolder = componentFolder;
+  const rawFolderPath = path.join(COMPONENTS_DIR, componentFolder);
 
-  const compData = codeParser.parseComponentDir(componentFolder);
+  if (action !== 'delete' && fs.existsSync(rawFolderPath)) {
+    suppressWatcherUntil = Date.now() + 2000;
+    const normalized = codeGenerator.normalizeSingleComponentFolder(componentFolder);
+    if (normalized) effectiveFolder = normalized;
+  } else if (action === 'delete') {
+    effectiveFolder = codeGenerator.toKebabCase(componentFolder);
+  }
+
+  lastModifiedComponentFolder = effectiveFolder;
+  console.log(`\n[SyncServer] >>> Triggering Code to Figma Auto-Sync (${action}: ${effectiveFolder})`);
+
+  const compData = codeParser.parseComponentDir(effectiveFolder);
 
   if (action === 'delete' || compData.isDeleted) {
-    console.log(`\n[FigmaSync] DELETED: Variant <${compData.componentName}> removed from src/components and UI pages`);
+    console.log(`\n[FigmaSync] 🗑️ AUTO-DELETED: Component <${compData.componentName}> removed from src/components and UI pages`);
+    suppressWatcherUntil = Date.now() + 2500;
+    codeGenerator.deleteComponentFiles(effectiveFolder);
+    // Also remove from .sync-state.json so Figma-to-Code knows it was deleted
+    const syncState = loadSyncState();
+    for (const [id, entry] of Object.entries(syncState.components)) {
+      if ((entry.kebab || codeGenerator.toKebabCase(entry.name || '')) === effectiveFolder) {
+        delete syncState.components[id];
+      }
+    }
+    saveSyncState(syncState);
     appPageGenerator.syncAppComponentPages();
     broadcastToChannel('figma-sync', {
       event: 'CODE_TO_FIGMA_DELETE',
@@ -849,6 +938,26 @@ async function triggerCodeToFigmaSync(componentFolder, action = 'update') {
       nodeId: compData.nodeId
     });
     return;
+  }
+
+  // Register newly created code component in .sync-state.json so it is tracked across lifecycle scans
+  const syncState = loadSyncState();
+  const hasEntry = Object.values(syncState.components).some(
+    c => (c.kebab || codeGenerator.toKebabCase(c.name || '')) === compData.folder
+  );
+  if (!hasEntry) {
+    const syntheticId = compData.nodeId || `local:${compData.folder}`;
+    syncState.components[syntheticId] = {
+      id: syntheticId,
+      name: compData.componentName,
+      kebab: compData.folder,
+      type: 'COMPONENT',
+      pageName: 'Canvas',
+      source: 'code',
+      generated: true,
+      updatedAt: new Date().toISOString()
+    };
+    saveSyncState(syncState);
   }
 
   console.log(`[CodeWatcher] CHANGED: src/components/${compData.folder}/${compData.folder}.scss -> Syncing to Figma Canvas`);
@@ -905,6 +1014,44 @@ function setupCodeWatcher() {
   console.log(`[CodeWatcher] Watching for local component changes in: ${COMPONENTS_DIR}`);
 
   const debounceTimers = new Map();
+  let knownComponentFolders = new Set(
+    fs.readdirSync(COMPONENTS_DIR, { withFileTypes: true })
+      .filter(d => d.isDirectory() && d.name !== 'assets')
+      .map(d => d.name)
+  );
+
+  // Also scan every 1.5s for pasted/renamed/deleted folders (since Windows fs.watch misses copy-pasted folder trees)
+  setInterval(() => {
+    if (Date.now() < suppressWatcherUntil) return;
+    if (!fs.existsSync(COMPONENTS_DIR)) return;
+
+    const currentRawFolders = fs.readdirSync(COMPONENTS_DIR, { withFileTypes: true })
+      .filter(d => d.isDirectory() && d.name !== 'assets')
+      .map(d => d.name);
+
+    const currentSet = new Set(currentRawFolders);
+
+    // 1. Detect newly added or renamed folders (e.g. "button copy")
+    for (const rawFolder of currentRawFolders) {
+      if (!knownComponentFolders.has(rawFolder)) {
+        suppressWatcherUntil = Date.now() + 2500;
+        const normalized = codeGenerator.normalizeSingleComponentFolder(rawFolder) || rawFolder;
+        knownComponentFolders.delete(rawFolder);
+        knownComponentFolders.add(normalized);
+        console.log(`[CodeWatcher] ADDED: New component folder "${rawFolder}" -> normalized to "src/components/${normalized}" & syncing to Figma`);
+        triggerCodeToFigmaSync(normalized, 'create');
+      }
+    }
+
+    // 2. Detect deleted folders
+    for (const prevFolder of Array.from(knownComponentFolders)) {
+      if (!currentSet.has(prevFolder) && !fs.existsSync(path.join(COMPONENTS_DIR, prevFolder))) {
+        knownComponentFolders.delete(prevFolder);
+        console.log(`[CodeWatcher] DELETED: Component folder "src/components/${prevFolder}" removed locally -> syncing deletion to Figma`);
+        triggerCodeToFigmaSync(prevFolder, 'delete');
+      }
+    }
+  }, 1500);
 
   fs.watch(COMPONENTS_DIR, { recursive: true }, (eventType, filename) => {
     if (Date.now() < suppressWatcherUntil) return;
@@ -932,9 +1079,14 @@ function setupCodeWatcher() {
         const exists = fs.existsSync(folderPath);
 
         if (!exists) {
+          knownComponentFolders.delete(componentFolder);
           triggerCodeToFigmaSync(componentFolder, 'delete');
         } else {
-          triggerCodeToFigmaSync(componentFolder, 'update');
+          const isNew = !knownComponentFolders.has(componentFolder);
+          const normalized = codeGenerator.normalizeSingleComponentFolder(componentFolder) || componentFolder;
+          knownComponentFolders.delete(componentFolder);
+          knownComponentFolders.add(normalized);
+          triggerCodeToFigmaSync(normalized, isNew ? 'create' : 'update');
         }
       }, 600)
     );
@@ -1176,6 +1328,8 @@ if (require.main === module) {
     console.log(`🩺 Health & Status Check: http://localhost:${PORT}/api/sync/status`);
     console.log('====================================================');
 
+    // Normalize any newly pasted/renamed component folders on startup (e.g. "button copy" -> "button-copy")
+    codeGenerator.generateForExistingComponents();
     setupCodeWatcher();
     setupFigmaPoller();
   });
@@ -1187,4 +1341,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = { applyFigmaLivePayload, pxToTokenVar, hexToTokenVar };
+module.exports = { applyFigmaLivePayload, triggerCodeToFigmaSync, pxToTokenVar, hexToTokenVar };

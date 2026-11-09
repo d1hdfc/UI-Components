@@ -110,6 +110,24 @@ function resolveTokenValue(value, seen = new Set()) {
 // Figma node-id lookup
 // ─────────────────────────────────────────────────────────────
 function findFigmaNodeId(componentName, folder) {
+  const syncStatePath = path.join(process.cwd(), '.sync-state.json');
+  if (fs.existsSync(syncStatePath)) {
+    try {
+      const state = JSON.parse(fs.readFileSync(syncStatePath, 'utf8'));
+      if (state && state.components) {
+        for (const [id, entry] of Object.entries(state.components)) {
+          if (!entry || String(id).startsWith('local:')) continue;
+          const entryKebab = (entry.kebab || '').toLowerCase();
+          const entryClean = String(entry.name || '').replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+          const targetClean = String(componentName || '').replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+          if ((folder && entryKebab === folder.toLowerCase()) || (targetClean && entryClean === targetClean)) {
+            return id;
+          }
+        }
+      }
+    } catch { /* ignore */ }
+  }
+
   if (fs.existsSync(MCP_CONFIG_PATH)) {
     try {
       const mcp = JSON.parse(fs.readFileSync(MCP_CONFIG_PATH, 'utf8'));

@@ -354,6 +354,8 @@ function serializeComponentNode(node, pageName, selectedIds = new Set()) {
     backgroundColor: bgColor,
     textColor,
     borderColor: strokeColor,
+    description: typeof node.description === 'string' ? node.description : '',
+    documentationLinks: Array.isArray(node.documentationLinks) ? node.documentationLinks : [],
     componentPropertyDefinitions: compPropDefs,
     children: childrenSummary
   };
@@ -402,7 +404,8 @@ async function exportFullFigmaState(reason = 'manual') {
     reason === 'manual' ||
     reason === 'auto-connect' ||
     reason === 'document-change' ||
-    reason === 'canvas-add-or-delete'
+    reason === 'canvas-add-or-delete' ||
+    reason === 'pages-change'
   );
 
   if (isFullScan) {
@@ -414,11 +417,14 @@ async function exportFullFigmaState(reason = 'manual') {
     collectFromPage(figma.currentPage);
   }
 
+  const allPageNames = figma.root.children.map(p => p.name);
+
   figma.ui.postMessage({
     type: 'FIGMA_LIVE_SYNC_PAYLOAD',
     payload: {
       reason,
       isFullScan,
+      allPageNames,
       fileName: figma.root.name,
       currentPageName: figma.currentPage.name,
       tokenMap,
@@ -672,8 +678,10 @@ figma.ui.onmessage = async (msg) => {
         } = msg.payload || {};
 
         let node = await findNode(nodeId, componentName);
+        let wasCreated = false;
 
         if (!node) {
+          wasCreated = true;
           node = figma.createComponent();
           node.name = componentName || 'NewComponent';
           node.resize(width || 200, height || 48);
@@ -691,7 +699,7 @@ figma.ui.onmessage = async (msg) => {
           node.appendChild(txt);
 
           figma.notify(`✅ Created "${node.name}" on canvas`);
-          log(`CREATED: "${node.name}" on canvas`);
+          log(`CREATED: "${node.name}" on canvas (id=${node.id})`);
         } else {
           const nodePage = getPageOfNode(node);
           if (nodePage && nodePage.id !== figma.currentPage.id) {
@@ -820,6 +828,10 @@ figma.ui.onmessage = async (msg) => {
         const summary = `fontSize=${fontSize ?? 'map'}px (${updatedVariants} variants, ${updatedTexts} text nodes)`;
         figma.notify(`✅ Updated "${node.name}" — ${summary}`);
         log(`UPDATED: "${node.name}" — ${summary}`);
+
+        if (wasCreated) {
+          await exportFullFigmaState('code-created-component');
+        }
       } finally {
         setTimeout(() => { isApplyingCodeUpdate = false; }, 1500);
       }
@@ -843,6 +855,7 @@ figma.ui.onmessage = async (msg) => {
 // ── Real-Time Figma Change Listeners (Figma ➔ Code) ─────────
 
 let docChangeTimer = null;
+let lastAllPagesListHash = '';
 
 async function initRealtimeWatchers() {
   try {
@@ -877,6 +890,17 @@ async function initRealtimeWatchers() {
         return;
       } else if (!lastVariablesHash) {
         lastVariablesHash = currentHash;
+      }
+
+      // Snapshot all pages in document to detect when an entire Figma Page (e.g. Button1, Button2) is added or deleted
+      const currentPagesHash = figma.root.children.map(p => `${p.id}:${p.name}`).join('|');
+      if (lastAllPagesListHash && currentPagesHash !== lastAllPagesListHash) {
+        lastAllPagesListHash = currentPagesHash;
+        log('🔄 Detected Figma page list change (Page added/deleted) — auto-syncing to VS Code...');
+        await exportFullFigmaState('pages-change');
+        return;
+      } else if (!lastAllPagesListHash) {
+        lastAllPagesListHash = currentPagesHash;
       }
 
       // Snapshot all components on current page to detect hands-free ADD / EDIT / DELETE

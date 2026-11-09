@@ -239,12 +239,18 @@ async function syncFigmaToCode(options = {}) {
   }
 
   // 2. Detect Deleted Components
+  const activeKebabs = new Set(
+    Array.from(currentFigmaComponents.values()).map(c => codeGenerator.toKebabCase(c.name))
+  );
   for (const [id, prev] of Object.entries(syncState.components)) {
     if (!currentFigmaComponents.has(id)) {
-      console.log(`[FigmaSync] DELETED: Variant <${prev.name}> removed from src/components and UI pages`);
-      codeGenerator.deleteComponentFiles(prev.name);
-      removeFromIndexTs(prev.name);
-      await notifyUIServer('CODE_COMPONENT_DELETED', { componentName: prev.name, nodeId: id });
+      const prevKebab = prev.kebab || codeGenerator.toKebabCase(prev.name);
+      if (!activeKebabs.has(prevKebab)) {
+        console.log(`[FigmaSync] 🗑️ AUTO-DELETED: Component <${prev.name}> removed from src/components and UI pages`);
+        codeGenerator.deleteComponentFiles(prev.name);
+        removeFromIndexTs(prev.name);
+        await notifyUIServer('CODE_COMPONENT_DELETED', { componentName: prev.name, nodeId: id });
+      }
       delete syncState.components[id];
       deletedCount++;
     }

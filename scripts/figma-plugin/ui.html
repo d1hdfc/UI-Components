@@ -146,6 +146,11 @@
           statusBadge.textContent = 'Live Connected';
           log('Connected to sync server! Auto-sync lifecycle active.');
           socket.send(JSON.stringify({ type: 'join', channel: 'figma-sync' }));
+          socket.send(JSON.stringify({
+            type: 'message',
+            channel: 'figma-sync',
+            message: { event: 'CODE_TO_FIGMA_SYNC_ALL_LOCAL' }
+          }));
           parent.postMessage({
             pluginMessage: {
               type: 'REQUEST_FULL_FIGMA_EXPORT',

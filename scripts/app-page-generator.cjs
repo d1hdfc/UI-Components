@@ -119,9 +119,11 @@ function normalizeCustomPageDirs() {
 function touchHmrEntryPoints() {
   const now = new Date();
   const registryPath = path.join(PAGES_DIR, 'ComponentPage', 'componentRegistry.tsx');
+  const mdRegistryPath = path.join(PAGES_DIR, 'ComponentPage', 'componentMarkdown.ts');
   const appPath = path.join(process.cwd(), 'src', 'app', 'App.tsx');
   const mainScss = path.join(process.cwd(), 'src', 'app', 'main.scss');
   try { if (fs.existsSync(registryPath)) fs.utimesSync(registryPath, now, now); } catch {}
+  try { if (fs.existsSync(mdRegistryPath)) fs.utimesSync(mdRegistryPath, now, now); } catch {}
   try { if (fs.existsSync(appPath)) fs.utimesSync(appPath, now, now); } catch {}
   try { if (fs.existsSync(mainScss)) fs.utimesSync(mainScss, now, now); } catch {}
 }

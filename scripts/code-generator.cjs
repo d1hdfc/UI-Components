@@ -621,24 +621,130 @@ function generateComponentFiles(figmaNode, options = {}) {
 }
 
 /**
- * Delete a component from code
+ * Delete a component from code (removes src/components/<kebab>/, exports in src/components/index.ts,
+ * @use in src/components/library.scss, docs snapshot, and src/app/pages/<PageName>Page/)
  */
 function deleteComponentFiles(rawName) {
   const kebabName = toKebabCase(rawName);
   const pascalName = toPascalCase(rawName);
   const componentDir = path.join(COMPONENTS_DIR, kebabName);
+  const pageDirName = `${appPageGenerator.toPageName(kebabName)}Page`;
+  const pageDir = path.join(process.cwd(), 'src', 'app', 'pages', pageDirName);
+
+  let removedAnything = false;
 
   if (fs.existsSync(componentDir)) {
     fs.rmSync(componentDir, { recursive: true, force: true });
     console.log(`[CodeGenerator] Deleted component folder: ${componentDir}`);
-    removeExportFromIndex(pascalName, kebabName);
-    removeFromLibraryScss(kebabName);
-    docsGenerator.forgetComponent(kebabName);
-    appPageGenerator.syncAppComponentPages();
-    return true;
+    removedAnything = true;
   }
 
-  return false;
+  removeExportFromIndex(pascalName, kebabName);
+  removeFromLibraryScss(kebabName);
+  docsGenerator.forgetComponent(kebabName);
+
+  if (fs.existsSync(pageDir)) {
+    fs.rmSync(pageDir, { recursive: true, force: true });
+    console.log(`[PageGenerator] DELETED: Removed page src/app/pages/${pageDirName}`);
+    removedAnything = true;
+  }
+
+  appPageGenerator.syncAppComponentPages();
+  appPageGenerator.touchHmrEntryPoints();
+
+  return removedAnything;
+}
+
+/**
+ * Normalize a single component folder (e.g. "button copy" -> "button-copy"):
+ * - Renames directory to kebab-case
+ * - Renames copied files inside (e.g. button.tsx -> button-copy.tsx) and updates internal symbol names/imports
+ * - Ensures all 4 code files + .md exist and exports are added to src/components/index.ts
+ */
+function normalizeSingleComponentFolder(rawFolderName) {
+  if (!rawFolderName || rawFolderName === 'assets') return null;
+  const rawDirPath = path.join(COMPONENTS_DIR, rawFolderName);
+  if (!fs.existsSync(rawDirPath) || !fs.statSync(rawDirPath).isDirectory()) return null;
+
+  const folder = toKebabCase(rawFolderName);
+  const pascalName = toPascalCase(folder);
+  const folderPath = path.join(COMPONENTS_DIR, folder);
+
+  if (rawFolderName !== folder) {
+    fs.mkdirSync(folderPath, { recursive: true });
+    for (const rf of fs.readdirSync(rawDirPath)) {
+      const ext = rf.endsWith('.types.ts') ? '.types.ts' : path.extname(rf);
+      if (['.tsx', '.types.ts', '.scss', '.dart', '.md'].includes(ext)) {
+        const destFile = path.join(folderPath, `${folder}${ext}`);
+        fs.copyFileSync(path.join(rawDirPath, rf), destFile);
+      }
+    }
+    fs.rmSync(rawDirPath, { recursive: true, force: true });
+  }
+
+  if (!fs.existsSync(folderPath)) return null;
+
+  // Rename any inner files whose base name doesn't match the folder (e.g. copied button.tsx inside button-copy)
+  for (const rf of fs.readdirSync(folderPath)) {
+    const ext = rf.endsWith('.types.ts') ? '.types.ts' : path.extname(rf);
+    if (!['.tsx', '.types.ts', '.scss', '.dart', '.md'].includes(ext)) continue;
+    const expectedName = `${folder}${ext}`;
+    if (rf !== expectedName) {
+      const srcFile = path.join(folderPath, rf);
+      const dstFile = path.join(folderPath, expectedName);
+      const oldStem = rf.slice(0, rf.length - ext.length);
+      const oldPascal = toPascalCase(oldStem);
+      let fileText = fs.readFileSync(srcFile, 'utf8');
+      if (ext === '.tsx' || ext === '.types.ts') {
+        fileText = fileText
+          .replace(new RegExp(`\\./${oldStem}\\.types`, 'g'), `./${folder}.types`)
+          .replace(new RegExp(`\\./${oldStem}\\.scss`, 'g'), `./${folder}.scss`)
+          .replace(new RegExp(`\\b${oldPascal}Props\\b`, 'g'), `${pascalName}Props`)
+          .replace(new RegExp(`\\b${oldPascal}Variant\\b`, 'g'), `${pascalName}Variant`)
+          .replace(new RegExp(`\\b${oldPascal}Size\\b`, 'g'), `${pascalName}Size`)
+          .replace(new RegExp(`export\\s+(const|function)\\s+${oldPascal}\\b`, 'g'), `export $1 ${pascalName}`)
+          .replace(new RegExp(`export\\s+default\\s+${oldPascal}\\b`, 'g'), `export default ${pascalName}`);
+      } else if (ext === '.dart') {
+        fileText = fileText.replace(new RegExp(`\\bUI${oldPascal}\\b`, 'g'), `UI${pascalName}`);
+      }
+      fs.writeFileSync(dstFile, fileText, 'utf8');
+      if (srcFile.toLowerCase() !== dstFile.toLowerCase()) {
+        fs.rmSync(srcFile, { force: true });
+      }
+    }
+  }
+
+  const mockMeta = {
+    variants: ['primary', 'secondary', 'tertiary'],
+    sizes: ['small', 'medium', 'large'],
+    defaultLabel: pascalName,
+    padding: { top: 10, right: 16, bottom: 10, left: 16 },
+    cornerRadius: 8,
+    layoutMode: 'row'
+  };
+
+  const tsxPath = path.join(folderPath, `${folder}.tsx`);
+  const typesPath = path.join(folderPath, `${folder}.types.ts`);
+  const scssPath = path.join(folderPath, `${folder}.scss`);
+  const flutterPath = path.join(folderPath, `${folder}.dart`);
+
+  if (!fs.existsSync(tsxPath)) {
+    fs.writeFileSync(tsxPath, generateReactComponent(pascalName, folder, mockMeta), 'utf8');
+  }
+  if (!fs.existsSync(typesPath)) {
+    fs.writeFileSync(typesPath, generateReactTypes(pascalName, folder, mockMeta), 'utf8');
+  }
+  if (!fs.existsSync(scssPath)) {
+    fs.writeFileSync(scssPath, generateScss(pascalName, folder, mockMeta), 'utf8');
+  }
+  if (!fs.existsSync(flutterPath)) {
+    fs.writeFileSync(flutterPath, generateFlutterWidget(pascalName, folder, mockMeta), 'utf8');
+  }
+
+  ensureExportInIndex(pascalName, folder);
+  enforceFourFileStructure(folderPath, folder);
+  appPageGenerator.syncAppComponentPages();
+  return folder;
 }
 
 /**
@@ -650,58 +756,32 @@ function generateForExistingComponents() {
   const entries = fs.readdirSync(COMPONENTS_DIR, { withFileTypes: true });
   for (const entry of entries) {
     if (!entry.isDirectory() || entry.name === 'assets') continue;
-    const rawDirPath = path.join(COMPONENTS_DIR, entry.name);
-    const folder = toKebabCase(entry.name);
-    const folderPath = path.join(COMPONENTS_DIR, folder);
-
-    if (entry.name !== folder) {
-      fs.mkdirSync(folderPath, { recursive: true });
-      const rawFiles = fs.readdirSync(rawDirPath);
-      for (const rf of rawFiles) {
-        const ext = rf.endsWith('.types.ts')
-          ? '.types.ts'
-          : path.extname(rf);
-        if (['.tsx', '.types.ts', '.scss', '.dart'].includes(ext)) {
-          const destFile = path.join(folderPath, `${folder}${ext}`);
-          if (!fs.existsSync(destFile)) {
-            fs.copyFileSync(path.join(rawDirPath, rf), destFile);
-          }
+    const normalized = normalizeSingleComponentFolder(entry.name);
+    if (normalized) {
+      // Ensure the component is tracked in .sync-state.json so local code creations are preserved and synced to Figma
+      const statePath = path.join(process.cwd(), '.sync-state.json');
+      try {
+        const state = fs.existsSync(statePath) ? JSON.parse(fs.readFileSync(statePath, 'utf8')) : { version: null, components: {} };
+        state.components = state.components || {};
+        const hasRecord = Object.values(state.components).some(
+          c => (c.kebab || toKebabCase(c.name || '')) === normalized
+        );
+        if (!hasRecord) {
+          const syntheticId = `local:${normalized}`;
+          state.components[syntheticId] = {
+            id: syntheticId,
+            name: toPascalCase(normalized),
+            kebab: normalized,
+            type: 'COMPONENT',
+            pageName: 'Canvas',
+            source: 'code',
+            generated: true,
+            updatedAt: new Date().toISOString()
+          };
+          fs.writeFileSync(statePath, JSON.stringify(state, null, 2), 'utf8');
         }
-      }
-      fs.rmSync(rawDirPath, { recursive: true, force: true });
+      } catch { /* ignore */ }
     }
-
-    if (!fs.existsSync(folderPath)) continue;
-
-    const pascalName = toPascalCase(folder);
-    const mockMeta = {
-      variants: ['primary', 'secondary', 'tertiary'],
-      sizes: ['small', 'medium', 'large'],
-      defaultLabel: pascalName,
-      padding: { top: 10, right: 16, bottom: 10, left: 16 },
-      cornerRadius: 8,
-      layoutMode: 'row'
-    };
-
-    const tsxPath = path.join(folderPath, `${folder}.tsx`);
-    const typesPath = path.join(folderPath, `${folder}.types.ts`);
-    const scssPath = path.join(folderPath, `${folder}.scss`);
-    const flutterPath = path.join(folderPath, `${folder}.dart`);
-
-    if (!fs.existsSync(tsxPath)) {
-      fs.writeFileSync(tsxPath, generateReactComponent(pascalName, folder, mockMeta), 'utf8');
-    }
-    if (!fs.existsSync(typesPath)) {
-      fs.writeFileSync(typesPath, generateReactTypes(pascalName, folder, mockMeta), 'utf8');
-    }
-    if (!fs.existsSync(scssPath)) {
-      fs.writeFileSync(scssPath, generateScss(pascalName, folder, mockMeta), 'utf8');
-    }
-    if (!fs.existsSync(flutterPath)) {
-      fs.writeFileSync(flutterPath, generateFlutterWidget(pascalName, folder, mockMeta), 'utf8');
-    }
-    ensureExportInIndex(pascalName, folder);
-    enforceFourFileStructure(folderPath, folder);
   }
 
   appPageGenerator.syncAppComponentPages();
@@ -716,6 +796,7 @@ module.exports = {
   writeComponentDocs: (node) => docsGenerator.writeComponentDocs(node),
   generateComponentFiles,
   deleteComponentFiles,
+  normalizeSingleComponentFolder,
   generateForExistingComponents,
   ensureExportInIndex,
   removeExportFromIndex,

@@ -1068,7 +1068,165 @@
       "pageName": "copy button",
       "generated": false,
       "updatedAt": "2026-11-06T08:59:56.138Z"
+    },
+    "6089:172034": {
+      "id": "6089:172034",
+      "name": "Button",
+      "kebab": "button",
+      "type": "COMPONENT_SET",
+      "pageName": "button11",
+      "generated": true,
+      "updatedAt": "2026-11-09T07:52:14.679Z"
+    },
+    "6087:172027": {
+      "id": "6087:172027",
+      "name": "Assets",
+      "kebab": "assets",
+      "type": "COMPONENT",
+      "pageName": "Avatar",
+      "generated": true,
+      "updatedAt": "2026-11-09T07:52:17.248Z"
+    },
+    "local:bottom-sheet": {
+      "id": "local:bottom-sheet",
+      "name": "BottomSheet",
+      "kebab": "bottom-sheet",
+      "type": "COMPONENT",
+      "pageName": "Canvas",
+      "source": "code",
+      "generated": true,
+      "updatedAt": "2026-11-09T10:00:52.555Z"
+    },
+    "local:browser-bar": {
+      "id": "local:browser-bar",
+      "name": "BrowserBar",
+      "kebab": "browser-bar",
+      "type": "COMPONENT",
+      "pageName": "Canvas",
+      "source": "code",
+      "generated": true,
+      "updatedAt": "2026-11-09T10:00:56.935Z"
+    },
+    "local:button-copy": {
+      "id": "local:button-copy",
+      "name": "ButtonCopy",
+      "kebab": "button-copy",
+      "type": "COMPONENT",
+      "pageName": "Canvas",
+      "source": "code",
+      "generated": true,
+      "updatedAt": "2026-11-09T10:01:01.988Z"
+    },
+    "local:carousel": {
+      "id": "local:carousel",
+      "name": "Carousel",
+      "kebab": "carousel",
+      "type": "COMPONENT",
+      "pageName": "Canvas",
+      "source": "code",
+      "generated": true,
+      "updatedAt": "2026-11-09T10:01:07.596Z"
+    },
+    "local:mpin-input": {
+      "id": "local:mpin-input",
+      "name": "MpinInput",
+      "kebab": "mpin-input",
+      "type": "COMPONENT",
+      "pageName": "Canvas",
+      "source": "code",
+      "generated": true,
+      "updatedAt": "2026-11-09T10:02:07.560Z"
+    },
+    "local:popover": {
+      "id": "local:popover",
+      "name": "Popover",
+      "kebab": "popover",
+      "type": "COMPONENT",
+      "pageName": "Canvas",
+      "source": "code",
+      "generated": true,
+      "updatedAt": "2026-11-09T10:02:17.092Z"
+    },
+    "local:progress-bar": {
+      "id": "local:progress-bar",
+      "name": "ProgressBar",
+      "kebab": "progress-bar",
+      "type": "COMPONENT",
+      "pageName": "Canvas",
+      "source": "code",
+      "generated": true,
+      "updatedAt": "2026-11-09T10:02:19.619Z"
+    },
+    "local:rating": {
+      "id": "local:rating",
+      "name": "Rating",
+      "kebab": "rating",
+      "type": "COMPONENT",
+      "pageName": "Canvas",
+      "source": "code",
+      "generated": true,
+      "updatedAt": "2026-11-09T10:02:28.416Z"
+    },
+    "local:search-bar": {
+      "id": "local:search-bar",
+      "name": "SearchBar",
+      "kebab": "search-bar",
+      "type": "COMPONENT",
+      "pageName": "Canvas",
+      "source": "code",
+      "generated": true,
+      "updatedAt": "2026-11-09T10:02:32.140Z"
+    },
+    "local:separator": {
+      "id": "local:separator",
+      "name": "Separator",
+      "kebab": "separator",
+      "type": "COMPONENT",
+      "pageName": "Canvas",
+      "source": "code",
+      "generated": true,
+      "updatedAt": "2026-11-09T10:02:33.128Z"
+    },
+    "local:switch": {
+      "id": "local:switch",
+      "name": "Switch",
+      "kebab": "switch",
+      "type": "COMPONENT",
+      "pageName": "Canvas",
+      "source": "code",
+      "generated": true,
+      "updatedAt": "2026-11-09T10:02:38.083Z"
+    },
+    "local:tabs": {
+      "id": "local:tabs",
+      "name": "Tabs",
+      "kebab": "tabs",
+      "type": "COMPONENT",
+      "pageName": "Canvas",
+      "source": "code",
+      "generated": true,
+      "updatedAt": "2026-11-09T10:02:39.047Z"
+    },
+    "local:text-area": {
+      "id": "local:text-area",
+      "name": "TextArea",
+      "kebab": "text-area",
+      "type": "COMPONENT",
+      "pageName": "Canvas",
+      "source": "code",
+      "generated": true,
+      "updatedAt": "2026-11-09T10:02:40.842Z"
+    },
+    "local:text-field": {
+      "id": "local:text-field",
+      "name": "TextField",
+      "kebab": "text-field",
+      "type": "COMPONENT",
+      "pageName": "Canvas",
+      "source": "code",
+      "generated": true,
+      "updatedAt": "2026-11-09T10:02:41.916Z"
     }
   },
-  "lastSync": "2026-11-07T18:42:49.405Z"
+  "lastSync": "2026-11-09T07:56:36.325Z"
 }
