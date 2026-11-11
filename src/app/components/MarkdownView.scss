@@ -1,10 +1,39 @@
-/* Component .md documentation (rendered by MarkdownView.tsx) — Atlassian-style docs palette */
+/* Component .md documentation & Atlassian Source Inspector (MarkdownView.tsx) */
 
 .md-docs-heading {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   gap: 16px;
+  flex-wrap: wrap;
+}
+
+.md-docs-badges {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.md-changelog-pill {
+  border: 1px solid #dfe1e6;
+  border-radius: 999px;
+  padding: 3px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+
+  &--clean {
+    border-color: #baf3db;
+    background: #dcfff1;
+    color: #166534;
+  }
+
+  &--updated {
+    border-color: #dfd8fd;
+    background: #f3f0ff;
+    color: #5e4db2;
+  }
 }
 
 .md-source-badge {
@@ -22,6 +51,157 @@
     border-color: #cce0ff;
     background: #e9f2ff;
     color: #0055cc;
+  }
+}
+
+/* Atlassian-style subtabs inside ComponentMarkdownSection */
+.md-portal-subtabs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 14px;
+  border-bottom: 2px solid #ebecf0;
+  overflow-x: auto;
+}
+
+.md-portal-subtab {
+  position: relative;
+  bottom: -2px;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 9px 14px;
+  background: transparent;
+  color: #44546f;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: color 0.12s, border-color 0.12s, background 0.12s;
+
+  &:hover {
+    color: #0c66e4;
+    background: #f7f8f9;
+  }
+
+  &--active {
+    border-bottom-color: #0c66e4;
+    color: #0c66e4;
+    font-weight: 600;
+  }
+}
+
+/* 5-File Source Code Inspector */
+.md-source-inspector {
+  border: 1px solid #dfe1e6;
+  border-radius: 8px;
+  background: #1d2125;
+  overflow: hidden;
+}
+
+.md-source-inspector-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 12px;
+  border-bottom: 1px solid #2c333a;
+  background: #161a1d;
+  flex-wrap: wrap;
+}
+
+.md-source-file-tabs {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  overflow-x: auto;
+}
+
+.md-source-file-tab {
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 10px 12px;
+  background: transparent;
+  color: #8c9bab;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: color 0.12s, border-color 0.12s;
+
+  &:hover {
+    color: #dee4ea;
+  }
+
+  &--active {
+    border-bottom-color: #388bff;
+    color: #ffffff;
+    font-weight: 600;
+  }
+}
+
+.md-source-inspector-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+}
+
+.md-token-compliance-badge {
+  border: 1px solid rgba(34, 160, 107, 0.45);
+  border-radius: 4px;
+  padding: 2px 7px;
+  background: rgba(34, 160, 107, 0.18);
+  color: #7ee2b8;
+  font-size: 10.5px;
+  font-weight: 600;
+}
+
+.md-source-filepath {
+  border-radius: 4px;
+  padding: 2px 6px;
+  background: #22272b;
+  color: #9fadbc;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 11px;
+}
+
+.md-source-lines {
+  color: #738496;
+  font-size: 11px;
+}
+
+.md-source-copy-btn {
+  border: 1px solid #38414a;
+  border-radius: 5px;
+  padding: 5px 10px;
+  background: #22272b;
+  color: #dee4ea;
+  cursor: pointer;
+  font-size: 11.5px;
+  font-weight: 500;
+  transition: background 0.12s, border-color 0.12s;
+
+  &:hover {
+    background: #2c333a;
+    border-color: #596773;
+  }
+}
+
+.md-source-code-body {
+  margin: 0;
+  max-height: 520px;
+  padding: 16px 18px;
+  overflow: auto;
+  color: #dee4ea;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 12.5px;
+  line-height: 1.65;
+
+  code {
+    padding: 0;
+    background: transparent;
+    color: inherit;
+    font-size: inherit;
   }
 }
 
@@ -242,4 +422,3 @@
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
-

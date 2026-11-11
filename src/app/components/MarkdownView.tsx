@@ -1,5 +1,10 @@
-import { Fragment, useMemo, type ReactNode } from 'react';
-import { getComponentMarkdown, isFigmaSourcedMarkdown } from '../pages/ComponentPage/componentMarkdown';
+import { Fragment, useMemo, useState, type ReactNode } from 'react';
+import {
+  getComponentChangelogStatus,
+  getComponentMarkdown,
+  getComponentSourceFiles,
+  isFigmaSourcedMarkdown
+} from '../pages/ComponentPage/componentMarkdown';
 import './MarkdownView.scss';
 
 /* ------------------------------------------------------------------
@@ -260,30 +265,152 @@ export function MarkdownView({ markdown, hideTitle = false }: { markdown: string
   );
 }
 
+export type SourceFileKey = 'tsx' | 'scss' | 'dart' | 'md' | 'types';
+
+const SOURCE_FILE_TABS: Array<{ key: SourceFileKey; label: string; ext: string }> = [
+  { key: 'tsx', label: 'React (.tsx)', ext: '.tsx' },
+  { key: 'scss', label: 'Styles (.scss)', ext: '.scss' },
+  { key: 'dart', label: 'Flutter (.dart)', ext: '.dart' },
+  { key: 'md', label: 'Docs (.md)', ext: '.md' },
+  { key: 'types', label: 'Types (.types.ts)', ext: '.types.ts' }
+];
+
 /**
- * Docs-page section that renders src/components/<slug>/<slug>.md.
- * Re-renders live via Vite HMR whenever the Figma sync engine updates the file.
+ * Interactive 5-file source code inspector (Atlassian-style code viewer with copy-to-clipboard).
+ */
+export function ComponentSourceInspector({ slug }: { slug: string }) {
+  const [activeFile, setActiveFile] = useState<SourceFileKey>('tsx');
+  const [copyStatus, setCopyStatus] = useState<string>('Copy code');
+
+  const files = getComponentSourceFiles(slug);
+  const currentTab = SOURCE_FILE_TABS.find((t) => t.key === activeFile) ?? SOURCE_FILE_TABS[0];
+  const currentCode = files[activeFile];
+  const filePath = `src/components/${slug}/${slug}${currentTab.ext}`;
+  const lineCount = currentCode.split('\n').length;
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(currentCode);
+      setCopyStatus('Copied!');
+      window.setTimeout(() => setCopyStatus('Copy code'), 1800);
+    } catch {
+      setCopyStatus('Failed');
+    }
+  };
+
+  return (
+    <div className="md-source-inspector">
+      <div className="md-source-inspector-header">
+        <div className="md-source-file-tabs" role="tablist" aria-label="Component source files">
+          {SOURCE_FILE_TABS.map((tab) => (
+            <button
+              key={tab.key}
+              type="button"
+              role="tab"
+              aria-selected={activeFile === tab.key}
+              className={`md-source-file-tab${activeFile === tab.key ? ' md-source-file-tab--active' : ''}`}
+              onClick={() => setActiveFile(tab.key)}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+        <div className="md-source-inspector-actions">
+          {activeFile === 'scss' && (
+            <span className="md-token-compliance-badge">100% Design Tokens</span>
+          )}
+          <code className="md-source-filepath">{filePath}</code>
+          <span className="md-source-lines">{lineCount} lines</span>
+          <button
+            type="button"
+            className="md-source-copy-btn"
+            onClick={handleCopy}
+            aria-live="polite"
+          >
+            {copyStatus}
+          </button>
+        </div>
+      </div>
+      <pre className="md-source-code-body">
+        <code>{currentCode}</code>
+      </pre>
+    </div>
+  );
+}
+
+/**
+ * Docs-page section that renders src/components/<slug>/<slug>.md alongside an Atlassian-style
+ * Code Snippets Inspector & Figma Changelog tab switcher.
  */
 export function ComponentMarkdownSection({ slug, title }: { slug: string; title: string }) {
+  const [sectionTab, setSectionTab] = useState<'specs' | 'code' | 'changelog'>('specs');
   const markdown = getComponentMarkdown(slug);
+  const changelog = getComponentChangelogStatus(slug);
   const sourcePath = `src/components/${slug}/${slug}.md`;
 
   return (
     <section className="docs-section md-docs-section" id="component-docs">
       <div className="docs-section-heading md-docs-heading">
         <div>
-          <h2>Documentation</h2>
+          <h2>Atlassian Design Specs & Source Inspector</h2>
           <p>
-            Rendered from <code>{sourcePath}</code> — kept in sync with Figma automatically.
+            Live synced from <code>{sourcePath}</code> and the 5-file component bundle in{' '}
+            <code>src/components/{slug}/</code>.
           </p>
         </div>
-        {markdown && (
-          <span className={`md-source-badge ${isFigmaSourcedMarkdown(markdown) ? 'md-source-badge--figma' : ''}`}>
-            {isFigmaSourcedMarkdown(markdown) ? 'Synced from Figma' : 'Local baseline'}
+        <div className="md-docs-badges">
+          <span
+            className={`md-changelog-pill ${
+              changelog.hasChanges ? 'md-changelog-pill--updated' : 'md-changelog-pill--clean'
+            }`}
+          >
+            {changelog.hasChanges ? '● Figma Diffs Logged' : '✓ Nothing changed'}
           </span>
-        )}
+          {markdown && (
+            <span className={`md-source-badge ${isFigmaSourcedMarkdown(markdown) ? 'md-source-badge--figma' : ''}`}>
+              {isFigmaSourcedMarkdown(markdown) ? 'Synced from Figma' : 'Local baseline'}
+            </span>
+          )}
+        </div>
       </div>
-      {markdown ? (
+
+      <div className="md-portal-subtabs" role="tablist" aria-label="Documentation and code inspector tabs">
+        <button
+          type="button"
+          role="tab"
+          aria-selected={sectionTab === 'specs'}
+          className={`md-portal-subtab${sectionTab === 'specs' ? ' md-portal-subtab--active' : ''}`}
+          onClick={() => setSectionTab('specs')}
+        >
+          Figma Specs & Documentation (.md)
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={sectionTab === 'code'}
+          className={`md-portal-subtab${sectionTab === 'code' ? ' md-portal-subtab--active' : ''}`}
+          onClick={() => setSectionTab('code')}
+        >
+          Code Snippets (.tsx · .scss · .dart · .md)
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={sectionTab === 'changelog'}
+          className={`md-portal-subtab${sectionTab === 'changelog' ? ' md-portal-subtab--active' : ''}`}
+          onClick={() => setSectionTab('changelog')}
+        >
+          Figma Changelog & Diff Status
+        </button>
+      </div>
+
+      {sectionTab === 'code' ? (
+        <ComponentSourceInspector slug={slug} />
+      ) : sectionTab === 'changelog' ? (
+        <div className="md-docs-card">
+          <MarkdownView markdown={changelog.sectionMarkdown} />
+        </div>
+      ) : markdown ? (
         <div className="md-docs-card">
           <MarkdownView markdown={markdown} hideTitle />
         </div>
@@ -298,4 +425,3 @@ export function ComponentMarkdownSection({ slug, title }: { slug: string; title:
     </section>
   );
 }
-

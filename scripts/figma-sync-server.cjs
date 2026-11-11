@@ -579,16 +579,17 @@ function applyFigmaLivePayload(payload) {
       const kebab = codeGenerator.toKebabCase(comp.name);
       seenKebabs.add(kebab);
       const compDir = path.join(COMPONENTS_DIR, kebab);
-      const hasAllFourFiles =
+      const hasAllFiveFiles =
         fs.existsSync(compDir) &&
         fs.existsSync(path.join(compDir, `${kebab}.tsx`)) &&
         fs.existsSync(path.join(compDir, `${kebab}.types.ts`)) &&
         fs.existsSync(path.join(compDir, `${kebab}.scss`)) &&
-        fs.existsSync(path.join(compDir, `${kebab}.dart`));
+        fs.existsSync(path.join(compDir, `${kebab}.dart`)) &&
+        fs.existsSync(path.join(compDir, `${kebab}.md`));
 
-      if (!hasAllFourFiles) {
+      if (!hasAllFiveFiles) {
         suppressWatcherUntil = Date.now() + 3000;
-        console.log(`[FigmaSync] ADDED: Component <${comp.name}> -> created 4 files in src/components/${kebab} & page in src/app/pages/`);
+        console.log(`[FigmaSync] ➕ ADDED: Component <${comp.name}> -> created 5 files (.tsx, .types.ts, .scss, .dart, .md) in src/components/${kebab} & page in src/app/pages/`);
         codeGenerator.generateComponentFiles(comp);
         applyCanvasComponentEditsToCode(comp, semanticsPath);
         touchMainStylesheet();
@@ -597,7 +598,7 @@ function applyFigmaLivePayload(payload) {
           name: comp.name,
           kebab,
           type: comp.type || 'COMPONENT',
-          pageName: comp.pageName || 'Canvas',
+          pageName: comp.pageName || payload.currentPageName || 'Canvas',
           generated: true,
           updatedAt: new Date().toISOString()
         };
@@ -606,7 +607,10 @@ function applyFigmaLivePayload(payload) {
         const isOnActivePage = Boolean(payload.currentPageName && comp.pageName === payload.currentPageName);
         if (SYNC_CODE_UPDATES && !processedComponentNames.has(kebab) && (comp.isSelected || isOnActivePage)) {
           const edits = applyCanvasComponentEditsToCode(comp, semanticsPath);
-          if (edits > 0) updatedCount += edits;
+          if (edits > 0) {
+            updatedCount += edits;
+            console.log(`[FigmaSync] ✏️ UPDATED: Component <${comp.name}> (${edits} token/style update(s)) in src/components/${kebab}`);
+          }
         }
         //Remove any synthetic local:<kebab> record once the real Figma node ID is synced
         const syntheticKey = `local:${kebab}`;
@@ -619,7 +623,7 @@ function applyFigmaLivePayload(payload) {
             name: comp.name,
             kebab,
             type: comp.type || 'COMPONENT',
-            pageName: comp.pageName || 'Canvas',
+            pageName: comp.pageName || payload.currentPageName || 'Canvas',
             generated: true,
             updatedAt: new Date().toISOString()
           };
@@ -631,6 +635,28 @@ function applyFigmaLivePayload(payload) {
       }
     }
 
+    // Handle explicit deleted component IDs/names if provided by the Figma plugin
+    if (Array.isArray(payload.deletedComponents)) {
+      for (const delItem of payload.deletedComponents) {
+        const delName = typeof delItem === 'string' ? delItem : delItem?.name;
+        const delId = typeof delItem === 'object' ? delItem?.id : null;
+        if (!delName) continue;
+        const delKebab = codeGenerator.toKebabCase(delName);
+        if (protectedKebabs.has(delKebab)) continue;
+        suppressWatcherUntil = Date.now() + 3000;
+        console.log(`[FigmaSync] 🗑️ AUTO-DELETED: Component <${delName}> surgically removed from src/components/${delKebab} and UI pages`);
+        codeGenerator.deleteComponentFiles(delName);
+        touchMainStylesheet();
+        if (delId && syncState.components[delId]) delete syncState.components[delId];
+        for (const [sid, srec] of Object.entries(syncState.components)) {
+          if ((srec?.kebab || codeGenerator.toKebabCase(srec?.name || '')) === delKebab) {
+            delete syncState.components[sid];
+          }
+        }
+        deletedCount++;
+      }
+    }
+
     // Check for deleted components on both full document scans and active-page incremental scans
     const isFullDocumentScan = Boolean(payload.isFullScan && payload.components.length >= 10);
     const scannedPages = new Set(payload.components.map(c => c?.pageName).filter(Boolean));
@@ -639,7 +665,7 @@ function applyFigmaLivePayload(payload) {
 
     if (payload.components.length > 0 || payload.currentPageName) {
       for (const [id, prev] of Object.entries(syncState.components)) {
-        if (!prev || !prev.name) continue;
+        if (!prev || !prev.name || prev.source === 'code') continue;
         const prevKebab = prev.kebab || codeGenerator.toKebabCase(prev.name);
         if (seenIds.has(id) || seenKebabs.has(prevKebab) || protectedKebabs.has(prevKebab)) {
           continue;
@@ -647,17 +673,23 @@ function applyFigmaLivePayload(payload) {
 
         // Determine if this component's page was covered by the current scan, or if its Figma page was deleted
         const pageWasDeleted = Boolean(allFigmaPages && prev.pageName && prev.pageName !== 'Canvas' && !allFigmaPages.has(prev.pageName));
-        // Only treat an active-page scan as authoritative for that page if it actually returned components on that page,
-        // or if it is a full document scan (which visits every page in the document).
+        const activePageScanned = Boolean(
+          payload.currentPageName &&
+          prev.pageName &&
+          prev.pageName !== 'Canvas' &&
+          prev.pageName === payload.currentPageName &&
+          payload.reason !== 'selection-only'
+        );
         const pageWasScanned = (
-          (isFullDocumentScan && prev.source !== 'code') ||
+          isFullDocumentScan ||
           pageWasDeleted ||
+          activePageScanned ||
           (prev.pageName && prev.pageName !== 'Canvas' && scannedPages.has(prev.pageName) && payload.components.length > 0)
         );
 
         if (pageWasScanned) {
           suppressWatcherUntil = Date.now() + 3000;
-          console.log(`[FigmaSync] 🗑️ AUTO-DELETED: Component <${prev.name}> removed from src/components and UI pages`);
+          console.log(`[FigmaSync] 🗑️ AUTO-DELETED: Component <${prev.name}> surgically removed from src/components/${prevKebab} and UI pages`);
           codeGenerator.deleteComponentFiles(prev.name);
           touchMainStylesheet();
           delete syncState.components[id];
