@@ -5,7 +5,7 @@
 
 _No description set in Figma._
 
-> Last updated: 2026-11-09T10:46:21.696Z
+> Last updated: 2026-11-12T09:07:38.372Z
 
 ## Overview
 
@@ -80,10 +80,12 @@ UIPagination()
 
 ## Figma Changelog & Diff Status
 
-> [!IMPORTANT]
-> **3 change(s) detected** in the latest Figma sync (2026-11-09T10:46:21.679Z).
+> [!TIP]
+> **Nothing changed** — the latest Figma sync matches the previous snapshot.
 
-### Changes in latest sync
+### Previous changes
+
+**2026-11-09T10:46:21.679Z**
 
 - Variant `device=Mobile, pageStatus=First Page` — Font size: `12px` → `14px`
 - Variant `device=Mobile, pageStatus=Last Page` — Font size: `12px` → `14px`

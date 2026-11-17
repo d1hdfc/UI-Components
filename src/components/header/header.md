@@ -5,7 +5,7 @@
 
 _No description set in Figma._
 
-> Last updated: 2026-11-09T10:46:22.467Z
+> Last updated: 2026-11-12T09:07:38.683Z
 
 ## Overview
 
@@ -81,10 +81,12 @@ UIHeader()
 
 ## Figma Changelog & Diff Status
 
-> [!IMPORTANT]
-> **15 change(s) detected** in the latest Figma sync (2026-11-09T10:46:22.451Z).
+> [!TIP]
+> **Nothing changed** — the latest Figma sync matches the previous snapshot.
 
-### Changes in latest sync
+### Previous changes
+
+**2026-11-09T10:46:22.451Z**
 
 - Base Width × Height: `328px × 28px` → `328px × 14px`
 - Base Padding: `0px 0px 0px 0px` → `0px 8px 0px 8px`

@@ -1394,6 +1394,16 @@
       "pageName": "Chips",
       "generated": true,
       "updatedAt": "2026-11-09T10:46:14.669Z"
+    },
+    "local:m-pin-input": {
+      "id": "local:m-pin-input",
+      "name": "MPinInput",
+      "kebab": "m-pin-input",
+      "type": "COMPONENT",
+      "pageName": "Canvas",
+      "source": "code",
+      "generated": true,
+      "updatedAt": "2026-11-17T05:00:28.090Z"
     }
   },
   "lastSync": "2026-11-09T10:46:28.873Z"

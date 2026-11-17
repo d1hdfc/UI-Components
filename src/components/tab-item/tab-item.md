@@ -5,7 +5,7 @@
 
 _No description set in Figma._
 
-> Last updated: 2026-11-09T10:46:22.224Z
+> Last updated: 2026-11-12T09:07:38.553Z
 
 ## Overview
 
@@ -91,10 +91,12 @@ UITabItem()
 
 ## Figma Changelog & Diff Status
 
-> [!IMPORTANT]
-> **10 change(s) detected** in the latest Figma sync (2026-11-09T10:46:22.207Z).
+> [!TIP]
+> **Nothing changed** — the latest Figma sync matches the previous snapshot.
 
-### Changes in latest sync
+### Previous changes
+
+**2026-11-09T10:46:22.207Z**
 
 - Base Width × Height: `61px × 54px` → `93px × 14px`
 - Base Padding: `16px 0px 0px 0px` → `16px 14px 0px 14px`

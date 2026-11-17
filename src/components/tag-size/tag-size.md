@@ -5,7 +5,7 @@
 
 _No description set in Figma._
 
-> Last updated: 2026-11-09T10:46:20.389Z
+> Last updated: 2026-11-12T09:07:37.860Z
 
 ## Overview
 
@@ -83,10 +83,12 @@ UITagSize()
 
 ## Figma Changelog & Diff Status
 
-> [!IMPORTANT]
-> **15 change(s) detected** in the latest Figma sync (2026-11-09T10:46:20.335Z).
+> [!TIP]
+> **Nothing changed** — the latest Figma sync matches the previous snapshot.
 
-### Changes in latest sync
+### Previous changes
+
+**2026-11-09T10:46:20.335Z**
 
 - Base Width × Height: `32px × 32px` → `32px × 14px`
 - Base Padding: `8px 12px 8px 12px` → `8px 14px 8px 14px`

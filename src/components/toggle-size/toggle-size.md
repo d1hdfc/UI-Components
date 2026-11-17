@@ -5,7 +5,7 @@
 
 _No description set in Figma._
 
-> Last updated: 2026-11-09T10:46:20.804Z
+> Last updated: 2026-11-12T09:07:37.994Z
 
 ## Overview
 
@@ -79,10 +79,12 @@ UIToggleSize()
 
 ## Figma Changelog & Diff Status
 
-> [!IMPORTANT]
-> **11 change(s) detected** in the latest Figma sync (2026-11-09T10:46:20.779Z).
+> [!TIP]
+> **Nothing changed** — the latest Figma sync matches the previous snapshot.
 
-### Changes in latest sync
+### Previous changes
+
+**2026-11-09T10:46:20.779Z**
 
 - Base Width × Height: `28px × 16px` → `28px × 14px`
 - Base Padding: `2px 2px 2px 2px` → `2px 6px 2px 6px`

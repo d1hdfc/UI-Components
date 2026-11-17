@@ -5,7 +5,7 @@
 
 _No description set in Figma._
 
-> Last updated: 2026-11-09T10:46:20.512Z
+> Last updated: 2026-11-12T09:07:37.891Z
 
 ## Overview
 
@@ -79,10 +79,12 @@ UICheckboxSize()
 
 ## Figma Changelog & Diff Status
 
-> [!IMPORTANT]
-> **14 change(s) detected** in the latest Figma sync (2026-11-09T10:46:20.493Z).
+> [!TIP]
+> **Nothing changed** — the latest Figma sync matches the previous snapshot.
 
-### Changes in latest sync
+### Previous changes
+
+**2026-11-09T10:46:20.493Z**
 
 - Base Width × Height: `20px × 20px` → `20px × 14px`
 - Base Gap: `0px` → `6px`

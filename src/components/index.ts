@@ -202,23 +202,11 @@ export type { PartnerLogoProps } from './partner-logo/partner-logo.types'
 export { GradientButton } from './gradient-button/gradient-button'
 export type { GradientButtonProps } from './gradient-button/gradient-button.types'
 
-export { HelperTextSmall } from './helper-text-small/helper-text-small'
-export type { HelperTextSmallProps } from './helper-text-small/helper-text-small.types'
 
-export { LeadingAreaSmall } from './leading-area-small/leading-area-small'
-export type { LeadingAreaSmallProps } from './leading-area-small/leading-area-small.types'
 
-export { TrailingAreaSmall } from './trailing-area-small/trailing-area-small'
-export type { TrailingAreaSmallProps } from './trailing-area-small/trailing-area-small.types'
 
-export { HelperTextMedium } from './helper-text-medium/helper-text-medium'
-export type { HelperTextMediumProps } from './helper-text-medium/helper-text-medium.types'
 
-export { LeadingAreaMedium } from './leading-area-medium/leading-area-medium'
-export type { LeadingAreaMediumProps } from './leading-area-medium/leading-area-medium.types'
 
-export { TrailingAreaMedium } from './trailing-area-medium/trailing-area-medium'
-export type { TrailingAreaMediumProps } from './trailing-area-medium/trailing-area-medium.types'
 
 export { FinalInputAreaComponent } from './final-input-area-component/final-input-area-component'
 export type { FinalInputAreaComponentProps } from './final-input-area-component/final-input-area-component.types'
@@ -283,5 +271,5 @@ export type { ArrowProps } from './arrow/arrow.types'
 export { Row } from './row/row'
 export type { RowProps } from './row/row.types'
 
-export { Button1 } from './button1/button1'
-export type { Button1Props } from './button1/button1.types'
+export { Button01 } from './button01/button01'
+export type { Button01Props } from './button01/button01.types'

@@ -5,7 +5,7 @@
 
 _No description set in Figma._
 
-> Last updated: 2026-11-09T10:46:22.668Z
+> Last updated: 2026-11-12T09:07:38.785Z
 
 ## Overview
 
@@ -63,10 +63,12 @@ _No component properties defined in Figma._
 
 ## Figma Changelog & Diff Status
 
-> [!IMPORTANT]
-> **1 change(s) detected** in the latest Figma sync (2026-11-09T10:46:22.652Z).
+> [!TIP]
+> **Nothing changed** — the latest Figma sync matches the previous snapshot.
 
-### Changes in latest sync
+### Previous changes
+
+**2026-11-09T10:46:22.652Z**
 
 - Base Font size: `20px` → `16px`
 

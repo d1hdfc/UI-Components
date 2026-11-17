@@ -5,7 +5,7 @@
 
 _No description set in Figma._
 
-> Last updated: 2026-11-09T10:46:20.102Z
+> Last updated: 2026-11-12T09:07:37.774Z
 
 ## Overview
 
@@ -74,10 +74,12 @@ UITextColour()
 
 ## Figma Changelog & Diff Status
 
-> [!IMPORTANT]
-> **15 change(s) detected** in the latest Figma sync (2026-11-09T10:46:20.086Z).
+> [!TIP]
+> **Nothing changed** — the latest Figma sync matches the previous snapshot.
 
-### Changes in latest sync
+### Previous changes
+
+**2026-11-09T10:46:20.086Z**
 
 - Base Width × Height: `49px × 32px` → `49px × 14px`
 - Base Padding: `0px 0px 0px 0px` → `0px 10px 0px 10px`

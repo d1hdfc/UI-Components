@@ -5,7 +5,7 @@
 
 _No description set in Figma._
 
-> Last updated: 2026-11-09T10:46:22.578Z
+> Last updated: 2026-11-12T09:07:57.155Z
 
 ## Overview
 
@@ -56,11 +56,11 @@ UIBottomsheet()
 
 | Spec | Value |
 | --- | --- |
-| Width × Height | 360px × 344px |
-| Padding | 0px 0px 0px 0px |
-| Gap | 0px |
-| Corner radius | 0px |
-| Font size | 16px |
+| Width × Height | 14px × 14px |
+| Padding | 0px 10px 0px 10px |
+| Gap | 6px |
+| Corner radius | 1440px |
+| Font size | 14px |
 | Line height | — |
 | Background | — |
 | Text color | #111111 |
@@ -69,10 +69,20 @@ UIBottomsheet()
 
 ## Figma Changelog & Diff Status
 
-> [!IMPORTANT]
-> **1 change(s) detected** in the latest Figma sync (2026-11-09T10:46:22.561Z).
+> [!TIP]
+> **Nothing changed** — the latest Figma sync matches the previous snapshot.
 
-### Changes in latest sync
+### Previous changes
+
+**2026-11-12T09:07:38.715Z**
+
+- Base Width × Height: `360px × 344px` → `14px × 14px`
+- Base Padding: `0px 0px 0px 0px` → `0px 10px 0px 10px`
+- Base Gap: `0px` → `6px`
+- Base Corner radius: `0px` → `1440px`
+- Base Font size: `16px` → `14px`
+
+**2026-11-09T10:46:22.561Z**
 
 - Base Font size: `20px` → `16px`
 
