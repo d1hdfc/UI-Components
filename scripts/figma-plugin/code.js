@@ -1,5 +1,5 @@
 // ============================================================
-// HDFC UI Components — Figma Plugin Sandbox (code.js)
+// HDFC Some Components — Figma Plugin Sandbox (code.js)
 // Full Bi-Directional Auto-Sync Engine: Figma ↔ VS Code
 // Compatible with "documentAccess": "dynamic-page"
 // ============================================================
@@ -21,6 +21,50 @@ let lastVariablesHash = '';
 let lastSelectionHash = '';
 let lastPageComponentsHash = '';
 let allPagesLoaded = false;
+const knownCanvasComponents = new Map();
+
+function isIgnoredPageName(name) {
+  const trimmed = String(name || '').trim();
+  if (!trimmed) return true;
+  if (IGNORED_PAGES.has(trimmed)) return true;
+  if (/^[-_=~\s]+$/.test(trimmed)) return true;
+  return false;
+}
+
+function hasNestedComponentOrSet(node) {
+  if (!node || !('children' in node) || !Array.isArray(node.children)) return false;
+  for (const child of node.children) {
+    if (child.type === 'COMPONENT' || child.type === 'COMPONENT_SET') return true;
+    if (hasNestedComponentOrSet(child)) return true;
+  }
+  return false;
+}
+
+function isCandidateComponentNode(n, isTopLevel = false) {
+  if (!n || !n.name || n.type === 'INSTANCE') return false;
+  const clean = n.name.trim();
+  if (!clean || clean.startsWith('@') || clean.startsWith('_') || clean.startsWith('.') || clean.startsWith('rowAlpha') || clean === 'Component') {
+    return false;
+  }
+  if (clean.includes('=')) return false;
+
+  if (n.type === 'COMPONENT_SET' || n.type === 'COMPONENT') {
+    return true;
+  }
+
+  // Also allow top-level named FRAMEs that act as standalone components (excluding generic Frame/Group wrappers)
+  if (isTopLevel && n.type === 'FRAME') {
+    if (/^(frame|group|section|rectangle|ellipse|line|vector|image|autolayout|row|column|wrapper|container)\s*\d*$/i.test(clean)) {
+      return false;
+    }
+    if (hasNestedComponentOrSet(n)) {
+      return false;
+    }
+    return true;
+  }
+
+  return false;
+}
 
 // ── Logging & Naming Helpers ────────────────────────────────
 
@@ -361,7 +405,7 @@ function serializeComponentNode(node, pageName, selectedIds = new Set()) {
   };
 }
 
-async function exportFullFigmaState(reason = 'manual') {
+async function exportFullFigmaState(reason = 'manual', options = {}) {
   const { tokenMap, rawVariables } = await extractFigmaVariablesPayload();
   const components = [];
   const selectedItems = [];
@@ -381,31 +425,36 @@ async function exportFullFigmaState(reason = 'manual') {
   }
 
   const collectFromPage = (page) => {
-    if (IGNORED_PAGES.has(page.name)) return;
-    const visit = (n) => {
+    if (isIgnoredPageName(page.name)) return;
+    const pageMap = new Map();
+    const visit = (n, isTopLevel = false) => {
       if (!n || n.type === 'INSTANCE') return;
-      if ((n.type === 'COMPONENT_SET' || n.type === 'COMPONENT') && n.name) {
-        const clean = n.name.trim();
-        if (!clean.startsWith('@') && !clean.startsWith('_') && !clean.startsWith('rowAlpha') && clean !== 'Component') {
-          components.push(serializeComponentNode(n, page.name, selectedIds));
-          return;
+      if (isCandidateComponentNode(n, isTopLevel)) {
+        const serialized = serializeComponentNode(n, page.name, selectedIds);
+        const key = toKebabTokenName(String(serialized.name || '').replace(/^\d+[\.\s_-]+/, ''));
+        const existing = pageMap.get(key);
+        if (!existing || (serialized.type === 'COMPONENT_SET' && existing.type !== 'COMPONENT_SET')) {
+          pageMap.set(key, serialized);
         }
+        return;
       }
       if ('children' in n && Array.isArray(n.children)) {
-        for (const c of n.children) visit(c);
+        for (const c of n.children) visit(c, false);
       }
     };
     if ('children' in page && Array.isArray(page.children)) {
-      for (const child of page.children) visit(child);
+      for (const child of page.children) visit(child, true);
+    }
+    for (const comp of pageMap.values()) {
+      components.push(comp);
     }
   };
 
   const isFullScan = (
     reason === 'manual' ||
+    reason === 'github-sync' ||
     reason === 'auto-connect' ||
-    reason === 'document-change' ||
-    reason === 'canvas-add-or-delete' ||
-    reason === 'pages-change'
+    reason === 'pre-sync-check'
   );
 
   if (isFullScan) {
@@ -417,25 +466,53 @@ async function exportFullFigmaState(reason = 'manual') {
     collectFromPage(figma.currentPage);
   }
 
+  // Track deleted components explicitly across scans
+  const deletedComponents = [];
+  if (isFullScan) {
+    const currentIds = new Set(components.map(c => c.id));
+    for (const [prevId, prevMeta] of knownCanvasComponents.entries()) {
+      if (!currentIds.has(prevId)) {
+        deletedComponents.push(prevMeta);
+        if (!options.isPreSyncCheck) {
+          knownCanvasComponents.delete(prevId);
+        }
+      }
+    }
+    if (!options.isPreSyncCheck) {
+      for (const comp of components) {
+        knownCanvasComponents.set(comp.id, { id: comp.id, name: comp.name, pageName: comp.pageName });
+      }
+    }
+  }
+
   const allPageNames = figma.root.children.map(p => p.name);
+  const pushToGithub = Boolean(
+    options.pushToGithub ||
+    reason === 'github-sync'
+  );
 
   figma.ui.postMessage({
-    type: 'FIGMA_LIVE_SYNC_PAYLOAD',
+    type: options.isPreSyncCheck ? 'PRE_SYNC_FIGMA_PAYLOAD' : 'FIGMA_LIVE_SYNC_PAYLOAD',
     payload: {
       reason,
+      direction: options.direction || (pushToGithub ? 'figma-to-github' : 'figma-to-code'),
+      isPreSyncCheck: Boolean(options.isPreSyncCheck),
       isFullScan,
+      pushToGithub,
       allPageNames,
+      fileKey: figma.fileKey || null,
       fileName: figma.root.name,
       currentPageName: figma.currentPage.name,
       tokenMap,
       variablesCount: rawVariables.length,
       components,
+      deletedComponents,
       selectedItems,
       timestamp: new Date().toISOString()
     }
   });
 
-  log(`📤 Exported ${rawVariables.length} variable(s) & ${components.length} component(s) to VS Code (${reason})`);
+  log(`📤 Exported ${rawVariables.length} variable(s) & ${components.length} component(s)${deletedComponents.length ? ` (-${deletedComponents.length} deleted)` : ''} to VS Code (${reason})`);
 }
 
 // ── Code ➔ Figma: Canvas & Variable Mutation Helpers ────────
@@ -638,27 +715,148 @@ figma.ui.onmessage = async (msg) => {
 
   switch (msg.type) {
 
-    // ── Full Export Request (Figma ➔ VS Code) ───────────────
-    case 'REQUEST_FULL_FIGMA_EXPORT': {
-      await exportFullFigmaState(msg.reason || 'manual');
+    // ── File Info Request ────────────────────────────────────
+    case 'REQUEST_FILE_INFO': {
+      figma.ui.postMessage({
+        type: 'FILE_INFO',
+        fileKey: figma.fileKey || null,
+        fileName: figma.root.name,
+        currentPageName: figma.currentPage.name
+      });
       break;
     }
 
-    // ── DELETE component from canvas (Code ➔ Figma) ─────────
+    // ── Native Toast Feedback from GitHub Sync ───────────────
+    case 'NOTIFY_GITHUB_SYNC': {
+      if (msg.message) {
+        figma.notify(msg.message, { error: !msg.success });
+      }
+      break;
+    }
+
+    // ── Pre-Sync Check Export (Figma <-> Code Diff Scan) ─────
+    case 'REQUEST_PRE_SYNC_EXPORT': {
+      await exportFullFigmaState('pre-sync-check', {
+        isPreSyncCheck: true,
+        direction: msg.direction || 'figma-to-code',
+        pushToGithub: Boolean(msg.pushToGithub)
+      });
+      break;
+    }
+
+    // ── Full Export Request (Figma ➔ VS Code / GitHub) ──────
+    case 'REQUEST_FULL_FIGMA_EXPORT': {
+      await exportFullFigmaState(msg.reason || 'manual', { pushToGithub: Boolean(msg.pushToGithub) });
+      break;
+    }
+
+    // ── DELETE component & dedicated page from canvas (Code ➔ Figma)
     case 'ACTION_DELETE_COMPONENT': {
       isApplyingCodeUpdate = true;
       try {
-        const { nodeId, componentName } = msg.payload || {};
-        const node = await findNode(nodeId, componentName);
+        await ensureAllPagesLoaded();
+        const { nodeId, componentName, folder, figmaPageName, summary } = msg.payload || {};
+        const targetNorm = normalizeName(componentName || folder);
+        const folderNorm = normalizeName(folder || componentName);
+        let removedNodeCount = 0;
+        let removedPageName = null;
+
+        // 1. Find and remove the primary target node (and any duplicate/wrapper frame with the same component name)
+        const node = await findNode(nodeId, componentName || folder);
+        const hostPage = node ? getPageOfNode(node) : null;
+
         if (node) {
-          const name = node.name;
+          const parentNode = node.parent;
+          knownCanvasComponents.delete(node.id);
           node.remove();
-          figma.notify(`🗑️ Deleted "${name}" from Figma canvas`);
-          log(`DELETED: "${name}" (nodeId=${nodeId || 'by-name'})`);
-        } else {
-          log(`DELETE: Node "${componentName}" not found on canvas`);
-          figma.notify(`⚠️ Component "${componentName}" not found on canvas`);
+          removedNodeCount++;
+
+          // If the parent was a wrapper frame/group that is now empty or had the exact same name, clean it up
+          if (parentNode && parentNode.type !== 'PAGE' && parentNode.type !== 'DOCUMENT') {
+            if (('children' in parentNode && parentNode.children.length === 0) ||
+                normalizeName(parentNode.name) === targetNorm ||
+                normalizeName(parentNode.name) === folderNorm) {
+              try {
+                knownCanvasComponents.delete(parentNode.id);
+                parentNode.remove();
+              } catch {}
+            }
+          }
         }
+
+        // 2. Also sweep all pages for any remaining top-level component/frame matching this deleted component
+        for (const page of figma.root.children) {
+          if (isIgnoredPageName(page.name)) continue;
+          const matches = page.findAll(n =>
+            (n.type === 'COMPONENT_SET' || n.type === 'COMPONENT' || (n.parent === page && n.type === 'FRAME')) &&
+            (normalizeName(n.name) === targetNorm || normalizeName(n.name) === folderNorm)
+          );
+          for (const m of matches) {
+            try {
+              knownCanvasComponents.delete(m.id);
+              m.remove();
+              removedNodeCount++;
+            } catch {}
+          }
+        }
+
+        // 3. If a dedicated Figma Page exists for this component (e.g., page "button01") or hostPage is now empty, remove the page too
+        if (figma.root.children.length > 1) {
+          const candidatePages = figma.root.children.filter(p => {
+            const pNorm = normalizeName(p.name);
+            const matchesName = pNorm === targetNorm || pNorm === folderNorm || (figmaPageName && pNorm === normalizeName(figmaPageName));
+            if (!matchesName && (!hostPage || p.id !== hostPage.id)) return false;
+            // Only remove the page if its name matches the deleted component OR it has 0 remaining components
+            const hasRemainingComponents = p.findOne(n => isCandidateComponentNode(n, n.parent === p));
+            return matchesName || !hasRemainingComponents;
+          });
+
+          for (const pageToDelete of candidatePages) {
+            if (figma.root.children.length <= 1) break;
+            // If pageToDelete still has other unrelated components and doesn't match the deleted component's name, keep it
+            const pNorm = normalizeName(pageToDelete.name);
+            const isDedicatedNamedPage = (pNorm === targetNorm || pNorm === folderNorm);
+            const remainingComp = pageToDelete.findOne(n =>
+              isCandidateComponentNode(n, n.parent === pageToDelete) &&
+              normalizeName(n.name) !== targetNorm &&
+              normalizeName(n.name) !== folderNorm
+            );
+            if (remainingComp && !isDedicatedNamedPage) continue;
+
+            if (figma.currentPage.id === pageToDelete.id) {
+              const fallbackPage = figma.root.children.find(p => p.id !== pageToDelete.id);
+              if (fallbackPage) {
+                await figma.setCurrentPageAsync(fallbackPage);
+              }
+            }
+            removedPageName = pageToDelete.name;
+            pageToDelete.remove();
+          }
+        }
+
+        const displayTarget = folder || componentName;
+        const humanSummary = summary ||
+          `${displayTarget}: removed from Figma${removedPageName ? ` (including page "${removedPageName}")` : ''} because it was deleted in code`;
+
+        if (removedNodeCount > 0 || removedPageName) {
+          figma.notify(`🗑️ ${humanSummary}`);
+          log(`DELETED: ${humanSummary}`);
+        } else {
+          figma.notify(`ℹ️ "${displayTarget}" was already removed from Figma canvas`);
+          log(`DELETE: "${displayTarget}" not found on canvas (already clean)`);
+        }
+
+        figma.ui.postMessage({
+          type: 'CANVAS_ACTION_SUMMARY',
+          item: {
+            slug: folder || toKebabTokenName(componentName),
+            componentName: displayTarget,
+            action: 'deleted',
+            direction: 'code-to-figma',
+            summary: humanSummary,
+            timestamp: new Date().toISOString()
+          }
+        });
       } finally {
         setTimeout(() => { isApplyingCodeUpdate = false; }, 1500);
       }
@@ -670,46 +868,58 @@ figma.ui.onmessage = async (msg) => {
       isApplyingCodeUpdate = true;
       try {
         const {
-          nodeId, componentName,
+          nodeId, componentName, folder, isNewComponent, summary: incomingSummary,
           fontSize, fontWeight,
           cornerRadius, padding, backgroundColor, textColor, borderColor,
           opacity, width, height, gap,
           sizesMap, variantsMap, variantProperties,
         } = msg.payload || {};
 
-        let node = await findNode(nodeId, componentName);
-        let wasCreated = false;
+        let node = await findNode(nodeId, componentName || folder);
+
+        if (!node && isNewComponent) {
+          // Create new component on Figma canvas when added in local code
+          const comp = figma.createComponent();
+          comp.name = componentName || folder || 'NewComponent';
+          comp.layoutMode = 'HORIZONTAL';
+          comp.primaryAxisAlignItems = 'CENTER';
+          comp.counterAxisAlignItems = 'CENTER';
+          comp.paddingLeft = padding?.left ?? 16;
+          comp.paddingRight = padding?.right ?? 16;
+          comp.paddingTop = padding?.top ?? 10;
+          comp.paddingBottom = padding?.bottom ?? 10;
+          comp.itemSpacing = gap ?? 8;
+          comp.cornerRadius = cornerRadius ?? 8;
+          if (backgroundColor) {
+            comp.fills = [{ type: 'SOLID', color: { r: backgroundColor.r ?? 0.05, g: backgroundColor.g ?? 0.14, b: backgroundColor.b ?? 0.25 } }];
+          }
+          await figma.loadFontAsync({ family: 'Inter', style: 'Medium' });
+          const label = figma.createText();
+          label.fontName = { family: 'Inter', style: 'Medium' };
+          label.characters = componentName || folder || 'Component';
+          label.fontSize = fontSize || 16;
+          if (textColor) {
+            label.fills = [{ type: 'SOLID', color: { r: textColor.r ?? 1, g: textColor.g ?? 1, b: textColor.b ?? 1 } }];
+          }
+          comp.appendChild(label);
+          figma.currentPage.appendChild(comp);
+          node = comp;
+          knownCanvasComponents.set(node.id, { id: node.id, name: node.name, pageName: figma.currentPage.name });
+        }
 
         if (!node) {
-          wasCreated = true;
-          node = figma.createComponent();
-          node.name = componentName || 'NewComponent';
-          node.resize(width || 200, height || 48);
-          node.layoutMode = 'HORIZONTAL';
-          node.primaryAxisAlignItems = 'CENTER';
-          node.counterAxisAlignItems = 'CENTER';
-          node.paddingLeft = node.paddingRight = padding?.left ?? 16;
-          node.paddingTop = node.paddingBottom = padding?.top ?? 10;
-          figma.currentPage.appendChild(node);
-
-          await figma.loadFontAsync({ family: 'Inter', style: 'Regular' });
-          const txt = figma.createText();
-          txt.characters = componentName || 'Component';
-          txt.fills = [{ type: 'SOLID', color: { r: 1, g: 1, b: 1 } }];
-          node.appendChild(txt);
-
-          figma.notify(`✅ Created "${node.name}" on canvas`);
-          log(`CREATED: "${node.name}" on canvas (id=${node.id})`);
-        } else {
-          const nodePage = getPageOfNode(node);
-          if (nodePage && nodePage.id !== figma.currentPage.id) {
-            try {
-              await figma.setCurrentPageAsync(nodePage);
-              log(`Switched to page "${nodePage.name}" for "${node.name}"`);
-            } catch {}
-          }
-          log(`UPDATING: "${node.name}" (${node.type}, id=${node.id})`);
+          log(`SKIPPED: "${componentName}" not found on canvas`);
+          break;
         }
+
+        const nodePage = getPageOfNode(node);
+        if (nodePage && nodePage.id !== figma.currentPage.id) {
+          try {
+            await figma.setCurrentPageAsync(nodePage);
+            log(`Switched to page "${nodePage.name}" for "${node.name}"`);
+          } catch {}
+        }
+        log(`UPDATING: "${node.name}" (${node.type}, id=${node.id})`);
 
         if (node.type === 'INSTANCE' && variantProperties && typeof variantProperties === 'object') {
           try {
@@ -825,13 +1035,22 @@ figma.ui.onmessage = async (msg) => {
           figma.viewport.scrollAndZoomIntoView([node]);
         } catch {}
 
-        const summary = `fontSize=${fontSize ?? 'map'}px (${updatedVariants} variants, ${updatedTexts} text nodes)`;
-        figma.notify(`✅ Updated "${node.name}" — ${summary}`);
-        log(`UPDATED: "${node.name}" — ${summary}`);
+        const humanSummary = incomingSummary ||
+          `${folder || node.name}: updated styles on Figma canvas (${updatedVariants} variant${updatedVariants === 1 ? '' : 's'})`;
+        figma.notify(`✅ ${humanSummary}`);
+        log(`UPDATED: ${humanSummary}`);
 
-        if (wasCreated) {
-          await exportFullFigmaState('code-created-component');
-        }
+        figma.ui.postMessage({
+          type: 'CANVAS_ACTION_SUMMARY',
+          item: {
+            slug: folder || toKebabTokenName(node.name),
+            componentName: node.name,
+            action: isNewComponent ? 'added' : 'updated',
+            direction: 'code-to-figma',
+            summary: humanSummary,
+            timestamp: new Date().toISOString()
+          }
+        });
       } finally {
         setTimeout(() => { isApplyingCodeUpdate = false; }, 1500);
       }
@@ -852,109 +1071,4 @@ figma.ui.onmessage = async (msg) => {
   }
 };
 
-// ── Real-Time Figma Change Listeners (Figma ➔ Code) ─────────
-
-let docChangeTimer = null;
-let lastAllPagesListHash = '';
-
-async function initRealtimeWatchers() {
-  try {
-    await ensureAllPagesLoaded();
-    figma.on('documentchange', (event) => {
-      if (isApplyingCodeUpdate) return;
-      const relevant = (event.documentChanges || []).some(
-        ch => ch.type === 'PROPERTY_CHANGE' || ch.type === 'CREATE' || ch.type === 'DELETE'
-      );
-      if (!relevant) return;
-
-      if ( docChangeTimer ) clearTimeout(docChangeTimer);
-      docChangeTimer = setTimeout(() => {
-        docChangeTimer = null;
-        exportFullFigmaState('document-change');
-      }, 800);
-    });
-    log('Real-time Figma canvas watcher active');
-  } catch (e) {
-    log(`⚠ Document watcher setup note: ${e.message}`);
-  }
-
-  setInterval(async () => {
-    if (isApplyingCodeUpdate) return;
-    try {
-      const { rawVariables } = await extractFigmaVariablesPayload();
-      const currentHash = rawVariables.map(v => `${v.scssKey}:${v.scssValue}`).join('|');
-      if (lastVariablesHash && currentHash !== lastVariablesHash) {
-        lastVariablesHash = currentHash;
-        log('🔄 Detected Figma Variables change — auto-syncing to VS Code...');
-        await exportFullFigmaState('variables-change');
-        return;
-      } else if (!lastVariablesHash) {
-        lastVariablesHash = currentHash;
-      }
-
-      // Snapshot all pages in document to detect when an entire Figma Page (e.g. Button1, Button2) is added or deleted
-      const currentPagesHash = figma.root.children.map(p => `${p.id}:${p.name}`).join('|');
-      if (lastAllPagesListHash && currentPagesHash !== lastAllPagesListHash) {
-        lastAllPagesListHash = currentPagesHash;
-        log('🔄 Detected Figma page list change (Page added/deleted) — auto-syncing to VS Code...');
-        await exportFullFigmaState('pages-change');
-        return;
-      } else if (!lastAllPagesListHash) {
-        lastAllPagesListHash = currentPagesHash;
-      }
-
-      // Snapshot all components on current page to detect hands-free ADD / EDIT / DELETE
-      const pageComps = [];
-      const visitPage = (n) => {
-        if (!n || n.type === 'INSTANCE') return;
-        if ((n.type === 'COMPONENT_SET' || n.type === 'COMPONENT') && n.name) {
-          const clean = n.name.trim();
-          if (!clean.startsWith('@') && !clean.startsWith('_') && !clean.startsWith('rowAlpha') && clean !== 'Component') {
-            const sample = (n.type === 'COMPONENT_SET' && Array.isArray(n.children) && n.children[0]) ? n.children[0] : n;
-            const txt = findAllTextChildren(sample)[0];
-            const fill = ('fills' in sample) ? extractFirstSolidColor(sample.fills)?.hex : '';
-            pageComps.push(`${n.id}:${clean}:${Math.round(sample.width || 0)}x${Math.round(sample.height || 0)}:p${'paddingLeft' in sample ? Math.round(sample.paddingLeft) : ''}:r${'cornerRadius' in sample ? String(sample.cornerRadius) : ''}:fs${txt ? String(txt.fontSize) : ''}:bg${fill}`);
-            return;
-          }
-        }
-        if ('children' in n && Array.isArray(n.children)) {
-          for (const c of n.children) visitPage(c);
-        }
-      };
-      if (!IGNORED_PAGES.has(figma.currentPage.name) && 'children' in figma.currentPage) {
-        for (const child of figma.currentPage.children) visitPage(child);
-      }
-      const pageCompSnap = `${figma.currentPage.id}::${pageComps.join('|')}`;
-      if (lastPageComponentsHash && pageCompSnap !== lastPageComponentsHash) {
-        const prevPageId = lastPageComponentsHash.split('::')[0];
-        lastPageComponentsHash = pageCompSnap;
-        if (prevPageId === figma.currentPage.id) {
-          log('🔄 Detected canvas component lifecycle change (ADD / EDIT / DELETE) — auto-syncing to VS Code...');
-          await exportFullFigmaState('canvas-add-or-delete');
-          return;
-        }
-      } else {
-        lastPageComponentsHash = pageCompSnap;
-      }
-
-      if (figma.currentPage.selection.length > 0) {
-        const selSnap = figma.currentPage.selection.map(n => {
-          const txt = findAllTextChildren(n)[0];
-          const fill = ('fills' in n) ? extractFirstSolidColor(n.fills)?.hex : '';
-          return `${n.id}:${Math.round(n.width)}x${Math.round(n.height)}:p${'paddingLeft' in n ? Math.round(n.paddingLeft) : ''}:r${'cornerRadius' in n ? String(n.cornerRadius) : ''}:fs${txt ? String(txt.fontSize) : ''}:bg${fill}`;
-        }).join('|');
-        if (lastSelectionHash && selSnap !== lastSelectionHash) {
-          lastSelectionHash = selSnap;
-          log('🔄 Detected selected component edit — auto-syncing to VS Code...');
-          await exportFullFigmaState('selection-edit');
-        } else {
-          lastSelectionHash = selSnap;
-        }
-      }
-    } catch {
-      // Ignore transient errors
-    }
-  }, 2000);
-}
-
-initRealtimeWatchers();
+log('Ready in Manual Button-Triggered Sync Mode (background canvas watchers disabled).');

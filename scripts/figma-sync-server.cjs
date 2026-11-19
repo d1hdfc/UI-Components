@@ -10,6 +10,8 @@ const cliSync = require('./cli-sync.cjs');
 const codeGenerator = require('./code-generator.cjs');
 const codeParser = require('./code-parser.cjs');
 const appPageGenerator = require('./app-page-generator.cjs');
+const gitSync = require('./git-sync.cjs');
+const syncDiffEngine = require('./sync-diff-engine.cjs');
 
 const PORT = Number(process.env.PORT || 3055);
 const HOST = process.env.HOST || '0.0.0.0';
@@ -17,10 +19,60 @@ const POLL_INTERVAL_MS = Number(process.env.SYNC_POLL_INTERVAL_MS || 30_000);
 // When "false", Figma edits on existing components only refresh <component>.md docs and
 // never rewrite component code (.scss / .tsx / .types.ts / .dart). New components are still scaffolded.
 const SYNC_CODE_UPDATES = String(process.env.SYNC_CODE_UPDATES ?? 'true').toLowerCase() !== 'false';
-const COMPONENTS_DIR = path.join(process.cwd(), 'src', 'components');
-const PAGES_DIR = path.join(process.cwd(), 'src', 'app', 'pages');
-const TOKENS_VARIABLES_DIR = path.join(process.cwd(), 'src', 'tokens', 'variables');
-const STATE_FILE = path.join(process.cwd(), '.sync-state.json');
+
+const getComponentsDir = () => path.join(process.cwd(), 'src', 'components');
+const getPagesDir = () => path.join(process.cwd(), 'src', 'app', 'pages');
+const getTokensVariablesDir = () => path.join(process.cwd(), 'src', 'tokens', 'variables');
+const getStateFile = () => path.join(process.cwd(), '.sync-state.json');
+
+const PROJECT_REGISTRY = [
+  {
+    id: 'some-components',
+    fileKey: 'NhsXzdYzA1O9TPQlRL3wC4',
+    namePattern: /some[\s-_]*components/i,
+    projectDir: 'D:\\HDFC\\Some Components',
+    repoUrl: 'https://github.com/d1hdfc/Some-Components.git',
+    repoName: 'd1hdfc/Some-Components'
+  },
+  {
+    id: 'ui-components',
+    fileKey: 'CXxUbHl3oMzt9Bzv3SKv75',
+    namePattern: /ui[\s-_]*components|foundations/i,
+    projectDir: 'D:\\HDFC\\UI Components',
+    repoUrl: 'https://github.com/d1hdfc/UI-Components.git',
+    repoName: 'd1hdfc/UI-Components'
+  }
+];
+
+function resolveProjectContext(payload = {}) {
+  const fileKey = String(payload.fileKey || '').trim();
+  const fileName = String(payload.fileName || '').trim();
+
+  for (const entry of PROJECT_REGISTRY) {
+    const keyMatch = fileKey && entry.fileKey === fileKey;
+    const nameMatch = fileName && entry.namePattern.test(fileName);
+    if ((keyMatch || nameMatch) && fs.existsSync(entry.projectDir)) {
+      if (process.cwd().toLowerCase() !== entry.projectDir.toLowerCase()) {
+        process.chdir(entry.projectDir);
+        codeParser.invalidateTokenCache();
+        console.log(`[MultiProject] Switched active workspace -> ${entry.projectDir} (${entry.repoName})`);
+      }
+      return entry;
+    }
+  }
+
+  const cwd = process.cwd();
+  const matchedByCwd = PROJECT_REGISTRY.find(e => e.projectDir.toLowerCase() === cwd.toLowerCase());
+  if (matchedByCwd) return matchedByCwd;
+
+  return {
+    id: 'default',
+    fileKey: fileKey || figmaApi.getFileKey(),
+    projectDir: cwd,
+    repoUrl: 'https://github.com/d1hdfc/Some-Components.git',
+    repoName: 'd1hdfc/Some-Components'
+  };
+}
 
 const channels = new Map();
 const joinedChannels = new WeakMap();
@@ -30,15 +82,18 @@ let lastKnownVersion = null;
 let lastFigmaSyncTime = null;
 let lastModifiedComponentFolder = 'button';
 let suppressWatcherUntil = 0;
+let lastCanvasPayload = null;
+let lastPendingDiff = { direction: null, items: [], payload: null };
 
 // ==========================================
 // State & Color/Scale Token Helpers
 // ==========================================
 
 function loadSyncState() {
-  if (fs.existsSync(STATE_FILE)) {
+  const sf = getStateFile();
+  if (fs.existsSync(sf)) {
     try {
-      return JSON.parse(fs.readFileSync(STATE_FILE, 'utf8'));
+      return JSON.parse(fs.readFileSync(sf, 'utf8'));
     } catch {
       // ignore
     }
@@ -48,7 +103,7 @@ function loadSyncState() {
 
 function saveSyncState(state) {
   try {
-    fs.writeFileSync(STATE_FILE, JSON.stringify(state, null, 2), 'utf8');
+    fs.writeFileSync(getStateFile(), JSON.stringify(state, null, 2), 'utf8');
   } catch {
     // ignore
   }
@@ -138,7 +193,7 @@ function pxToTokenVar(pxValue, propertyContext = '') {
     if (spacingMap[num]) return spacingMap[num];
   }
 
-  const primitivesPath = path.join(TOKENS_VARIABLES_DIR, 'primitives.scss');
+  const primitivesPath = path.join(getTokensVariablesDir(), 'primitives.scss');
   if (fs.existsSync(primitivesPath)) {
     let primContent = fs.readFileSync(primitivesPath, 'utf8');
     const scalesBlockMatch = primContent.match(/\$scales:\s*\(([\s\S]*?)\);/);
@@ -146,7 +201,7 @@ function pxToTokenVar(pxValue, propertyContext = '') {
       const entryRe = /["']([a-zA-Z0-9_-]+)["']\s*:\s*(-?\d+(?:\.\d+)?)/g;
       let m;
       while ((m = entryRe.exec(scalesBlockMatch[1])) !== null) {
-        if (Math.round( parseFloat(m[2]) ) === num) {
+        if (Math.round(parseFloat(m[2])) === num) {
           return `var(--global-scale-${m[1]})`;
         }
       }
@@ -211,7 +266,7 @@ function hexToTokenVar(hexColor) {
   // 3. Register in primitives.scss $color-palette so zero raw hex is ever used in components/semantics
   const cleanHexSlug = targetHex.slice(1).toLowerCase();
   const customKey = `canvas-${cleanHexSlug}`;
-  const primitivesPath = path.join(TOKENS_VARIABLES_DIR, 'primitives.scss');
+  const primitivesPath = path.join(getTokensVariablesDir(), 'primitives.scss');
   if (fs.existsSync(primitivesPath)) {
     let primContent = fs.readFileSync(primitivesPath, 'utf8');
     if (!primContent.includes(`"${customKey}"`)) {
@@ -237,9 +292,9 @@ function hexToTokenVar(hexColor) {
 function touchMainStylesheet() {
   const now = new Date();
   const mainScss = path.join(process.cwd(), 'src', 'app', 'main.scss');
-  const libScss = path.join(COMPONENTS_DIR, 'library.scss');
-  try { if (fs.existsSync(libScss)) fs.utimesSync(libScss, now, now); } catch {}
-  try { if (fs.existsSync(mainScss)) fs.utimesSync(mainScss, now, now); } catch {}
+  const libScss = path.join(getComponentsDir(), 'library.scss');
+  try { if (fs.existsSync(libScss)) fs.utimesSync(libScss, now, now); } catch { }
+  try { if (fs.existsSync(mainScss)) fs.utimesSync(mainScss, now, now); } catch { }
 }
 
 function setTokenInScssFile(filePath, tokenKey, newTokenVarValue) {
@@ -311,7 +366,7 @@ function updateComponentScssMapProperty(scssPath, sizeOrVariantKey, propName, ne
   // If the component SCSS map points to a semantic variable like var(--button-size-large-font-size),
   // update that semantic variable in semantics.scss so the semantic architecture stays intact!
   const semMatch = currentVal.match(/^var\(--([a-zA-Z0-9_-]+)\)$/);
-  const semanticsPath = path.join(TOKENS_VARIABLES_DIR, 'semantics.scss');
+  const semanticsPath = path.join(getTokensVariablesDir(), 'semantics.scss');
   if (semMatch && fs.existsSync(semanticsPath)) {
     const semKey = semMatch[1];
     const semContent = fs.readFileSync(semanticsPath, 'utf8');
@@ -320,7 +375,7 @@ function updateComponentScssMapProperty(scssPath, sizeOrVariantKey, propName, ne
       if (updatedSem) {
         // Touch component SCSS file mtime so Vite HMR reloads component styles immediately
         const now = new Date();
-        try { fs.utimesSync(scssPath, now, now); } catch {}
+        try { fs.utimesSync(scssPath, now, now); } catch { }
         return true;
       }
     }
@@ -358,7 +413,7 @@ function applyCanvasComponentEditsToCode(compNode, semanticsPath, fallbackPageNa
   }
 
   const kebab = codeGenerator.toKebabCase(rawName);
-  const compDir = path.join(COMPONENTS_DIR, kebab);
+  const compDir = path.join(getComponentsDir(), kebab);
   if (!fs.existsSync(compDir)) return 0;
 
   const scssPath = path.join(compDir, `${kebab}.scss`);
@@ -516,69 +571,195 @@ function applyCanvasComponentEditsToCode(compNode, semanticsPath, fallbackPageNa
   return propUpdates;
 }
 
-function applyFigmaLivePayload(payload) {
-  if (!payload || typeof payload !== 'object') {
-    return { createdCount: 0, updatedCount: 0, deletedCount: 0, tokensUpdated: 0 };
+function buildFileDiffObjects(kebab, pageName, beforeBundle, afterBundle, action = 'updated') {
+  const files = [];
+  const pairs = [
+    { rel: `src/components/${kebab}/${kebab}.tsx`, ext: 'tsx', key: 'tsx' },
+    { rel: `src/components/${kebab}/${kebab}.types.ts`, ext: 'ts', key: 'types' },
+    { rel: `src/components/${kebab}/${kebab}.scss`, ext: 'scss', key: 'scss' },
+    { rel: `src/components/${kebab}/${kebab}.dart`, ext: 'dart', key: 'dart' },
+    { rel: `src/components/${kebab}/${kebab}.md`, ext: 'md', key: 'md' },
+    { rel: `src/app/pages/${pageName}/${pageName}.tsx`, ext: 'tsx', key: 'pageTsx' }
+  ];
+
+  for (const p of pairs) {
+    const beforeContent = beforeBundle?.files?.[p.key] || '';
+    const afterContent = afterBundle?.files?.[p.key] || '';
+    if (action === 'added' && afterContent) {
+      files.push({
+        path: p.rel,
+        ext: p.ext,
+        action: 'added',
+        diff: syncDiffEngine.computeConciseDiff('', afterContent, 14)
+      });
+    } else if (action === 'deleted' && beforeContent) {
+      files.push({
+        path: p.rel,
+        ext: p.ext,
+        action: 'deleted',
+        diff: syncDiffEngine.computeConciseDiff(beforeContent, '', 14)
+      });
+    } else if (beforeContent !== afterContent) {
+      const diff = syncDiffEngine.computeConciseDiff(beforeContent, afterContent, 16);
+      if (diff) {
+        files.push({
+          path: p.rel,
+          ext: p.ext,
+          action: 'updated',
+          diff
+        });
+      }
+    }
   }
+  return files;
+}
+
+function applyFigmaLivePayload(payload, options = {}) {
+  if (!payload || typeof payload !== 'object') {
+    return {
+      createdCount: 0,
+      updatedCount: 0,
+      deletedCount: 0,
+      tokensUpdated: 0,
+      docsUpdated: 0,
+      updatesList: [],
+      historyEntries: []
+    };
+  }
+
+  resolveProjectContext(payload);
+  lastCanvasPayload = payload;
+
+  const targetSlugs = options.targetSlugs instanceof Set ? options.targetSlugs : null;
+  const pendingDiffMap = new Map(
+    (Array.isArray(options.pendingChanges) ? options.pendingChanges : []).map((item) => [item.slug, item])
+  );
 
   let tokensUpdated = 0;
   let createdCount = 0;
   let updatedCount = 0;
   let deletedCount = 0;
+  const addedComponents = [];
+  const updatedComponents = [];
+  const removedComponents = [];
+  const updatesList = [];
+  const historyEntries = [];
+  const nowIso = new Date().toISOString();
 
-  const semanticsPath = path.join(TOKENS_VARIABLES_DIR, 'semantics.scss');
+  const tokensVarsDir = getTokensVariablesDir();
+  const componentsDir = getComponentsDir();
+  const semanticsPath = path.join(tokensVarsDir, 'semantics.scss');
 
   // 1. Apply Figma Local Variables (Semantics, Alias, Layout) -> src/tokens/variables/*.scss
-  if (payload.tokenMap && typeof payload.tokenMap === 'object') {
+  const shouldSyncTokens = !targetSlugs || targetSlugs.has('tokens');
+  if (shouldSyncTokens && payload.tokenMap && typeof payload.tokenMap === 'object') {
+    const tokenChangeDescriptions = syncDiffEngine.inspectTokenMapChanges(payload.tokenMap);
     if (payload.tokenMap.semantics) {
-      tokensUpdated += updateScssTokenMapFile(
-        semanticsPath,
-        payload.tokenMap.semantics
-      );
+      tokensUpdated += updateScssTokenMapFile(semanticsPath, payload.tokenMap.semantics);
     }
     if (payload.tokenMap.alias) {
-      tokensUpdated += updateScssTokenMapFile(
-        path.join(TOKENS_VARIABLES_DIR, 'alias.scss'),
-        payload.tokenMap.alias
-      );
+      tokensUpdated += updateScssTokenMapFile(path.join(tokensVarsDir, 'alias.scss'), payload.tokenMap.alias);
     }
     if (payload.tokenMap.layout) {
-      tokensUpdated += updateScssTokenMapFile(
-        path.join(TOKENS_VARIABLES_DIR, 'layout.scss'),
-        payload.tokenMap.layout
-      );
+      tokensUpdated += updateScssTokenMapFile(path.join(tokensVarsDir, 'layout.scss'), payload.tokenMap.layout);
+    }
+    if (tokensUpdated > 0) {
+      const tokenSummary = tokenChangeDescriptions.length > 0
+        ? `tokens: updated ${tokenChangeDescriptions.slice(0, 3).join(', ')}${tokenChangeDescriptions.length > 3 ? ` (+${tokenChangeDescriptions.length - 3} more)` : ''}`
+        : `tokens: updated ${tokensUpdated} token variable(s) in src/tokens/variables/`;
+      updatesList.push({
+        slug: 'tokens',
+        componentName: 'Design Tokens',
+        pageName: 'semantics.scss',
+        action: 'updated',
+        direction: 'figma-to-code',
+        summary: tokenSummary,
+        timestamp: nowIso
+      });
+      historyEntries.push({
+        id: `sync-tokens-${Date.now()}`,
+        timestamp: nowIso,
+        direction: 'figma-to-code',
+        action: 'updated',
+        slug: 'tokens',
+        componentName: 'Design Tokens',
+        pageName: 'semantics.scss',
+        summary: tokenSummary,
+        details: tokenChangeDescriptions.slice(0, 12),
+        files: [
+          {
+            path: 'src/tokens/variables/semantics.scss',
+            ext: 'scss',
+            action: 'updated',
+            diff: tokenChangeDescriptions.slice(0, 10).map((t) => `+ ${t}`).join('\n')
+          }
+        ]
+      });
     }
   }
 
   // 2. Apply Selected Component Direct Edits on Canvas -> Token Variables & Component SCSS
   codeParser.invalidateTokenCache();
   const processedComponentNames = new Set();
+  const beforeBundlesByKebab = new Map();
+
+  const getBeforeBundle = (kebab) => {
+    if (!beforeBundlesByKebab.has(kebab)) {
+      beforeBundlesByKebab.set(kebab, syncDiffEngine.readComponentBundleSnapshot(kebab));
+    }
+    return beforeBundlesByKebab.get(kebab);
+  };
+
   if (Array.isArray(payload.selectedItems) && payload.selectedItems.length > 0) {
     for (const item of payload.selectedItems) {
-      const edits = SYNC_CODE_UPDATES ? applyCanvasComponentEditsToCode(item, semanticsPath, payload.currentPageName) : 0;
-      if (edits > 0) updatedCount += edits;
       const resolvedName = (item.parentComponentName || item.name || '').includes('=')
         ? (item.pageName || payload.currentPageName || 'button')
         : (item.parentComponentName || item.name);
-      if (resolvedName) {
-        processedComponentNames.add(codeGenerator.toKebabCase(resolvedName));
+      if (!resolvedName) continue;
+      const kebab = codeGenerator.toKebabCase(resolvedName);
+      if (targetSlugs && !targetSlugs.has(kebab)) continue;
+
+      getBeforeBundle(kebab);
+      const edits = SYNC_CODE_UPDATES ? applyCanvasComponentEditsToCode(item, semanticsPath, payload.currentPageName) : 0;
+      if (edits > 0) {
+        updatedCount += edits;
+        if (!updatedComponents.includes(kebab)) updatedComponents.push(kebab);
       }
+      processedComponentNames.add(kebab);
     }
   }
 
-  // 3. Apply Component Additions, Canvas Property Edits & Deletions
+  // 3. Apply Universal Component Additions, Canvas Property Edits & Surgical Deletions
   if (Array.isArray(payload.components)) {
     const syncState = loadSyncState();
     const seenIds = new Set();
     const seenKebabs = new Set();
-    const protectedKebabs = new Set(['button', 'text-field', 'text-area', 'header', 'card', 'badge', 'chips', 'avatar', 'checkbox', 'radio', 'switch', 'tabs', 'tooltip', 'toast', 'snackbar']);
 
+    // Deduplicate incoming components by kebab name (preferring COMPONENT_SET over COMPONENT)
+    const dedupedByKebab = new Map();
     for (const comp of payload.components) {
       if (!comp || !comp.id || !comp.name) continue;
-      seenIds.add(comp.id);
       const kebab = codeGenerator.toKebabCase(comp.name);
+      if (!kebab || kebab === 'assets') continue;
+      const existing = dedupedByKebab.get(kebab);
+      if (!existing || (comp.type === 'COMPONENT_SET' && existing.type !== 'COMPONENT_SET')) {
+        dedupedByKebab.set(kebab, comp);
+      }
+    }
+
+    for (const comp of dedupedByKebab.values()) {
+      const kebab = codeGenerator.toKebabCase(comp.name);
+      const pascal = codeGenerator.toPascalCase(kebab);
+      const pageName = `${pascal}Page`;
+      seenIds.add(comp.id);
       seenKebabs.add(kebab);
-      const compDir = path.join(COMPONENTS_DIR, kebab);
+
+      // If targeted single-component sync is active, skip components not in targetSlugs
+      if (targetSlugs && !targetSlugs.has(kebab)) {
+        continue;
+      }
+
+      const compDir = path.join(componentsDir, kebab);
       const hasAllFiveFiles =
         fs.existsSync(compDir) &&
         fs.existsSync(path.join(compDir, `${kebab}.tsx`)) &&
@@ -589,155 +770,221 @@ function applyFigmaLivePayload(payload) {
 
       if (!hasAllFiveFiles) {
         suppressWatcherUntil = Date.now() + 3000;
-        console.log(`[FigmaSync] ➕ ADDED: Component <${comp.name}> -> created 5 files (.tsx, .types.ts, .scss, .dart, .md) in src/components/${kebab} & page in src/app/pages/`);
+        const beforeBundle = getBeforeBundle(kebab);
+        console.log(`[FigmaSync] ➕ ADDED: Component <${comp.name}> -> created 5-file bundle + ${pageName} in src/components/${kebab}`);
         codeGenerator.generateComponentFiles(comp);
         applyCanvasComponentEditsToCode(comp, semanticsPath);
         touchMainStylesheet();
-        syncState.components[comp.id] = {
+
+        syncDiffEngine.recordComponentCodeSnapshotInState(syncState, kebab, {
           id: comp.id,
           name: comp.name,
-          kebab,
           type: comp.type || 'COMPONENT',
-          pageName: comp.pageName || payload.currentPageName || 'Canvas',
-          generated: true,
-          updatedAt: new Date().toISOString()
-        };
+          pageName: comp.pageName || payload.currentPageName || 'Canvas'
+        });
+
         createdCount++;
+        addedComponents.push(kebab);
+
+        const afterBundle = syncDiffEngine.readComponentBundleSnapshot(kebab);
+        const summary = pendingDiffMap.get(kebab)?.summary ||
+          `${kebab}: created 5 component files (.tsx, .types.ts, .scss, .dart, .md) & ${pageName} in portal`;
+        updatesList.push({
+          slug: kebab,
+          componentName: pascal,
+          pageName,
+          action: 'added',
+          direction: 'figma-to-code',
+          summary,
+          timestamp: nowIso
+        });
+        historyEntries.push({
+          id: `sync-add-${kebab}-${Date.now()}`,
+          timestamp: nowIso,
+          direction: 'figma-to-code',
+          action: 'added',
+          slug: kebab,
+          componentName: pascal,
+          pageName,
+          summary,
+          details: pendingDiffMap.get(kebab)?.details || [
+            `Scaffolded src/components/${kebab}/${kebab}.tsx, .types.ts, .scss, .dart, .md`,
+            `Scaffolded portal page src/app/pages/${pageName}/${pageName}.tsx and registered in sidebar`
+          ],
+          files: buildFileDiffObjects(kebab, pageName, beforeBundle, afterBundle, 'added')
+        });
       } else {
-        const isOnActivePage = Boolean(payload.currentPageName && comp.pageName === payload.currentPageName);
-        if (SYNC_CODE_UPDATES && !processedComponentNames.has(kebab) && (comp.isSelected || isOnActivePage)) {
-          const edits = applyCanvasComponentEditsToCode(comp, semanticsPath);
+        const beforeBundle = getBeforeBundle(kebab);
+        const inspectedChanges = syncDiffEngine.inspectFigmaVsCodeComponentChanges(comp, payload.currentPageName);
+        let edits = 0;
+        if (SYNC_CODE_UPDATES && !processedComponentNames.has(kebab)) {
+          edits = applyCanvasComponentEditsToCode(comp, semanticsPath);
           if (edits > 0) {
             updatedCount += edits;
+            if (!updatedComponents.includes(kebab)) updatedComponents.push(kebab);
             console.log(`[FigmaSync] ✏️ UPDATED: Component <${comp.name}> (${edits} token/style update(s)) in src/components/${kebab}`);
           }
         }
-        //Remove any synthetic local:<kebab> record once the real Figma node ID is synced
+
+        // Write/update markdown docs for this targeted component
+        const docRes = codeGenerator.writeComponentDocs(comp);
+        const wasUpdated = edits > 0 || updatedComponents.includes(kebab) || (docRes?.changes?.length > 0);
+
+        // Remove any synthetic local:<kebab> record once the real Figma node ID is synced
         const syntheticKey = `local:${kebab}`;
         if (syncState.components[syntheticKey] && comp.id !== syntheticKey) {
           delete syncState.components[syntheticKey];
         }
-        if (!syncState.components[comp.id]) {
-          syncState.components[comp.id] = {
-            id: comp.id,
-            name: comp.name,
-            kebab,
-            type: comp.type || 'COMPONENT',
-            pageName: comp.pageName || payload.currentPageName || 'Canvas',
-            generated: true,
-            updatedAt: new Date().toISOString()
-          };
-        } else {
-          syncState.components[comp.id].name = comp.name;
-          syncState.components[comp.id].kebab = kebab;
-          if (comp.pageName) syncState.components[comp.id].pageName = comp.pageName;
+        syncDiffEngine.recordComponentCodeSnapshotInState(syncState, kebab, {
+          id: comp.id,
+          name: comp.name,
+          type: comp.type || 'COMPONENT',
+          pageName: comp.pageName || payload.currentPageName || 'Canvas'
+        });
+
+        if (wasUpdated) {
+          if (!updatedComponents.includes(kebab)) {
+            updatedComponents.push(kebab);
+            if (edits === 0) updatedCount++;
+          }
+          const afterBundle = syncDiffEngine.readComponentBundleSnapshot(kebab);
+          const allDetails = Array.from(new Set([
+            ...(pendingDiffMap.get(kebab)?.details || []),
+            ...inspectedChanges,
+            ...((docRes?.changes || []).map((c) => c.replace(/`/g, '')))
+          ]));
+          const summary = pendingDiffMap.get(kebab)?.summary ||
+            (allDetails.length > 0
+              ? `${kebab}: updated ${allDetails.slice(0, 2).join('; ')}`
+              : `${kebab}: synced updated Figma styles & documentation`);
+          updatesList.push({
+            slug: kebab,
+            componentName: pascal,
+            pageName,
+            action: 'updated',
+            direction: 'figma-to-code',
+            summary,
+            timestamp: nowIso
+          });
+          historyEntries.push({
+            id: `sync-upd-${kebab}-${Date.now()}`,
+            timestamp: nowIso,
+            direction: 'figma-to-code',
+            action: 'updated',
+            slug: kebab,
+            componentName: pascal,
+            pageName,
+            summary,
+            details: allDetails.length > 0 ? allDetails : ['Updated component styles and documentation from Figma'],
+            files: buildFileDiffObjects(kebab, pageName, beforeBundle, afterBundle, 'updated')
+          });
         }
       }
     }
 
-    // Handle explicit deleted component IDs/names if provided by the Figma plugin
+    // Handle deletions (only for targeted slugs if targetSlugs is provided)
+    const candidateDeletions = new Set();
     if (Array.isArray(payload.deletedComponents)) {
       for (const delItem of payload.deletedComponents) {
         const delName = typeof delItem === 'string' ? delItem : delItem?.name;
-        const delId = typeof delItem === 'object' ? delItem?.id : null;
-        if (!delName) continue;
-        const delKebab = codeGenerator.toKebabCase(delName);
-        if (protectedKebabs.has(delKebab)) continue;
-        suppressWatcherUntil = Date.now() + 3000;
-        console.log(`[FigmaSync] 🗑️ AUTO-DELETED: Component <${delName}> surgically removed from src/components/${delKebab} and UI pages`);
-        codeGenerator.deleteComponentFiles(delName);
+        if (delName) candidateDeletions.add(codeGenerator.toKebabCase(delName));
+      }
+    }
+
+    const isFullDocumentScan = Boolean(payload.isFullScan);
+    if (isFullDocumentScan && fs.existsSync(componentsDir)) {
+      for (const entry of fs.readdirSync(componentsDir, { withFileTypes: true })) {
+        if (entry.isDirectory() && entry.name !== 'assets' && !seenKebabs.has(entry.name)) {
+          candidateDeletions.add(entry.name);
+        }
+      }
+    }
+
+    for (const delKebab of candidateDeletions) {
+      if (seenKebabs.has(delKebab)) continue;
+      if (targetSlugs && !targetSlugs.has(delKebab)) continue;
+
+      const pascal = codeGenerator.toPascalCase(delKebab);
+      const pageName = `${pascal}Page`;
+      const beforeBundle = getBeforeBundle(delKebab);
+
+      suppressWatcherUntil = Date.now() + 3000;
+      if (codeGenerator.deleteComponentFiles(delKebab)) {
+        console.log(`[FigmaSync] 🗑️ AUTO-DELETED: Component <${delKebab}> surgically removed from src/components/${delKebab} and ${pageName}`);
         touchMainStylesheet();
-        if (delId && syncState.components[delId]) delete syncState.components[delId];
-        for (const [sid, srec] of Object.entries(syncState.components)) {
-          if ((srec?.kebab || codeGenerator.toKebabCase(srec?.name || '')) === delKebab) {
-            delete syncState.components[sid];
-          }
-        }
         deletedCount++;
-      }
-    }
+        removedComponents.push(delKebab);
 
-    // Check for deleted components on both full document scans and active-page incremental scans
-    const isFullDocumentScan = Boolean(payload.isFullScan && payload.components.length >= 10);
-    const scannedPages = new Set(payload.components.map(c => c?.pageName).filter(Boolean));
-    if (payload.currentPageName) scannedPages.add(payload.currentPageName);
-    const allFigmaPages = Array.isArray(payload.allPageNames) ? new Set(payload.allPageNames) : null;
-
-    if (payload.components.length > 0 || payload.currentPageName) {
-      for (const [id, prev] of Object.entries(syncState.components)) {
-        if (!prev || !prev.name || prev.source === 'code') continue;
-        const prevKebab = prev.kebab || codeGenerator.toKebabCase(prev.name);
-        if (seenIds.has(id) || seenKebabs.has(prevKebab) || protectedKebabs.has(prevKebab)) {
-          continue;
-        }
-
-        // Determine if this component's page was covered by the current scan, or if its Figma page was deleted
-        const pageWasDeleted = Boolean(allFigmaPages && prev.pageName && prev.pageName !== 'Canvas' && !allFigmaPages.has(prev.pageName));
-        const activePageScanned = Boolean(
-          payload.currentPageName &&
-          prev.pageName &&
-          prev.pageName !== 'Canvas' &&
-          prev.pageName === payload.currentPageName &&
-          payload.reason !== 'selection-only'
-        );
-        const pageWasScanned = (
-          isFullDocumentScan ||
-          pageWasDeleted ||
-          activePageScanned ||
-          (prev.pageName && prev.pageName !== 'Canvas' && scannedPages.has(prev.pageName) && payload.components.length > 0)
-        );
-
-        if (pageWasScanned) {
-          suppressWatcherUntil = Date.now() + 3000;
-          console.log(`[FigmaSync] 🗑️ AUTO-DELETED: Component <${prev.name}> surgically removed from src/components/${prevKebab} and UI pages`);
-          codeGenerator.deleteComponentFiles(prev.name);
-          touchMainStylesheet();
-          delete syncState.components[id];
-          deletedCount++;
-        }
+        const summary = pendingDiffMap.get(delKebab)?.summary ||
+          `${delKebab}: removed from src/components/${delKebab} & deleted ${pageName} because it was deleted in Figma`;
+        updatesList.push({
+          slug: delKebab,
+          componentName: pascal,
+          pageName,
+          action: 'deleted',
+          direction: 'figma-to-code',
+          summary,
+          timestamp: nowIso
+        });
+        historyEntries.push({
+          id: `sync-del-${delKebab}-${Date.now()}`,
+          timestamp: nowIso,
+          direction: 'figma-to-code',
+          action: 'deleted',
+          slug: delKebab,
+          componentName: pascal,
+          pageName,
+          summary,
+          details: [
+            `Removed folder src/components/${delKebab}/ and cleaned export in src/components/index.ts`,
+            `Removed portal page src/app/pages/${pageName}/`
+          ],
+          files: buildFileDiffObjects(delKebab, pageName, beforeBundle, null, 'deleted')
+        });
       }
 
-      // Also clean up any orphan dynamically-created component directories
-      // that were tracked in .sync-state.json and deleted on a full document scan
-      if (isFullDocumentScan) {
-        const entries = fs.readdirSync(COMPONENTS_DIR, { withFileTypes: true });
-        for (const entry of entries) {
-          if (!entry.isDirectory() || entry.name === 'assets') continue;
-          const folderKebab = entry.name;
-          if (!seenKebabs.has(folderKebab) && !protectedKebabs.has(folderKebab)) {
-            const stateRecord = Object.values(syncState.components).find(
-              c => (c.kebab || codeGenerator.toKebabCase(c.name || '')) === folderKebab
-            );
-            if (stateRecord && stateRecord.source !== 'code') {
-              suppressWatcherUntil = Date.now() + 3000;
-              console.log(`[FigmaSync] 🗑️ AUTO-DELETED: Component <${folderKebab}> removed from src/components and UI pages`);
-              codeGenerator.deleteComponentFiles(folderKebab);
-              touchMainStylesheet();
-              deletedCount++;
-            }
-          }
+      for (const [sid, srec] of Object.entries(syncState.components)) {
+        if ((srec?.kebab || codeGenerator.toKebabCase(srec?.name || '')) === delKebab) {
+          delete syncState.components[sid];
         }
       }
     }
 
-    syncState.lastSync = new Date().toISOString();
+    syncState.lastSync = nowIso;
     saveSyncState(syncState);
   }
 
-  // 4. Create / update <component-name>.md docs from exact Figma properties (docs only, no code changes)
-  const docsUpdated = syncComponentDocs(payload);
+  // 4. Create / update <component-name>.md docs for non-targeted scans
+  const docsUpdated = targetSlugs ? updatesList.length : syncComponentDocs(payload);
 
-  // Ensure all documentation pages in src/app/pages/ follow the strict 3-file structure
+  // Ensure all documentation pages and component index are sanitized
+  codeGenerator.sanitizeComponentIndex();
   appPageGenerator.syncAppComponentPages();
+  appPageGenerator.touchHmrEntryPoints();
 
-  if (createdCount > 0 || updatedCount > 0 || deletedCount > 0 || tokensUpdated > 0 || docsUpdated > 0) {
+  if (historyEntries.length > 0) {
+    syncDiffEngine.appendSyncHistoryEntries(historyEntries);
+  }
+
+  if (createdCount > 0 || updatedCount > 0 || deletedCount > 0 || tokensUpdated > 0) {
     touchMainStylesheet();
-    console.log(`[FigmaSync] Sync Summary: ${tokensUpdated} token(s) updated, ${updatedCount} component property change(s), ${createdCount} added, ${deletedCount} deleted, ${docsUpdated} doc(s) written.`);
+    console.log(`[FigmaSync] Sync Summary: ${tokensUpdated} token(s) updated, ${updatedCount} component property change(s), ${createdCount} added, ${deletedCount} deleted.`);
   } else {
     console.log(`[FigmaSync] Checked ${payload.components?.length || 0} component(s) & ${payload.variablesCount || 0} variable(s) — all values in sync.`);
   }
 
-  return { createdCount, updatedCount, deletedCount, tokensUpdated, docsUpdated };
+  return {
+    createdCount,
+    updatedCount,
+    deletedCount,
+    tokensUpdated,
+    docsUpdated,
+    addedComponents,
+    updatedComponents,
+    removedComponents,
+    updatesList,
+    historyEntries
+  };
 }
 
 /**
@@ -749,11 +996,16 @@ function syncComponentDocs(payload) {
   const byKebab = new Map();
   const collect = (node) => {
     if (!node || !node.name || String(node.name).includes('=')) return;
-    if (node.type && node.type !== 'COMPONENT' && node.type !== 'COMPONENT_SET') return;
+    if (node.type && node.type !== 'COMPONENT' && node.type !== 'COMPONENT_SET' && node.type !== 'FRAME') return;
+    const kebab = codeGenerator.toKebabCase(node.name);
+    if (!kebab || kebab === 'assets') return;
     // Skip unhydrated state records that have no serialized layout/variant properties
     const isHydrated = typeof node.width === 'number' || typeof node.height === 'number' || Array.isArray(node.children) || Boolean(node.componentPropertyDefinitions);
     if (!isHydrated) return;
-    byKebab.set(codeGenerator.toKebabCase(node.name), node);
+    const existing = byKebab.get(kebab);
+    if (!existing || (node.type === 'COMPONENT_SET' && existing.type !== 'COMPONENT_SET')) {
+      byKebab.set(kebab, node);
+    }
   };
   if (Array.isArray(payload.components)) payload.components.forEach(collect);
   if (Array.isArray(payload.selectedItems)) payload.selectedItems.forEach(collect);
@@ -844,50 +1096,238 @@ function handleSocketMessage(socket, rawMessage) {
     const channelName = data.channel || 'figma-sync';
     const payload = data.message;
 
-    // 1. Live payload pushed directly from Figma Plugin (Variables + Components)
-    if (payload?.event === 'FIGMA_LIVE_SYNC_PAYLOAD') {
-      console.log(`\n[Bridge] Received live Figma payload from "${payload.fileName || 'Figma'}" (reason: ${payload.reason || 'sync'})`);
-      const result = applyFigmaLivePayload(payload);
+    // 0. Portal-initiated Pre-Sync Request -> ask plugin for canvas snapshot or compute from cached/local state
+    if (payload?.event === 'PORTAL_REQUEST_PRE_SYNC') {
+      const direction = payload.direction || 'code-to-figma';
+      resolveProjectContext(payload);
+      // Ask connected Figma plugin to send PRE_SYNC_CHECK with fresh canvas state
       broadcastToChannel(channelName, {
-        event: 'FIGMA_TO_CODE_COMPLETE',
-        result,
-        source: payload.reason || 'plugin-live'
+        event: 'PLUGIN_EXPORT_FOR_DIFF',
+        direction
+      });
+      // If direction is code-to-figma and we can already compute against lastCanvasPayload / syncState,
+      // send an immediate fallback diff if the plugin doesn't respond within 1.2s
+      setTimeout(() => {
+        if (lastPendingDiff.direction === direction && lastPendingDiff.timestamp && Date.now() - lastPendingDiff.timestamp < 1100) {
+          return;
+        }
+        const sourcePayload = lastCanvasPayload || {};
+        const pendingChanges = direction === 'code-to-figma'
+          ? syncDiffEngine.computeCodeToFigmaDiff(sourcePayload)
+          : syncDiffEngine.computeFigmaToCodeDiff(sourcePayload);
+        lastPendingDiff = {
+          direction,
+          items: pendingChanges,
+          payload: sourcePayload,
+          timestamp: Date.now()
+        };
+        broadcastToChannel(channelName, {
+          event: 'PRE_SYNC_DIFF_RESULT',
+          direction,
+          pendingChanges,
+          fileName: sourcePayload.fileName || 'Some Components',
+          fileKey: sourcePayload.fileKey || figmaApi.getFileKey()
+        });
+      }, 1200);
+      return;
+    }
+
+    // 1. Pre-Sync Diff Check (Scans only changed components/pages/tokens before asking user for "Yes" confirmation)
+    if (payload?.event === 'PRE_SYNC_CHECK') {
+      const project = resolveProjectContext(payload);
+      const direction = payload.direction || (payload.pushToGithub ? 'figma-to-github' : 'figma-to-code');
+      lastCanvasPayload = payload;
+
+      const pendingChanges = direction === 'code-to-figma'
+        ? syncDiffEngine.computeCodeToFigmaDiff(payload)
+        : syncDiffEngine.computeFigmaToCodeDiff(payload);
+
+      lastPendingDiff = {
+        direction,
+        items: pendingChanges,
+        payload,
+        timestamp: Date.now()
+      };
+
+      console.log(`\n[PreSyncCheck] 🔍 Scanned (${direction}): ${pendingChanges.length} pending change(s) detected.`);
+      for (const item of pendingChanges) {
+        console.log(`  • [${item.action.toUpperCase()}] ${item.summary}`);
+      }
+
+      broadcastToChannel(channelName, {
+        event: 'PRE_SYNC_DIFF_RESULT',
+        direction,
+        pendingChanges,
+        projectDir: project.projectDir,
+        repoName: project.repoName,
+        repoUrl: project.repoUrl,
+        fileName: payload.fileName,
+        fileKey: payload.fileKey || project.fileKey
       });
       return;
     }
 
-    // 2. Legacy / REST Figma sync request
+    // 2. Confirmed Sync Execution (Triggered ONLY after user clicks "Yes" in confirmation popup)
+    if (payload?.event === 'CONFIRM_SYNC_EXECUTION') {
+      const direction = payload.direction || lastPendingDiff.direction || 'figma-to-code';
+      const sourcePayload = payload.canvasPayload || lastPendingDiff.payload || lastCanvasPayload || payload;
+      const project = resolveProjectContext(sourcePayload);
+
+      const pendingItems = Array.isArray(payload.pendingChanges) && payload.pendingChanges.length > 0
+        ? payload.pendingChanges
+        : (Array.isArray(lastPendingDiff.items) ? lastPendingDiff.items : []);
+
+      const confirmedSlugsArray = Array.isArray(payload.confirmedSlugs) && payload.confirmedSlugs.length > 0
+        ? payload.confirmedSlugs
+        : pendingItems.map((i) => i.slug);
+      const confirmedSlugsSet = new Set(confirmedSlugsArray);
+
+      console.log(`\n[Bridge] ✅ User Confirmed "YES" for ${direction.toUpperCase()} — Executing surgical sync for ${confirmedSlugsSet.size} targeted item(s): [${Array.from(confirmedSlugsSet).join(', ')}]`);
+
+      if (direction === 'code-to-figma') {
+        const result = executeSurgicalCodeToFigmaSync(pendingItems.filter((i) => confirmedSlugsSet.has(i.slug)), project);
+        broadcastToChannel(channelName, {
+          event: 'CODE_TO_FIGMA_COMPLETE',
+          result,
+          updatesList: result.updatesList,
+          historyEntries: result.historyEntries,
+          projectDir: project.projectDir,
+          repoName: project.repoName
+        });
+        return;
+      }
+
+      const isGithubPushRequest = direction === 'figma-to-github' || Boolean(payload.pushToGithub);
+      const result = applyFigmaLivePayload(sourcePayload, {
+        targetSlugs: confirmedSlugsSet,
+        pendingChanges: pendingItems
+      });
+
+      let gitResult = null;
+      if (isGithubPushRequest) {
+        const parts = [];
+        if (result.createdCount > 0) parts.push(`+${result.createdCount} added (${result.addedComponents.join(', ')})`);
+        if (result.updatedCount > 0) parts.push(`~${result.updatedCount} updated`);
+        if (result.deletedCount > 0) parts.push(`-${result.deletedCount} deleted (${result.removedComponents.join(', ')})`);
+        if (result.tokensUpdated > 0) parts.push(`${result.tokensUpdated} tokens`);
+        const commitMsg = parts.length > 0
+          ? `sync(${project.id}): ${parts.join(', ')}`
+          : `sync(${project.id}): manual Figma to GitHub sync`;
+
+        gitResult = gitSync.commitAndPush(commitMsg, {
+          cwd: project.projectDir,
+          repoUrl: project.repoUrl
+        });
+      }
+
+      broadcastToChannel(channelName, {
+        event: isGithubPushRequest ? 'FIGMA_TO_GITHUB_COMPLETE' : 'FIGMA_TO_CODE_COMPLETE',
+        result,
+        updatesList: result.updatesList || [],
+        historyEntries: result.historyEntries || [],
+        git: gitResult,
+        projectDir: project.projectDir,
+        repoName: project.repoName,
+        repoUrl: project.repoUrl,
+        fileName: sourcePayload.fileName,
+        fileKey: sourcePayload.fileKey || project.fileKey,
+        source: 'confirmed-manual'
+      });
+      return;
+    }
+
+    // 3. Direct On-Demand Sync (Ignore any legacy unconfirmed background watcher payloads)
+    if (payload?.event === 'FIGMA_LIVE_SYNC_PAYLOAD' || payload?.event === 'FIGMA_TO_GITHUB_SYNC') {
+      const legacyAutoReasons = new Set([
+        'documentchange',
+        'canvas-poll',
+        'variables-poll',
+        'selectionchange',
+        'currentpagechange',
+        'auto-connect'
+      ]);
+      if (payload.reason && legacyAutoReasons.has(payload.reason)) {
+        return;
+      }
+      const project = resolveProjectContext(payload);
+      const isGithubPushRequest = Boolean(
+        payload.event === 'FIGMA_TO_GITHUB_SYNC' ||
+        payload.pushToGithub === true ||
+        payload.reason === 'github-sync'
+      );
+
+      console.log(`\n[Bridge] 🖲️ Manual Button Action (${isGithubPushRequest ? '🚀 Figma to GitHub Sync' : 'Sync Figma File -> VS Code'}) from "${payload.fileName || 'Figma'}" -> Target: ${project.projectDir}`);
+      const pendingChanges = syncDiffEngine.computeFigmaToCodeDiff(payload);
+      const targetSlugs = new Set(pendingChanges.map((p) => p.slug));
+      const result = applyFigmaLivePayload(payload, {
+        targetSlugs,
+        pendingChanges
+      });
+
+      let gitResult = null;
+      if (isGithubPushRequest) {
+        const parts = [];
+        if (result.createdCount > 0) parts.push(`+${result.createdCount} added (${result.addedComponents.join(', ')})`);
+        if (result.updatedCount > 0) parts.push(`~${result.updatedCount} updated`);
+        if (result.deletedCount > 0) parts.push(`-${result.deletedCount} deleted (${result.removedComponents.join(', ')})`);
+        if (result.tokensUpdated > 0) parts.push(`${result.tokensUpdated} tokens`);
+        const commitMsg = parts.length > 0
+          ? `sync(${project.id}): ${parts.join(', ')}`
+          : `sync(${project.id}): manual Figma to GitHub sync`;
+
+        gitResult = gitSync.commitAndPush(commitMsg, {
+          cwd: project.projectDir,
+          repoUrl: project.repoUrl
+        });
+      }
+
+      broadcastToChannel(channelName, {
+        event: isGithubPushRequest ? 'FIGMA_TO_GITHUB_COMPLETE' : 'FIGMA_TO_CODE_COMPLETE',
+        result,
+        updatesList: result.updatesList || [],
+        historyEntries: result.historyEntries || [],
+        git: gitResult,
+        projectDir: project.projectDir,
+        repoName: project.repoName,
+        repoUrl: project.repoUrl,
+        fileName: payload.fileName,
+        fileKey: payload.fileKey || project.fileKey,
+        source: payload.reason || 'manual'
+      });
+      return;
+    }
+
+    // 4. Legacy / REST Figma sync request
     if (payload?.event === 'FIGMA_SYNC_REQUEST' || payload?.event === 'FIGMA_SELECTION_PUSH') {
       console.log(`[Bridge] Figma sync requested${payload.event === 'FIGMA_SELECTION_PUSH' ? ` for ${payload.items?.length || 0} selected item(s)` : ''}`);
       triggerFigmaToCodeSync(payload.event === 'FIGMA_SYNC_REQUEST' ? 'plugin-request' : 'plugin-selection');
       return;
     }
 
-    // 3. Manual / Auto Code -> Figma sync request from Plugin UI
+    // 5. Direct Code -> Figma sync request (evaluates targeted diff and applies only changed/deleted components)
     if (payload?.event === 'CODE_TO_FIGMA_SYNC_REQUEST') {
-      const targetFolder = payload.componentFolder || lastModifiedComponentFolder || 'button';
-      console.log(`[Bridge] Code -> Figma sync requested from plugin for "${targetFolder}"`);
-      codeGenerator.generateForExistingComponents();
-      triggerCodeToFigmaSync(targetFolder, 'update');
-      if (targetFolder !== 'button' && fs.existsSync(path.join(COMPONENTS_DIR, 'button'))) {
-        triggerCodeToFigmaSync('button', 'update');
-      }
-      // Also push any locally created components (source: 'code') so they appear on the Figma canvas
-      const syncState = loadSyncState();
-      for (const entry of Object.values(syncState.components)) {
-        if (entry?.source === 'code' && entry.kebab && entry.kebab !== targetFolder && fs.existsSync(path.join(COMPONENTS_DIR, entry.kebab))) {
-          triggerCodeToFigmaSync(entry.kebab, 'create');
-        }
-      }
+      const project = resolveProjectContext(payload);
+      const pendingChanges = syncDiffEngine.computeCodeToFigmaDiff(payload.canvasPayload || lastCanvasPayload || {});
+      const result = executeSurgicalCodeToFigmaSync(pendingChanges, project);
+      broadcastToChannel(channelName, {
+        event: 'CODE_TO_FIGMA_COMPLETE',
+        result,
+        updatesList: result.updatesList,
+        historyEntries: result.historyEntries,
+        projectDir: project.projectDir,
+        repoName: project.repoName
+      });
       return;
     }
 
-    // 4. Auto-sync any locally-created components to Figma when plugin connects
+    // 6. Auto-sync any locally-created components to Figma when plugin connects
     if (payload?.event === 'CODE_TO_FIGMA_SYNC_ALL_LOCAL') {
+      resolveProjectContext(payload);
+      const componentsDir = getComponentsDir();
       codeGenerator.generateForExistingComponents();
       const syncState = loadSyncState();
       for (const entry of Object.values(syncState.components)) {
-        if (entry?.source === 'code' && entry.kebab && fs.existsSync(path.join(COMPONENTS_DIR, entry.kebab))) {
+        if (entry?.source === 'code' && entry.kebab && fs.existsSync(path.join(componentsDir, entry.kebab))) {
           console.log(`[Bridge] Auto-pushing locally created component <${entry.kebab}> to Figma canvas`);
           triggerCodeToFigmaSync(entry.kebab, 'create');
         }
@@ -898,6 +1338,178 @@ function handleSocketMessage(socket, rawMessage) {
     broadcastToChannel(channelName, payload);
     return;
   }
+}
+
+/**
+ * Execute surgical Code -> Figma sync for ONLY the confirmed pending changes
+ */
+function executeSurgicalCodeToFigmaSync(confirmedItems, project) {
+  let createdCount = 0;
+  let updatedCount = 0;
+  let deletedCount = 0;
+  const updatesList = [];
+  const historyEntries = [];
+  const nowIso = new Date().toISOString();
+  const syncState = loadSyncState();
+
+  for (const item of confirmedItems) {
+    const kebab = item.slug;
+    const pascal = codeGenerator.toPascalCase(kebab);
+    const pageName = item.pageName || `${pascal}Page`;
+
+    if (item.action === 'delete') {
+      // Capture any previous code snapshot before deleting
+      let prevEntry = null;
+      for (const [id, entry] of Object.entries(syncState.components || {})) {
+        if ((entry?.kebab || codeGenerator.toKebabCase(entry?.name || '')) === kebab) {
+          prevEntry = entry;
+          delete syncState.components[id];
+        }
+      }
+      saveSyncState(syncState);
+
+      suppressWatcherUntil = Date.now() + 2500;
+      codeGenerator.deleteComponentFiles(kebab);
+
+      broadcastToChannel('figma-sync', {
+        event: 'CODE_TO_FIGMA_DELETE',
+        componentName: item.componentName || pascal,
+        folder: kebab,
+        nodeId: item.nodeId || null,
+        figmaPageName: item.figmaPageName || null,
+        summary: item.summary
+      });
+
+      deletedCount++;
+      const summary = item.summary || `${kebab}: removed from Figma because it was deleted in local code`;
+      updatesList.push({
+        slug: kebab,
+        componentName: item.componentName || pascal,
+        pageName,
+        action: 'deleted',
+        direction: 'code-to-figma',
+        summary,
+        timestamp: nowIso
+      });
+
+      const deletedFiles = [];
+      if (prevEntry?.codeFilesSnapshot) {
+        for (const [extKey, content] of Object.entries(prevEntry.codeFilesSnapshot)) {
+          if (content) {
+            const extName = extKey === 'types' ? 'types.ts' : extKey;
+            deletedFiles.push({
+              path: `src/components/${kebab}/${kebab}.${extName}`,
+              ext: extKey === 'types' ? 'ts' : extKey,
+              action: 'deleted',
+              diff: syncDiffEngine.computeConciseDiff(content, '', 10)
+            });
+          }
+        }
+      } else {
+        deletedFiles.push({
+          path: `src/components/${kebab}/`,
+          ext: 'tsx',
+          action: 'deleted',
+          diff: `- Deleted component folder src/components/${kebab}/ and page src/app/pages/${pageName}/`
+        });
+      }
+
+      historyEntries.push({
+        id: `c2f-del-${kebab}-${Date.now()}`,
+        timestamp: nowIso,
+        direction: 'code-to-figma',
+        action: 'deleted',
+        slug: kebab,
+        componentName: item.componentName || pascal,
+        pageName,
+        summary,
+        details: item.details || [
+          `Removed "${item.componentName || kebab}" component & page from Figma canvas`,
+          `Cleaned up local exports in src/components/index.ts & ${pageName}`
+        ],
+        files: deletedFiles
+      });
+    } else {
+      // 'update' or 'add'
+      let prevEntry = null;
+      for (const [, entry] of Object.entries(syncState.components || {})) {
+        if ((entry?.kebab || codeGenerator.toKebabCase(entry?.name || '')) === kebab) {
+          prevEntry = entry;
+          break;
+        }
+      }
+      const prevBundle = prevEntry?.codeFilesSnapshot ? { files: prevEntry.codeFilesSnapshot } : null;
+
+      triggerCodeToFigmaSync(
+        kebab,
+        item.action === 'add' ? 'create' : 'update',
+        project?.projectDir || process.cwd(),
+        {
+          targetNodeId: item.nodeId,
+          targetComponentName: item.componentName,
+          summary: item.summary
+        }
+      );
+
+      const currentBundle = syncDiffEngine.readComponentBundleSnapshot(kebab);
+      const refreshedState = loadSyncState();
+      syncDiffEngine.recordComponentCodeSnapshotInState(refreshedState, kebab, {
+        id: item.nodeId,
+        name: item.componentName || pascal
+      });
+      saveSyncState(refreshedState);
+
+      if (item.action === 'add') createdCount++;
+      else updatedCount++;
+
+      const actionLabel = item.action === 'add' ? 'added' : 'updated';
+      const summary = item.summary || `${kebab}: ${actionLabel} on Figma canvas from local code`;
+      updatesList.push({
+        slug: kebab,
+        componentName: item.componentName || pascal,
+        pageName,
+        action: actionLabel,
+        direction: 'code-to-figma',
+        summary,
+        timestamp: nowIso
+      });
+
+      const fileDiffs = buildFileDiffObjects(kebab, pageName, prevBundle, currentBundle, actionLabel);
+      if (fileDiffs.length === 0 && currentBundle.files.scss) {
+        fileDiffs.push({
+          path: `src/components/${kebab}/${kebab}.scss`,
+          ext: 'scss',
+          action: actionLabel,
+          diff: (item.details || [summary]).map((d) => `+ ${d}`).join('\n')
+        });
+      }
+
+      historyEntries.push({
+        id: `c2f-${actionLabel}-${kebab}-${Date.now()}`,
+        timestamp: nowIso,
+        direction: 'code-to-figma',
+        action: actionLabel,
+        slug: kebab,
+        componentName: item.componentName || pascal,
+        pageName,
+        summary,
+        details: item.details || [summary],
+        files: fileDiffs
+      });
+    }
+  }
+
+  if (historyEntries.length > 0) {
+    syncDiffEngine.appendSyncHistoryEntries(historyEntries);
+  }
+
+  return {
+    createdCount,
+    updatedCount,
+    deletedCount,
+    updatesList,
+    historyEntries
+  };
 }
 
 // ==========================================
@@ -933,9 +1545,14 @@ async function triggerFigmaToCodeSync(triggerSource = 'manual') {
   }
 }
 
-async function triggerCodeToFigmaSync(componentFolder, action = 'update') {
+async function triggerCodeToFigmaSync(componentFolder, action = 'update', projectDir = null, options = {}) {
+  if (projectDir && fs.existsSync(projectDir) && process.cwd().toLowerCase() !== projectDir.toLowerCase()) {
+    process.chdir(projectDir);
+    codeParser.invalidateTokenCache();
+  }
+  const componentsDir = getComponentsDir();
   let effectiveFolder = componentFolder;
-  const rawFolderPath = path.join(COMPONENTS_DIR, componentFolder);
+  const rawFolderPath = path.join(componentsDir, componentFolder);
 
   if (action !== 'delete' && fs.existsSync(rawFolderPath)) {
     suppressWatcherUntil = Date.now() + 2000;
@@ -946,15 +1563,16 @@ async function triggerCodeToFigmaSync(componentFolder, action = 'update') {
   }
 
   lastModifiedComponentFolder = effectiveFolder;
-  console.log(`\n[SyncServer] >>> Triggering Code to Figma Auto-Sync (${action}: ${effectiveFolder})`);
+  console.log(`\n[SyncServer] >>> Triggering Code to Figma Surgical Sync (${action}: ${effectiveFolder})`);
 
   const compData = codeParser.parseComponentDir(effectiveFolder);
+  const resolvedNodeId = options.targetNodeId || compData.nodeId || null;
+  const resolvedComponentName = options.targetComponentName || compData.componentName;
 
   if (action === 'delete' || compData.isDeleted) {
-    console.log(`\n[FigmaSync] 🗑️ AUTO-DELETED: Component <${compData.componentName}> removed from src/components and UI pages`);
+    console.log(`\n[FigmaSync] 🗑️ AUTO-DELETED: Component <${resolvedComponentName}> removed from src/components and UI pages`);
     suppressWatcherUntil = Date.now() + 2500;
     codeGenerator.deleteComponentFiles(effectiveFolder);
-    // Also remove from .sync-state.json so Figma-to-Code knows it was deleted
     const syncState = loadSyncState();
     for (const [id, entry] of Object.entries(syncState.components)) {
       if ((entry.kebab || codeGenerator.toKebabCase(entry.name || '')) === effectiveFolder) {
@@ -965,41 +1583,32 @@ async function triggerCodeToFigmaSync(componentFolder, action = 'update') {
     appPageGenerator.syncAppComponentPages();
     broadcastToChannel('figma-sync', {
       event: 'CODE_TO_FIGMA_DELETE',
-      componentName: compData.componentName,
+      componentName: resolvedComponentName,
       folder: compData.folder,
-      nodeId: compData.nodeId
+      nodeId: resolvedNodeId,
+      summary: options.summary || `${effectiveFolder}: removed from Figma because it was deleted in local code`
     });
     return;
   }
 
   // Register newly created code component in .sync-state.json so it is tracked across lifecycle scans
   const syncState = loadSyncState();
-  const hasEntry = Object.values(syncState.components).some(
-    c => (c.kebab || codeGenerator.toKebabCase(c.name || '')) === compData.folder
-  );
-  if (!hasEntry) {
-    const syntheticId = compData.nodeId || `local:${compData.folder}`;
-    syncState.components[syntheticId] = {
-      id: syntheticId,
-      name: compData.componentName,
-      kebab: compData.folder,
-      type: 'COMPONENT',
-      pageName: 'Canvas',
-      source: 'code',
-      generated: true,
-      updatedAt: new Date().toISOString()
-    };
-    saveSyncState(syncState);
-  }
+  syncDiffEngine.recordComponentCodeSnapshotInState(syncState, compData.folder, {
+    id: resolvedNodeId,
+    name: resolvedComponentName
+  });
+  saveSyncState(syncState);
 
-  console.log(`[CodeWatcher] CHANGED: src/components/${compData.folder}/${compData.folder}.scss -> Syncing to Figma Canvas`);
-  console.log(`[FigmaSync] UPDATED: Component <${compData.componentName}> styles modified — fontSize=${compData.fontSize ?? 'n/a'}px, cornerRadius=${compData.cornerRadius ?? 'n/a'}px, height=${compData.height ?? 'n/a'}px`);
+  console.log(`[CodeSync] Targeted update: src/components/${compData.folder}/${compData.folder}.scss -> Syncing to Figma Canvas`);
 
   broadcastToChannel('figma-sync', {
     event: 'CODE_TO_FIGMA_UPDATE',
-    componentName: compData.componentName,
+    action,
+    isNewComponent: action === 'create',
+    summary: options.summary || `${compData.folder}: updated styles on Figma canvas`,
+    componentName: resolvedComponentName,
     folder: compData.folder,
-    nodeId: compData.nodeId,
+    nodeId: resolvedNodeId,
     fontSize: compData.fontSize,
     fontWeight: compData.fontWeight,
     letterSpacing: compData.letterSpacing,
@@ -1022,7 +1631,7 @@ async function triggerCodeToFigmaSync(componentFolder, action = 'update') {
   if (compData.nodeId) {
     try {
       const fileKey = figmaApi.getFileKey();
-      const repoUrl = `https://github.com/d1hdfc/UI-Components/blob/main/src/components/${compData.folder}/${compData.folder}.tsx`;
+      const repoUrl = `https://github.com/d1hdfc/Some-Components/blob/main/src/components/${compData.folder}/${compData.folder}.tsx`;
       await figmaApi.createDevResources(fileKey, [
         {
           name: `${compData.componentName} (Code Component)`,
@@ -1040,14 +1649,18 @@ async function triggerCodeToFigmaSync(componentFolder, action = 'update') {
 // Code Watcher (Code to Figma)
 // ==========================================
 
-function setupCodeWatcher() {
-  if (!fs.existsSync(COMPONENTS_DIR)) return;
+function setupCodeWatcherForProject(projectDir) {
+  const componentsDir = path.join(projectDir, 'src', 'components');
+  const tokensVariablesDir = path.join(projectDir, 'src', 'tokens', 'variables');
+  const pagesDir = path.join(projectDir, 'src', 'app', 'pages');
 
-  console.log(`[CodeWatcher] Watching for local component changes in: ${COMPONENTS_DIR}`);
+  if (!fs.existsSync(componentsDir)) return;
+
+  console.log(`[CodeWatcher] Watching for local component changes in: ${componentsDir}`);
 
   const debounceTimers = new Map();
   let knownComponentFolders = new Set(
-    fs.readdirSync(COMPONENTS_DIR, { withFileTypes: true })
+    fs.readdirSync(componentsDir, { withFileTypes: true })
       .filter(d => d.isDirectory() && d.name !== 'assets')
       .map(d => d.name)
   );
@@ -1055,9 +1668,9 @@ function setupCodeWatcher() {
   // Also scan every 1.5s for pasted/renamed/deleted folders (since Windows fs.watch misses copy-pasted folder trees)
   setInterval(() => {
     if (Date.now() < suppressWatcherUntil) return;
-    if (!fs.existsSync(COMPONENTS_DIR)) return;
+    if (!fs.existsSync(componentsDir)) return;
 
-    const currentRawFolders = fs.readdirSync(COMPONENTS_DIR, { withFileTypes: true })
+    const currentRawFolders = fs.readdirSync(componentsDir, { withFileTypes: true })
       .filter(d => d.isDirectory() && d.name !== 'assets')
       .map(d => d.name);
 
@@ -1067,25 +1680,26 @@ function setupCodeWatcher() {
     for (const rawFolder of currentRawFolders) {
       if (!knownComponentFolders.has(rawFolder)) {
         suppressWatcherUntil = Date.now() + 2500;
+        process.chdir(projectDir);
         const normalized = codeGenerator.normalizeSingleComponentFolder(rawFolder) || rawFolder;
         knownComponentFolders.delete(rawFolder);
         knownComponentFolders.add(normalized);
         console.log(`[CodeWatcher] ADDED: New component folder "${rawFolder}" -> normalized to "src/components/${normalized}" & syncing to Figma`);
-        triggerCodeToFigmaSync(normalized, 'create');
+        triggerCodeToFigmaSync(normalized, 'create', projectDir);
       }
     }
 
     // 2. Detect deleted folders
     for (const prevFolder of Array.from(knownComponentFolders)) {
-      if (!currentSet.has(prevFolder) && !fs.existsSync(path.join(COMPONENTS_DIR, prevFolder))) {
+      if (!currentSet.has(prevFolder) && !fs.existsSync(path.join(componentsDir, prevFolder))) {
         knownComponentFolders.delete(prevFolder);
         console.log(`[CodeWatcher] DELETED: Component folder "src/components/${prevFolder}" removed locally -> syncing deletion to Figma`);
-        triggerCodeToFigmaSync(prevFolder, 'delete');
+        triggerCodeToFigmaSync(prevFolder, 'delete', projectDir);
       }
     }
   }, 1500);
 
-  fs.watch(COMPONENTS_DIR, { recursive: true }, (eventType, filename) => {
+  fs.watch(componentsDir, { recursive: true }, (eventType, filename) => {
     if (Date.now() < suppressWatcherUntil) return;
     if (!filename) return;
 
@@ -1106,44 +1720,46 @@ function setupCodeWatcher() {
       componentFolder,
       setTimeout(() => {
         debounceTimers.delete(componentFolder);
+        process.chdir(projectDir);
 
-        const folderPath = path.join(COMPONENTS_DIR, componentFolder);
+        const folderPath = path.join(componentsDir, componentFolder);
         const exists = fs.existsSync(folderPath);
 
         if (!exists) {
           knownComponentFolders.delete(componentFolder);
-          triggerCodeToFigmaSync(componentFolder, 'delete');
+          triggerCodeToFigmaSync(componentFolder, 'delete', projectDir);
         } else {
           const isNew = !knownComponentFolders.has(componentFolder);
           const normalized = codeGenerator.normalizeSingleComponentFolder(componentFolder) || componentFolder;
           knownComponentFolders.delete(componentFolder);
           knownComponentFolders.add(normalized);
-          triggerCodeToFigmaSync(normalized, isNew ? 'create' : 'update');
+          triggerCodeToFigmaSync(normalized, isNew ? 'create' : 'update', projectDir);
         }
       }, 600)
     );
   });
 
-  if (fs.existsSync(TOKENS_VARIABLES_DIR)) {
-    console.log(`[CodeWatcher] Watching for token variable changes in: ${TOKENS_VARIABLES_DIR}`);
+  if (fs.existsSync(tokensVariablesDir)) {
+    console.log(`[CodeWatcher] Watching for token variable changes in: ${tokensVariablesDir}`);
     let tokenTimer = null;
-    fs.watch(TOKENS_VARIABLES_DIR, { recursive: false }, (eventType, filename) => {
+    fs.watch(tokensVariablesDir, { recursive: false }, (eventType, filename) => {
       if (Date.now() < suppressWatcherUntil) return;
       if (!filename || !filename.endsWith('.scss')) return;
       if (tokenTimer) clearTimeout(tokenTimer);
       tokenTimer = setTimeout(() => {
         tokenTimer = null;
+        process.chdir(projectDir);
         console.log(`[CodeWatcher] CHANGED: src/tokens/variables/${filename} -> Re-evaluating token variables & syncing to Figma`);
         codeParser.invalidateTokenCache();
-        triggerCodeToFigmaSync(lastModifiedComponentFolder || 'button', 'update');
+        triggerCodeToFigmaSync(lastModifiedComponentFolder || 'button', 'update', projectDir);
       }, 600);
     });
   }
 
-  if (fs.existsSync(PAGES_DIR)) {
-    console.log(`[CodeWatcher] Watching for page changes in: ${PAGES_DIR}`);
+  if (fs.existsSync(pagesDir)) {
+    console.log(`[CodeWatcher] Watching for page changes in: ${pagesDir}`);
     let pageTimer = null;
-    fs.watch(PAGES_DIR, { recursive: true }, (eventType, filename) => {
+    fs.watch(pagesDir, { recursive: true }, (eventType, filename) => {
       if (Date.now() < suppressWatcherUntil) return;
       if (!filename || filename.endsWith('.tmp')) return;
       const pageFolder = filename.split(/[/\\]/)[0];
@@ -1152,12 +1768,16 @@ function setupCodeWatcher() {
       if (pageTimer) clearTimeout(pageTimer);
       pageTimer = setTimeout(() => {
         pageTimer = null;
-        if (fs.existsSync(path.join(COMPONENTS_DIR, slug))) {
-          triggerCodeToFigmaSync(slug, 'update');
+        if (fs.existsSync(path.join(componentsDir, slug))) {
+          triggerCodeToFigmaSync(slug, 'update', projectDir);
         }
       }, 600);
     });
   }
+}
+
+function setupCodeWatcher() {
+  setupCodeWatcherForProject(process.cwd());
 }
 
 // ==========================================
@@ -1258,6 +1878,29 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  if (req.method === 'GET' && pathname === '/api/sync/history') {
+    const history = syncDiffEngine.loadSyncHistory();
+    const componentsDir = getComponentsDir();
+    const activeBundles = [];
+    if (fs.existsSync(componentsDir)) {
+      for (const entry of fs.readdirSync(componentsDir, { withFileTypes: true })) {
+        if (!entry.isDirectory() || entry.name === 'assets') continue;
+        const b = syncDiffEngine.readComponentBundleSnapshot(entry.name);
+        if (b.exists) {
+          activeBundles.push({
+            slug: b.kebab,
+            componentName: b.pascal,
+            pageName: b.pageName,
+            files: b.files
+          });
+        }
+      }
+    }
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ ...history, activeBundles }));
+    return;
+  }
+
   if (req.method === 'POST' && pathname === '/api/sync/figma-to-code') {
     triggerFigmaToCodeSync('http-api');
     res.writeHead(200, { 'Content-Type': 'application/json' });
@@ -1354,16 +1997,30 @@ if (require.main === module) {
 
   server.listen(PORT, HOST, () => {
     console.log('====================================================');
-    console.log(`🚀 HDFC Two-Way Real-Time Auto-Sync Server Running`);
-    console.log(`📡 HTTP & Webhook Endpoint: http://localhost:${PORT}/api/webhook`);
+    console.log(`🚀 HDFC On-Demand Sync & GitHub Server Running`);
+    console.log(`🖲️  Mode: Manual Button-Triggered Only (No Background Watchers)`);
     console.log(`🔌 Figma Plugin Bridge WebSocket: ws://localhost:${PORT}`);
     console.log(`🩺 Health & Status Check: http://localhost:${PORT}/api/sync/status`);
     console.log('====================================================');
 
-    // Normalize any newly pasted/renamed component folders on startup (e.g. "button copy" -> "button-copy")
     codeGenerator.generateForExistingComponents();
-    setupCodeWatcher();
-    setupFigmaPoller();
+    try {
+      const state = loadSyncState();
+      const compDir = getComponentsDir();
+      if (fs.existsSync(compDir)) {
+        for (const entry of fs.readdirSync(compDir, { withFileTypes: true })) {
+          if (entry.isDirectory() && entry.name !== 'assets') {
+            const hasBaseline = Object.values(state.components || {}).some(
+              (c) => (c?.kebab || codeGenerator.toKebabCase(c?.name || '')) === entry.name && c?.codeHashes
+            );
+            if (!hasBaseline) {
+              syncDiffEngine.recordComponentCodeSnapshotInState(state, entry.name);
+            }
+          }
+        }
+        saveSyncState(state);
+      }
+    } catch { /* ignore */ }
   });
 
   process.on('SIGINT', () => {

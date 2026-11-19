@@ -17,9 +17,8 @@
 const fs = require('node:fs');
 const path = require('node:path');
 
-const ROOT = process.cwd();
-const COMPONENTS_DIR = path.join(ROOT, 'src', 'components');
-const STATE_FILE = path.join(ROOT, '.figma-docs-state.json');
+const getComponentsDir = () => path.join(process.cwd(), 'src', 'components');
+const getStateFile = () => path.join(process.cwd(), '.figma-docs-state.json');
 const PACKAGE_NAME = '@d1hdfc/ui-components';
 const HISTORY_LIMIT = 10;
 const SYNC_BURST_MS = Number(process.env.DOCS_SYNC_BURST_MS || 10_000);
@@ -38,7 +37,8 @@ const naming = () => require('./code-generator.cjs');
 
 function loadState() {
   try {
-    if (fs.existsSync(STATE_FILE)) return JSON.parse(fs.readFileSync(STATE_FILE, 'utf8'));
+    const sf = getStateFile();
+    if (fs.existsSync(sf)) return JSON.parse(fs.readFileSync(sf, 'utf8'));
   } catch {
     // corrupted state -> start fresh
   }
@@ -46,7 +46,7 @@ function loadState() {
 }
 
 function saveState(state) {
-  fs.writeFileSync(STATE_FILE, JSON.stringify(state, null, 2), 'utf8');
+  fs.writeFileSync(getStateFile(), JSON.stringify(state, null, 2), 'utf8');
 }
 
 // ==========================================
@@ -421,7 +421,7 @@ function generateFigmaMarkdown(node, entry) {
 function writeComponentDocs(node) {
   if (!node || !node.name || String(node.name).includes('=')) return { result: null, changes: [] };
   const kebabName = naming().toKebabCase(node.name);
-  const componentDir = path.join(COMPONENTS_DIR, kebabName);
+  const componentDir = path.join(getComponentsDir(), kebabName);
   if (!fs.existsSync(componentDir)) return { result: null, changes: [] };
 
   const state = loadState();
@@ -486,7 +486,7 @@ function parseTypesFile(typesPath) {
 function generateLocalMarkdown(kebabName) {
   const { toPascalCase } = naming();
   const pascalName = toPascalCase(kebabName);
-  const { props } = parseTypesFile(path.join(COMPONENTS_DIR, kebabName, `${kebabName}.types.ts`));
+  const { props } = parseTypesFile(path.join(getComponentsDir(), kebabName, `${kebabName}.types.ts`));
   const lines = [GENERATED_MARKER, LOCAL_SOURCE_MARKER, ''];
 
   lines.push(`# ${pascalName}`, '');
@@ -529,12 +529,13 @@ function generateLocalMarkdown(kebabName) {
  * file is missing, or refreshes existing local-sourced docs. Never overwrites Figma-sourced docs.
  */
 function ensureLocalDocsForAll() {
-  if (!fs.existsSync(COMPONENTS_DIR)) return 0;
+  const compDir = getComponentsDir();
+  if (!fs.existsSync(compDir)) return 0;
   let written = 0;
-  for (const entry of fs.readdirSync(COMPONENTS_DIR, { withFileTypes: true })) {
+  for (const entry of fs.readdirSync(compDir, { withFileTypes: true })) {
     if (!entry.isDirectory() || entry.name === 'assets') continue;
     const kebabName = entry.name;
-    const dir = path.join(COMPONENTS_DIR, kebabName);
+    const dir = path.join(compDir, kebabName);
     if (!fs.existsSync(path.join(dir, `${kebabName}.tsx`))) continue;
 
     const mdPath = path.join(dir, `${kebabName}.md`);

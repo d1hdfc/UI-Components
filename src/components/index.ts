@@ -270,6 +270,3 @@ export type { ArrowProps } from './arrow/arrow.types'
 
 export { Row } from './row/row'
 export type { RowProps } from './row/row.types'
-
-export { Button01 } from './button01/button01'
-export type { Button01Props } from './button01/button01.types'

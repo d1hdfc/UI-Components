@@ -2,159 +2,969 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Two-Way Auto-Sync</title>
+  <title>HDFC Design System — Surgical Bi-Directional Sync</title>
   <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-      margin: 0;
-      padding: 16px;
-      color: #333;
-      background: #fafafa;
-      font-size: 13px;
+    :root {
+      --bg-app: #f4f6f9;
+      --bg-card: #ffffff;
+      --border-subtle: #dfe3eb;
+      --text-primary: #0f172a;
+      --text-secondary: #475569;
+      --text-muted: #64748b;
+      --brand-navy: #0c2340;
+      --brand-blue: #1245c8;
+      --brand-green: #117a37;
+      --danger-red: #c5221f;
     }
-    h2 {
-      margin: 0 0 12px;
-      font-size: 15px;
-      font-weight: 600;
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      margin: 0;
+      padding: 12px;
+      color: var(--text-primary);
+      background: var(--bg-app);
+      font-size: 12.5px;
+      line-height: 1.45;
+    }
+
+    /* Header */
+    .plugin-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .plugin-brand {
       display: flex;
       align-items: center;
       gap: 8px;
     }
-    .badge {
-      display: inline-block;
-      padding: 2px 8px;
-      font-size: 11px;
-      border-radius: 12px;
-      font-weight: 500;
+
+    .plugin-brand-mark {
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      background: var(--brand-navy);
+      color: #fff;
+      font-weight: 700;
+      font-size: 12px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      letter-spacing: 0.02em;
     }
+
+    .plugin-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin: 0;
+    }
+
+    .plugin-subtitle {
+      font-size: 10.5px;
+      color: var(--text-muted);
+      margin: 0;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 9px;
+      font-size: 11px;
+      border-radius: 999px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .badge-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
     .badge-connected {
       background: #e6f4ea;
       color: #137333;
+      border: 1px solid #b7e1cd;
     }
+
     .badge-disconnected {
       background: #fce8e6;
       color: #c5221f;
+      border: 1px solid #f5c2c0;
     }
+
+    /* Card */
     .card {
-      background: #fff;
-      border: 1px solid #e0e0e0;
-      border-radius: 8px;
-      padding: 12px;
-      margin-bottom: 12px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      padding: 11px;
+      margin-bottom: 10px;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
     }
-    .btn {
-      display: block;
-      width: 100%;
-      padding: 8px 12px;
-      background: #0c2340;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      font-size: 13px;
+
+    .repo-meta {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 7px;
+      padding: 7px 10px;
+      margin-bottom: 10px;
+      font-size: 11px;
+      display: grid;
+      gap: 3px;
+    }
+
+    .repo-meta-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .repo-meta-label {
+      color: var(--text-muted);
       font-weight: 500;
+    }
+
+    .repo-meta code {
+      font-family: 'SFMono-Regular', Consolas, monospace;
+      color: #0c41b8;
+      font-weight: 600;
+      font-size: 11px;
+    }
+
+    /* Status Banner */
+    .status-banner {
+      display: none;
+      padding: 8px 10px;
+      border-radius: 7px;
+      font-size: 11.5px;
+      font-weight: 500;
+      margin-bottom: 9px;
+      line-height: 1.4;
+    }
+
+    .status-banner.syncing {
+      display: block;
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      color: #92400e;
+    }
+
+    .status-banner.success {
+      display: block;
+      background: #f0fdf4;
+      border: 1px solid #86efac;
+      color: #166534;
+    }
+
+    .status-banner.error {
+      display: block;
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      color: #991b1b;
+    }
+
+    /* Action Buttons Grid */
+    .btn-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 7px;
+      margin-bottom: 7px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      width: 100%;
+      padding: 9px 10px;
+      background: var(--brand-navy);
+      color: #ffffff;
+      border: none;
+      border-radius: 7px;
+      font-size: 12px;
+      font-weight: 600;
       cursor: pointer;
       text-align: center;
-      box-sizing: border-box;
-      margin-top: 6px;
+      transition: all 0.15s ease;
     }
-    .btn:hover {
-      background: #1d4076;
+
+    .btn:hover:not(:disabled) {
+      background: #17365d;
     }
-    .btn-primary-sync {
-      background: #1245c8;
+
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: wait;
     }
-    .btn-primary-sync:hover {
-      background: #0c2f8f;
+
+    .btn-code-to-figma {
+      background: var(--brand-blue);
     }
+
+    .btn-code-to-figma:hover:not(:disabled) {
+      background: #0d359e;
+    }
+
+    .btn-github {
+      background: linear-gradient(135deg, #117a37 0%, #169c46 100%);
+      padding: 9px 12px;
+      font-size: 12.5px;
+      box-shadow: 0 1px 4px rgba(17, 122, 55, 0.2);
+    }
+
+    .btn-github:hover:not(:disabled) {
+      background: linear-gradient(135deg, #0d622c 0%, #13823b 100%);
+    }
+
+    .btn-row-bottom {
+      display: flex;
+      gap: 7px;
+      margin-top: 7px;
+    }
+
     .btn-secondary {
-      background: #fff;
-      color: #0c2340;
-      border: 1px solid #d1d5db;
-    }
-    .btn-secondary:hover {
-      background: #f3f4f6;
-    }
-    .log-box {
-      background: #1e1e1e;
-      color: #d4d4d4;
-      font-family: monospace;
+      background: #ffffff;
+      color: var(--text-secondary);
+      border: 1px solid #cbd5e1;
+      font-weight: 600;
+      padding: 6px 10px;
       font-size: 11px;
-      padding: 8px;
+    }
+
+    .btn-secondary:hover:not(:disabled) {
+      background: #f1f5f9;
+      color: var(--text-primary);
+    }
+
+    /* Recent Updates Summary Section */
+    .updates-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 7px;
+    }
+
+    .updates-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .updates-count {
+      background: #e2e8f0;
+      color: #334155;
+      font-size: 10.5px;
+      font-weight: 700;
+      padding: 1px 6px;
+      border-radius: 999px;
+    }
+
+    .clear-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 11px;
+      cursor: pointer;
+      padding: 2px 4px;
+    }
+
+    .clear-btn:hover {
+      color: var(--text-primary);
+      text-decoration: underline;
+    }
+
+    .updates-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-height: 195px;
+      overflow-y: auto;
+    }
+
+    .update-empty {
+      text-align: center;
+      padding: 18px 10px;
+      color: var(--text-muted);
+      font-size: 11.5px;
+      background: #f8fafc;
+      border: 1px dashed #cbd5e1;
+      border-radius: 7px;
+    }
+
+    .update-item {
+      padding: 8px 10px;
+      border-radius: 7px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-left: 3px solid #3b82f6;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .update-item--added {
+      border-left-color: #16a34a;
+      background: #f0fdf4;
+      border-color: #bbf7d0;
+    }
+
+    .update-item--updated {
+      border-left-color: #2563eb;
+      background: #eff6ff;
+      border-color: #bfdbfe;
+    }
+
+    .update-item--deleted {
+      border-left-color: #dc2626;
+      background: #fef2f2;
+      border-color: #fecaca;
+    }
+
+    .update-item-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+
+    .update-badges {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .action-pill {
+      font-size: 9.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 1.5px 6px;
+      border-radius: 4px;
+      letter-spacing: 0.03em;
+    }
+
+    .action-pill--added, .action-pill--add {
+      background: #16a34a;
+      color: #fff;
+    }
+
+    .action-pill--updated, .action-pill--update {
+      background: #2563eb;
+      color: #fff;
+    }
+
+    .action-pill--deleted, .action-pill--delete {
+      background: #dc2626;
+      color: #fff;
+    }
+
+    .direction-tag {
+      font-size: 10px;
+      color: var(--text-secondary);
+      font-weight: 600;
+    }
+
+    .update-time {
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+
+    .update-summary-text {
+      font-size: 11.5px;
+      color: var(--text-primary);
+      font-weight: 500;
+      line-height: 1.35;
+    }
+
+    /* Technical Log Details */
+    details.tech-log {
+      margin-top: 8px;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    details.tech-log summary {
+      cursor: pointer;
+      user-select: none;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .log-box {
+      background: #0f172a;
+      color: #cbd5e1;
+      font-family: 'SFMono-Regular', Consolas, monospace;
+      font-size: 10.5px;
+      padding: 7px;
       border-radius: 6px;
-      height: 220px;
+      height: 85px;
       overflow-y: auto;
       white-space: pre-wrap;
-      word-break: break-all;
+      word-break: break-word;
+    }
+
+    /* Confirmation Modal Overlay */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.55);
+      backdrop-filter: blur(2px);
+      z-index: 100;
+      padding: 14px;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-overlay.open {
+      display: flex;
+    }
+
+    .modal-card {
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      border-radius: 12px;
+      width: 100%;
+      max-height: 92vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 12px 30px rgba(15, 23, 42, 0.25);
+      overflow: hidden;
+    }
+
+    .modal-header {
+      padding: 12px 14px 10px;
+      border-bottom: 1px solid #e2e8f0;
+      background: #f8fafc;
+    }
+
+    .modal-header h3 {
+      margin: 0 0 3px;
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .modal-header p {
+      margin: 0;
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+
+    .modal-body {
+      padding: 10px 14px;
+      overflow-y: auto;
+      max-height: 280px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .diff-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+      background: #f8fafc;
+    }
+
+    .diff-item input[type="checkbox"] {
+      margin-top: 3px;
+      cursor: pointer;
+    }
+
+    .diff-item-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .diff-item-header {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 3px;
+      flex-wrap: wrap;
+    }
+
+    .diff-item-title {
+      font-weight: 700;
+      font-size: 12px;
+      color: var(--text-primary);
+    }
+
+    .diff-item-summary {
+      font-size: 11.5px;
+      color: var(--text-secondary);
+      line-height: 1.35;
+      margin-bottom: 4px;
+    }
+
+    .diff-item-files {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+
+    .file-chip {
+      font-family: 'SFMono-Regular', Consolas, monospace;
+      font-size: 10px;
+      background: #e2e8f0;
+      color: #334155;
+      padding: 1px 5px;
+      border-radius: 4px;
+    }
+
+    .modal-footer {
+      padding: 10px 14px;
+      border-top: 1px solid #e2e8f0;
+      background: #f8fafc;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    .btn-confirm-yes {
+      background: #117a37;
+      color: #fff;
+      border: none;
+      border-radius: 7px;
+      padding: 8px 14px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .btn-confirm-yes:hover {
+      background: #0d622c;
+    }
+
+    .btn-confirm-cancel {
+      background: #ffffff;
+      color: var(--text-secondary);
+      border: 1px solid #cbd5e1;
+      border-radius: 7px;
+      padding: 8px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .btn-confirm-cancel:hover {
+      background: #f1f5f9;
     }
   </style>
 </head>
 <body>
-  <h2>
-    Two-Way Auto-Sync
-    <span id="statusBadge" class="badge badge-disconnected">Disconnected</span>
-  </h2>
-
-  <div class="card">
-    <div style="font-size: 12px; color: #666; margin-bottom: 8px;">
-      Connected to Local Sync Server: <b>ws://localhost:3055</b>
+  <!-- Header -->
+  <div class="plugin-header">
+    <div class="plugin-brand">
+      <span class="plugin-brand-mark">H</span>
+      <div>
+        <h1 class="plugin-title">HDFC Design System Sync</h1>
+        <p class="plugin-subtitle">Surgical Bi-Directional Sync (Figma ↔ Code)</p>
+      </div>
     </div>
-    <button id="syncNowBtn" class="btn">Sync Figma File ➔ VS Code (Variables & Components)</button>
-    <button id="syncCodeToFigmaBtn" class="btn btn-primary-sync">Sync VS Code ➔ Figma Canvas</button>
-    <button id="reconnectBtn" class="btn btn-secondary">Reconnect Bridge</button>
+    <span id="statusBadge" class="badge badge-disconnected">
+      <span class="badge-dot"></span>
+      <span id="statusText">Disconnected</span>
+    </span>
   </div>
 
-  <div style="font-weight: 600; margin-bottom: 6px; font-size: 12px;">Sync Activity Log</div>
-  <div id="logBox" class="log-box">Initializing Figma bridge...</div>
+  <!-- Controls Card -->
+  <div class="card">
+    <div class="repo-meta">
+      <div class="repo-meta-row">
+        <span class="repo-meta-label">Figma File:</span>
+        <code id="figmaFileLabel">Detecting...</code>
+      </div>
+      <div class="repo-meta-row">
+        <span class="repo-meta-label">GitHub Repo:</span>
+        <code id="targetRepoLabel">d1hdfc/Some-Components</code>
+      </div>
+      <div class="repo-meta-row">
+        <span class="repo-meta-label">Sync Mode:</span>
+        <code>Targeted Diff + Confirmation</code>
+      </div>
+    </div>
+
+    <div id="syncStatusBanner" class="status-banner"></div>
+
+    <div class="btn-grid">
+      <button id="syncFigmaToCodeBtn" class="btn" title="Scan changed Figma components/tokens & confirm sync to VS Code">
+        Figma ➔ Code
+      </button>
+      <button id="syncCodeToFigmaBtn" class="btn btn-code-to-figma" title="Scan edited/deleted code components & confirm sync to Figma">
+        Code ➔ Figma
+      </button>
+    </div>
+
+    <button id="figmaToGithubBtn" class="btn btn-github">
+      🚀 Figma to GitHub Sync
+    </button>
+
+    <div class="btn-row-bottom">
+      <button id="reconnectBtn" class="btn btn-secondary">Reconnect Bridge (ws://localhost:3055)</button>
+    </div>
+  </div>
+
+  <!-- Human-Readable Update Summary Panel -->
+  <div class="card" style="margin-bottom: 4px;">
+    <div class="updates-header">
+      <div class="updates-title">
+        <span>What Updated (Plain-English Summary)</span>
+        <span id="updatesCountBadge" class="updates-count">0</span>
+      </div>
+      <button id="clearUpdatesBtn" class="clear-btn" type="button">Clear</button>
+    </div>
+
+    <div id="updatesListContainer" class="updates-list">
+      <div class="update-empty">
+        No sync updates yet in this session.<br>
+        Click <strong>Figma ➔ Code</strong> or <strong>Code ➔ Figma</strong> above to scan changes.
+      </div>
+    </div>
+
+    <details class="tech-log">
+      <summary>Developer Technical Log</summary>
+      <div id="logBox" class="log-box">Ready (Targeted Confirmation Mode)...</div>
+    </details>
+  </div>
+
+  <!-- Pre-Sync Confirmation Modal ("Yes" / "Cancel") -->
+  <div id="confirmModalOverlay" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="confirmModalTitle">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="confirmModalTitle">Confirm Pending Sync Changes</h3>
+        <p id="confirmModalSubtitle">Only the selected items below will be synced. Do you want to proceed?</p>
+      </div>
+      <div id="confirmModalList" class="modal-body"></div>
+      <div class="modal-footer">
+        <button id="confirmCancelBtn" type="button" class="btn-confirm-cancel">Cancel</button>
+        <button id="confirmYesBtn" type="button" class="btn-confirm-yes">Yes, Sync Now</button>
+      </div>
+    </div>
+  </div>
 
   <script>
     const statusBadge = document.getElementById('statusBadge');
+    const statusText = document.getElementById('statusText');
     const logBox = document.getElementById('logBox');
+    const syncFigmaToCodeBtn = document.getElementById('syncFigmaToCodeBtn');
     const syncCodeToFigmaBtn = document.getElementById('syncCodeToFigmaBtn');
-    const syncNowBtn = document.getElementById('syncNowBtn');
+    const figmaToGithubBtn = document.getElementById('figmaToGithubBtn');
     const reconnectBtn = document.getElementById('reconnectBtn');
+    const syncStatusBanner = document.getElementById('syncStatusBanner');
+    const figmaFileLabel = document.getElementById('figmaFileLabel');
+    const targetRepoLabel = document.getElementById('targetRepoLabel');
+    const updatesListContainer = document.getElementById('updatesListContainer');
+    const updatesCountBadge = document.getElementById('updatesCountBadge');
+    const clearUpdatesBtn = document.getElementById('clearUpdatesBtn');
+
+    // Modal elements
+    const confirmModalOverlay = document.getElementById('confirmModalOverlay');
+    const confirmModalTitle = document.getElementById('confirmModalTitle');
+    const confirmModalSubtitle = document.getElementById('confirmModalSubtitle');
+    const confirmModalList = document.getElementById('confirmModalList');
+    const confirmYesBtn = document.getElementById('confirmYesBtn');
+    const confirmCancelBtn = document.getElementById('confirmCancelBtn');
 
     let socket = null;
+    let activeFileName = '';
+    let activeFileKey = '';
+    let recentUpdates = [];
+    let pendingSyncContext = {
+      direction: null,
+      pushToGithub: false,
+      pendingChanges: [],
+      canvasPayload: null
+    };
 
     function log(msg) {
       const time = new Date().toLocaleTimeString();
       logBox.textContent = `[${time}] ${msg}\n` + logBox.textContent;
     }
 
-    function requestCodeToFigmaSync() {
-      if (!socket || socket.readyState !== WebSocket.OPEN) {
-        log('Cannot sync: the local sync server is disconnected.');
+    function setBanner(kind, text) {
+      if (!kind) {
+        syncStatusBanner.className = 'status-banner';
+        syncStatusBanner.textContent = '';
         return;
       }
+      syncStatusBanner.className = `status-banner ${kind}`;
+      syncStatusBanner.textContent = text;
+    }
+
+    function resetActionButtons() {
+      syncFigmaToCodeBtn.disabled = false;
+      syncFigmaToCodeBtn.textContent = 'Figma ➔ Code';
+      syncCodeToFigmaBtn.disabled = false;
+      syncCodeToFigmaBtn.textContent = 'Code ➔ Figma';
+      figmaToGithubBtn.disabled = false;
+      figmaToGithubBtn.textContent = '🚀 Figma to GitHub Sync';
+    }
+
+    function escapeHtml(str) {
+      return String(str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function formatShortTime(isoStr) {
+      try {
+        const d = isoStr ? new Date(isoStr) : new Date();
+        return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      } catch {
+        return '';
+      }
+    }
+
+    function addUpdatesToSummaryFeed(items) {
+      if (!Array.isArray(items) || items.length === 0) return;
+      for (const item of items) {
+        if (!item || !item.summary) continue;
+        // Avoid duplicate identical summary within 2 seconds
+        const isDup = recentUpdates.some(
+          (u) => u.summary === item.summary && Math.abs(Date.now() - (u._addedAt || 0)) < 2000
+        );
+        if (!isDup) {
+          recentUpdates.unshift({
+            ...item,
+            _addedAt: Date.now()
+          });
+        }
+      }
+      recentUpdates = recentUpdates.slice(0, 25);
+      renderUpdatesFeed();
+    }
+
+    function renderUpdatesFeed() {
+      updatesCountBadge.textContent = String(recentUpdates.length);
+      if (recentUpdates.length === 0) {
+        updatesListContainer.innerHTML = `
+          <div class="update-empty">
+            No sync updates yet in this session.<br>
+            Click <strong>Figma ➔ Code</strong> or <strong>Code ➔ Figma</strong> above to scan changes.
+          </div>
+        `;
+        return;
+      }
+
+      updatesListContainer.innerHTML = recentUpdates.map((item) => {
+        const action = (item.action || 'updated').toLowerCase();
+        const itemClass = action.startsWith('add')
+          ? 'update-item--added'
+          : action.startsWith('del')
+            ? 'update-item--deleted'
+            : 'update-item--updated';
+        const pillClass = action.startsWith('add')
+          ? 'action-pill--added'
+          : action.startsWith('del')
+            ? 'action-pill--deleted'
+            : 'action-pill--updated';
+        const pillLabel = action.startsWith('add')
+          ? 'ADDED'
+          : action.startsWith('del')
+            ? 'DELETED'
+            : 'UPDATED';
+        const dirLabel = item.direction === 'code-to-figma'
+          ? 'Code ➔ Figma'
+          : item.direction === 'figma-to-github'
+            ? 'Figma ➔ GitHub'
+            : 'Figma ➔ Code';
+
+        return `
+          <div class="update-item ${itemClass}">
+            <div class="update-item-top">
+              <div class="update-badges">
+                <span class="action-pill ${pillClass}">${pillLabel}</span>
+                <span class="direction-tag">${escapeHtml(dirLabel)}</span>
+              </div>
+              <span class="update-time">${escapeHtml(formatShortTime(item.timestamp))}</span>
+            </div>
+            <div class="update-summary-text">${escapeHtml(item.summary)}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    clearUpdatesBtn.onclick = () => {
+      recentUpdates = [];
+      renderUpdatesFeed();
+    };
+
+    function updateRepoLabels(fileName, fileKey, repoName) {
+      if (fileName) {
+        activeFileName = fileName;
+        figmaFileLabel.textContent = fileName;
+      }
+      if (fileKey) {
+        activeFileKey = fileKey;
+      }
+      if (repoName) {
+        targetRepoLabel.textContent = repoName;
+      } else if (/some[\s-_]*components/i.test(activeFileName) || activeFileKey === 'NhsXzdYzA1O9TPQlRL3wC4') {
+        targetRepoLabel.textContent = 'd1hdfc/Some-Components';
+      }
+    }
+
+    // Open Pre-Sync Confirmation Modal with "Yes" / "Cancel"
+    function openConfirmModal(direction, pendingChanges) {
+      pendingSyncContext.direction = direction;
+      pendingSyncContext.pendingChanges = pendingChanges;
+
+      const dirTitle = direction === 'code-to-figma'
+        ? 'Confirm Code ➔ Figma Sync'
+        : direction === 'figma-to-github'
+          ? 'Confirm Figma ➔ GitHub Sync'
+          : 'Confirm Figma ➔ Code Sync';
+
+      confirmModalTitle.textContent = `${dirTitle} (${pendingChanges.length} change${pendingChanges.length === 1 ? '' : 's'})`;
+      confirmModalSubtitle.textContent = 'Review the detected changes below. Click "Yes, Sync Now" to apply only these changes:';
+
+      confirmModalList.innerHTML = pendingChanges.map((item, idx) => {
+        const action = (item.action || 'update').toLowerCase();
+        const pillClass = action === 'add'
+          ? 'action-pill--add'
+          : action === 'delete'
+            ? 'action-pill--delete'
+            : 'action-pill--update';
+        const pillLabel = action === 'add' ? '+ ADD' : action === 'delete' ? '- DELETE' : '~ UPDATE';
+        const filesHtml = (Array.isArray(item.files) ? item.files : [])
+          .slice(0, 4)
+          .map((f) => `<span class="file-chip">${escapeHtml(f.split('/').pop() || f)}</span>`)
+          .join('');
+
+        return `
+          <label class="diff-item">
+            <input type="checkbox" class="diff-confirm-checkbox" data-slug="${escapeHtml(item.slug)}" checked />
+            <div class="diff-item-content">
+              <div class="diff-item-header">
+                <span class="action-pill ${pillClass}">${pillLabel}</span>
+                <span class="diff-item-title">${escapeHtml(item.title || item.componentName || item.slug)}</span>
+              </div>
+              <div class="diff-item-summary">${escapeHtml(item.summary)}</div>
+              ${filesHtml ? `<div class="diff-item-files">${filesHtml}</div>` : ''}
+            </div>
+          </label>
+        `;
+      }).join('');
+
+      confirmModalOverlay.classList.add('open');
+    }
+
+    function closeConfirmModal() {
+      confirmModalOverlay.classList.remove('open');
+      resetActionButtons();
+    }
+
+    confirmCancelBtn.onclick = () => {
+      closeConfirmModal();
+      setBanner(null, '');
+      log('Sync cancelled by user.');
+    };
+
+    confirmYesBtn.onclick = () => {
+      if (!socket || socket.readyState !== WebSocket.OPEN) {
+        closeConfirmModal();
+        setBanner('error', '❌ Sync server is disconnected (ws://localhost:3055).');
+        return;
+      }
+
+      const checkedBoxes = Array.from(confirmModalList.querySelectorAll('.diff-confirm-checkbox:checked'));
+      const confirmedSlugs = checkedBoxes.map((cb) => cb.getAttribute('data-slug')).filter(Boolean);
+
+      if (confirmedSlugs.length === 0) {
+        closeConfirmModal();
+        setBanner(null, '');
+        return;
+      }
+
+      confirmModalOverlay.classList.remove('open');
+      const direction = pendingSyncContext.direction || 'figma-to-code';
+      setBanner('syncing', `⏳ Applying ${confirmedSlugs.length} confirmed change(s) (${direction})...`);
+      log(`Confirmed "Yes" — syncing [${confirmedSlugs.join(', ')}] (${direction})...`);
+
       socket.send(JSON.stringify({
         type: 'message',
         channel: 'figma-sync',
-        message: { event: 'CODE_TO_FIGMA_SYNC_REQUEST', componentFolder: 'button' }
+        message: {
+          event: 'CONFIRM_SYNC_EXECUTION',
+          direction,
+          pushToGithub: direction === 'figma-to-github',
+          confirmedSlugs,
+          pendingChanges: pendingSyncContext.pendingChanges,
+          canvasPayload: pendingSyncContext.canvasPayload
+        }
       }));
-      log('Requested VS Code ➔ Figma Canvas sync...');
+    };
+
+    function startPreSyncScan(direction) {
+      if (!socket || socket.readyState !== WebSocket.OPEN) {
+        setBanner('error', '❌ Cannot scan: local sync server ws://localhost:3055 is disconnected.');
+        log('Cannot scan: local sync server is disconnected.');
+        return;
+      }
+
+      pendingSyncContext.direction = direction;
+      pendingSyncContext.pushToGithub = direction === 'figma-to-github';
+
+      if (direction === 'code-to-figma') {
+        syncCodeToFigmaBtn.disabled = true;
+        syncCodeToFigmaBtn.textContent = '🔍 Scanning...';
+      } else if (direction === 'figma-to-github') {
+        figmaToGithubBtn.disabled = true;
+        figmaToGithubBtn.textContent = '🔍 Scanning Changes...';
+      } else {
+        syncFigmaToCodeBtn.disabled = true;
+        syncFigmaToCodeBtn.textContent = '🔍 Scanning...';
+      }
+
+      setBanner('syncing', '🔍 Scanning for changed components, pages & tokens...');
+      parent.postMessage({
+        pluginMessage: {
+          type: 'REQUEST_PRE_SYNC_EXPORT',
+          direction,
+          pushToGithub: direction === 'figma-to-github'
+        }
+      }, '*');
     }
 
     function connect() {
       log('Connecting to WebSocket ws://localhost:3055...');
       statusBadge.className = 'badge badge-disconnected';
-      statusBadge.textContent = 'Connecting...';
+      statusText.textContent = 'Connecting...';
 
       try {
         socket = new WebSocket('ws://localhost:3055');
 
         socket.onopen = () => {
           statusBadge.className = 'badge badge-connected';
-          statusBadge.textContent = 'Live Connected';
-          log('Connected to sync server! Auto-sync lifecycle active.');
+          statusText.textContent = 'Connected';
+          log('Connected to ws://localhost:3055.');
           socket.send(JSON.stringify({ type: 'join', channel: 'figma-sync' }));
-          socket.send(JSON.stringify({
-            type: 'message',
-            channel: 'figma-sync',
-            message: { event: 'CODE_TO_FIGMA_SYNC_ALL_LOCAL' }
-          }));
           parent.postMessage({
             pluginMessage: {
-              type: 'REQUEST_FULL_FIGMA_EXPORT',
-              reason: 'auto-connect'
+              type: 'REQUEST_FILE_INFO'
             }
           }, '*');
         };
@@ -164,13 +974,99 @@
             const data = JSON.parse(event.data);
             if (data.type === 'broadcast' && data.message) {
               const payload = data.message;
+
+              if (payload.repoName) {
+                updateRepoLabels(payload.fileName, payload.fileKey, payload.repoName);
+              }
+
+              // Portal requested a canvas diff scan
+              if (payload.event === 'PLUGIN_EXPORT_FOR_DIFF') {
+                parent.postMessage({
+                  pluginMessage: {
+                    type: 'REQUEST_PRE_SYNC_EXPORT',
+                    direction: payload.direction || 'code-to-figma',
+                    pushToGithub: payload.direction === 'figma-to-github'
+                  }
+                }, '*');
+                return;
+              }
+
+              // Pre-Sync Diff Result -> Open "Yes" / "Cancel" Confirmation Modal
+              if (payload.event === 'PRE_SYNC_DIFF_RESULT') {
+                resetActionButtons();
+                const changes = Array.isArray(payload.pendingChanges) ? payload.pendingChanges : [];
+                if (changes.length === 0) {
+                  setBanner('success', '✓ Everything is already in sync — no changes detected.');
+                  log('Scan complete: 0 changes detected (all components & tokens are in sync).');
+                  return;
+                }
+                setBanner(null, '');
+                openConfirmModal(payload.direction || pendingSyncContext.direction || 'figma-to-code', changes);
+                return;
+              }
+
               if (payload.event === 'FIGMA_TO_CODE_COMPLETE') {
+                resetActionButtons();
                 const result = payload.result || {};
-                log(`Figma ➔ VS Code sync complete: +${result.createdCount || 0} created, ~${result.updatedCount || 0} updated, -${result.deletedCount || 0} deleted, ${result.tokensUpdated || 0} tokens synced`);
-              } else if (payload.event === 'FIGMA_TO_CODE_ERROR') {
-                log(`Figma sync warning: ${payload.error || 'Unknown error'}`);
+                const updates = payload.updatesList || result.updatesList || [];
+                addUpdatesToSummaryFeed(updates);
+                const count = updates.length || ((result.createdCount || 0) + (result.updatedCount || 0) + (result.deletedCount || 0));
+                const statusMsg = count > 0
+                  ? `✅ Synced ${count} update(s) from Figma to VS Code & Portal`
+                  : '✅ All components & pages are in sync';
+                setBanner('success', statusMsg);
+                log(statusMsg);
+                parent.postMessage({
+                  pluginMessage: {
+                    type: 'NOTIFY_GITHUB_SYNC',
+                    success: true,
+                    message: statusMsg
+                  }
+                }, '*');
+              } else if (payload.event === 'CODE_TO_FIGMA_COMPLETE') {
+                resetActionButtons();
+                const result = payload.result || {};
+                const updates = payload.updatesList || result.updatesList || [];
+                addUpdatesToSummaryFeed(updates);
+                const count = updates.length || ((result.createdCount || 0) + (result.updatedCount || 0) + (result.deletedCount || 0));
+                const statusMsg = count > 0
+                  ? `✅ Applied ${count} code change(s) to Figma Canvas`
+                  : '✅ Figma Canvas is in sync with VS Code';
+                setBanner('success', statusMsg);
+                log(statusMsg);
+              } else if (payload.event === 'FIGMA_TO_GITHUB_COMPLETE') {
+                resetActionButtons();
+                const result = payload.result || {};
+                const git = payload.git || {};
+                const updates = payload.updatesList || result.updatesList || [];
+                addUpdatesToSummaryFeed(updates);
+                const summary = `+${result.createdCount || 0} added, ~${result.updatedCount || 0} updated, -${result.deletedCount || 0} deleted`;
+                if (git && git.success) {
+                  const repoText = payload.repoName || git.repoUrl || targetRepoLabel.textContent;
+                  const statusMsg = git.pushed
+                    ? `🚀 Pushed to ${repoText} (${git.branch || 'main'}) — ${summary}`
+                    : `✅ ${git.message || 'Up to date on GitHub'} (${summary})`;
+                  setBanner('success', statusMsg);
+                  log(`GitHub Sync: ${statusMsg}`);
+                  parent.postMessage({
+                    pluginMessage: {
+                      type: 'NOTIFY_GITHUB_SYNC',
+                      success: true,
+                      message: statusMsg
+                    }
+                  }, '*');
+                } else {
+                  const errMsg = `❌ Git push error: ${git?.error || 'Failed to push'}`;
+                  setBanner('error', errMsg);
+                  log(errMsg);
+                }
+              } else if (payload.event === 'FIGMA_TO_CODE_ERROR' || payload.event === 'FIGMA_TO_GITHUB_ERROR') {
+                resetActionButtons();
+                const errText = payload.error || 'Unknown sync error';
+                setBanner('error', `❌ ${errText}`);
+                log(`Sync error: ${errText}`);
               } else if (payload.event === 'CODE_TO_FIGMA_DELETE') {
-                log(`Received code deletion for: ${payload.componentName || payload.nodeId}`);
+                log(`Deleting from Figma canvas: ${payload.componentName || payload.folder}`);
                 parent.postMessage({
                   pluginMessage: {
                     type: 'ACTION_DELETE_COMPONENT',
@@ -178,7 +1074,7 @@
                   }
                 }, '*');
               } else if (payload.event === 'CODE_TO_FIGMA_UPDATE') {
-                log(`Received code update for: ${payload.componentName} (fontSize=${payload.fontSize ?? 'map'}px)`);
+                log(`Updating on Figma canvas: ${payload.componentName || payload.folder}`);
                 parent.postMessage({
                   pluginMessage: {
                     type: 'ACTION_UPDATE_COMPONENT',
@@ -186,8 +1082,6 @@
                   }
                 }, '*');
               }
-            } else if (data.type === 'system') {
-              log(`System: ${data.message}`);
             }
           } catch (e) {
             log('Error parsing socket message');
@@ -196,14 +1090,15 @@
 
         socket.onclose = () => {
           statusBadge.className = 'badge badge-disconnected';
-          statusBadge.textContent = 'Disconnected';
+          statusText.textContent = 'Disconnected';
+          resetActionButtons();
           log('Socket connection closed. Retrying in 5s...');
           setTimeout(connect, 5000);
         };
 
         socket.onerror = () => {
           statusBadge.className = 'badge badge-disconnected';
-          statusBadge.textContent = 'Error';
+          statusText.textContent = 'Offline';
         };
       } catch (err) {
         log(`Socket error: ${err.message}`);
@@ -217,38 +1112,58 @@
 
       if (msg.type === 'LOG') {
         log(msg.message);
-      } else if (msg.type === 'FIGMA_LIVE_SYNC_PAYLOAD') {
+      } else if (msg.type === 'FILE_INFO') {
+        updateRepoLabels(msg.fileName, msg.fileKey, null);
+      } else if (msg.type === 'CANVAS_ACTION_SUMMARY' && msg.item) {
+        addUpdatesToSummaryFeed([msg.item]);
+      } else if (msg.type === 'PRE_SYNC_FIGMA_PAYLOAD') {
+        updateRepoLabels(msg.payload?.fileName, msg.payload?.fileKey, null);
+        pendingSyncContext.canvasPayload = msg.payload;
         if (!socket || socket.readyState !== WebSocket.OPEN) {
-          log('Cannot send Figma payload: local sync server is disconnected.');
+          resetActionButtons();
+          setBanner('error', '❌ Cannot scan: local sync server ws://localhost:3055 is disconnected.');
           return;
         }
         socket.send(JSON.stringify({
           type: 'message',
           channel: 'figma-sync',
           message: {
-            event: 'FIGMA_LIVE_SYNC_PAYLOAD',
+            event: 'PRE_SYNC_CHECK',
+            direction: msg.payload?.direction || pendingSyncContext.direction || 'figma-to-code',
+            ...msg.payload
+          }
+        }));
+      } else if (msg.type === 'FIGMA_LIVE_SYNC_PAYLOAD') {
+        updateRepoLabels(msg.payload?.fileName, msg.payload?.fileKey, null);
+        if (!socket || socket.readyState !== WebSocket.OPEN) {
+          resetActionButtons();
+          setBanner('error', '❌ Cannot sync: local sync server ws://localhost:3055 is disconnected.');
+          return;
+        }
+        socket.send(JSON.stringify({
+          type: 'message',
+          channel: 'figma-sync',
+          message: {
+            event: msg.payload?.pushToGithub ? 'FIGMA_TO_GITHUB_SYNC' : 'FIGMA_LIVE_SYNC_PAYLOAD',
             ...msg.payload
           }
         }));
       }
     };
 
-    syncNowBtn.onclick = () => {
-      if (!socket || socket.readyState !== WebSocket.OPEN) {
-        log('Cannot sync: the local sync server is disconnected.');
-        return;
-      }
-      log('Extracting live Figma Variables & Components from canvas...');
-      parent.postMessage({
-        pluginMessage: {
-          type: 'REQUEST_FULL_FIGMA_EXPORT',
-          reason: 'manual'
-        }
-      }, '*');
+    // Button 1: Figma -> Code (Scans changed items & opens "Yes" confirmation modal)
+    syncFigmaToCodeBtn.onclick = () => {
+      startPreSyncScan('figma-to-code');
     };
 
+    // Button 2: Code -> Figma (Scans changed/deleted code items & opens "Yes" confirmation modal)
     syncCodeToFigmaBtn.onclick = () => {
-      requestCodeToFigmaSync();
+      startPreSyncScan('code-to-figma');
+    };
+
+    // Button 3: 🚀 Figma to GitHub Sync (Scans changes, confirms with "Yes", syncs & pushes to GitHub)
+    figmaToGithubBtn.onclick = () => {
+      startPreSyncScan('figma-to-github');
     };
 
     reconnectBtn.onclick = () => {

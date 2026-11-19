@@ -10,21 +10,23 @@ const path = require('node:path');
 let sass;
 try { sass = require('sass'); } catch { sass = null; }
 
-const COMPONENTS_DIR = path.join(process.cwd(), 'src', 'components');
-const CATALOG_PATH   = path.join(process.cwd(), 'src', 'figma', 'components.json');
-const MCP_CONFIG_PATH = path.join(process.cwd(), '.mcp', 'config.json');
-const TOKEN_VARIABLES_DIR = path.join(process.cwd(), 'src', 'tokens', 'variables');
+const getComponentsDir = () => path.join(process.cwd(), 'src', 'components');
+const getCatalogPath = () => path.join(process.cwd(), 'src', 'figma', 'components.json');
+const getMcpConfigPath = () => path.join(process.cwd(), '.mcp', 'config.json');
+const getTokenVariablesDir = () => path.join(process.cwd(), 'src', 'tokens', 'variables');
 
 let tokenValueCache = null;
 let tokenCacheMtime = 0;
+let tokenCacheDir = '';
 
 function getTokenDirMtime() {
-  if (!fs.existsSync(TOKEN_VARIABLES_DIR)) return 0;
+  const tokenVariablesDir = getTokenVariablesDir();
+  if (!fs.existsSync(tokenVariablesDir)) return 0;
   let maxMtime = 0;
-  for (const file of fs.readdirSync(TOKEN_VARIABLES_DIR)) {
+  for (const file of fs.readdirSync(tokenVariablesDir)) {
     if (!file.endsWith('.scss')) continue;
     try {
-      const stat = fs.statSync(path.join(TOKEN_VARIABLES_DIR, file));
+      const stat = fs.statSync(path.join(tokenVariablesDir, file));
       if (stat.mtimeMs > maxMtime) maxMtime = stat.mtimeMs;
     } catch { /* ignore */ }
   }
@@ -36,17 +38,18 @@ function getTokenDirMtime() {
  * Code -> Figma must resolve var(--token) before sending numeric/color values.
  */
 function loadTokenValues(forceReload = false) {
+  const tokenVariablesDir = getTokenVariablesDir();
   const currentMtime = getTokenDirMtime();
-  if (!forceReload && tokenValueCache && currentMtime === tokenCacheMtime) {
+  if (!forceReload && tokenValueCache && currentMtime === tokenCacheMtime && tokenCacheDir === tokenVariablesDir) {
     return tokenValueCache;
   }
 
   const values = {};
-  if (!fs.existsSync(TOKEN_VARIABLES_DIR)) return values;
+  if (!fs.existsSync(tokenVariablesDir)) return values;
 
-  for (const file of fs.readdirSync(TOKEN_VARIABLES_DIR)) {
+  for (const file of fs.readdirSync(tokenVariablesDir)) {
     if (!file.endsWith('.scss')) continue;
-    const fullPath = path.join(TOKEN_VARIABLES_DIR, file);
+    const fullPath = path.join(tokenVariablesDir, file);
     const source = fs.readFileSync(fullPath, 'utf8');
     const mapPrefix = file === 'layout.scss' ? 'layout-' : '';
 
@@ -84,12 +87,14 @@ function loadTokenValues(forceReload = false) {
 
   tokenValueCache = values;
   tokenCacheMtime = currentMtime;
+  tokenCacheDir = tokenVariablesDir;
   return values;
 }
 
 function invalidateTokenCache() {
   tokenValueCache = null;
   tokenCacheMtime = 0;
+  tokenCacheDir = '';
 }
 
 function resolveTokenValue(value, seen = new Set()) {
@@ -128,9 +133,10 @@ function findFigmaNodeId(componentName, folder) {
     } catch { /* ignore */ }
   }
 
-  if (fs.existsSync(MCP_CONFIG_PATH)) {
+  const mcpConfigPath = getMcpConfigPath();
+  if (fs.existsSync(mcpConfigPath)) {
     try {
-      const mcp = JSON.parse(fs.readFileSync(MCP_CONFIG_PATH, 'utf8'));
+      const mcp = JSON.parse(fs.readFileSync(mcpConfigPath, 'utf8'));
       if (Array.isArray(mcp.components)) {
         const found = mcp.components.find(
           c =>
@@ -143,9 +149,10 @@ function findFigmaNodeId(componentName, folder) {
     } catch { /* ignore */ }
   }
 
-  if (fs.existsSync(CATALOG_PATH)) {
+  const catalogPath = getCatalogPath();
+  if (fs.existsSync(catalogPath)) {
     try {
-      const catalog = JSON.parse(fs.readFileSync(CATALOG_PATH, 'utf8'));
+      const catalog = JSON.parse(fs.readFileSync(catalogPath, 'utf8'));
       if (Array.isArray(catalog.components)) {
         const found = catalog.components.find(
           c =>
@@ -293,7 +300,7 @@ function parseComponentDir(componentFolder) {
 
   const dirPath = path.isAbsolute(componentFolder)
     ? componentFolder
-    : path.join(COMPONENTS_DIR, componentFolder);
+    : path.join(getComponentsDir(), componentFolder);
 
   // ── DELETED ─────────────────────────────────────────────
   if (!fs.existsSync(dirPath)) {

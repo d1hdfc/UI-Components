@@ -5,8 +5,8 @@ const path = require('node:path');
 const appPageGenerator = require('./app-page-generator.cjs');
 const docsGenerator = require('./docs-generator.cjs');
 
-const COMPONENTS_DIR = path.join(process.cwd(), 'src', 'components');
-const INDEX_FILE = path.join(COMPONENTS_DIR, 'index.ts');
+const getComponentsDir = () => path.join(process.cwd(), 'src', 'components');
+const getIndexFile = () => path.join(getComponentsDir(), 'index.ts');
 
 /**
  * Helpers for naming conventions
@@ -583,11 +583,13 @@ function enforceFourFileStructure(componentDir, kebabName) {
  * Add or update export in src/components/index.ts
  */
 function ensureExportInIndex(pascalName, folder) {
-  if (!fs.existsSync(INDEX_FILE) || !folder || folder === 'assets') return;
-  let content = fs.readFileSync(INDEX_FILE, 'utf8');
+  const indexFile = getIndexFile();
+  const componentsDir = getComponentsDir();
+  if (!fs.existsSync(indexFile) || !folder || folder === 'assets') return;
+  let content = fs.readFileSync(indexFile, 'utf8');
 
   // Verify the component folder and .tsx file actually exist before adding an export
-  const tsxFile = path.join(COMPONENTS_DIR, folder, `${folder}.tsx`);
+  const tsxFile = path.join(componentsDir, folder, `${folder}.tsx`);
   if (!fs.existsSync(tsxFile)) return;
 
   const alreadyHasFolder = new RegExp(`['"]\\./${folder}/${folder}(?:\\.types)?['"]`).test(content);
@@ -595,7 +597,7 @@ function ensureExportInIndex(pascalName, folder) {
   if (!alreadyHasFolder && !alreadyHasSymbol) {
     const exportLine = `export { ${pascalName} } from './${folder}/${folder}'`;
     content = content.replace(/\s*$/, '') + `\n\n${exportLine}\nexport type { ${pascalName}Props } from './${folder}/${folder}.types'\n`;
-    fs.writeFileSync(INDEX_FILE, content, 'utf8');
+    fs.writeFileSync(indexFile, content, 'utf8');
     console.log(`[CodeGenerator] Added export for ${pascalName} to src/components/index.ts`);
   }
 }
@@ -604,8 +606,9 @@ function ensureExportInIndex(pascalName, folder) {
  * Remove all exports (single-line and multi-line value & type exports) for a component from src/components/index.ts
  */
 function removeExportFromIndex(pascalName, folder) {
-  if (!fs.existsSync(INDEX_FILE)) return;
-  const original = fs.readFileSync(INDEX_FILE, 'utf8');
+  const indexFile = getIndexFile();
+  if (!fs.existsSync(indexFile)) return;
+  const original = fs.readFileSync(indexFile, 'utf8');
   let content = original;
 
   const escapedFolder = String(folder || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -632,7 +635,7 @@ function removeExportFromIndex(pascalName, folder) {
   content = content.replace(/\n{3,}/g, '\n\n').trimEnd() + '\n';
 
   if (content !== original) {
-    fs.writeFileSync(INDEX_FILE, content, 'utf8');
+    fs.writeFileSync(indexFile, content, 'utf8');
     console.log(`[CodeGenerator] Removed export for ${pascalName || folder} from src/components/index.ts`);
   }
 }
@@ -671,8 +674,10 @@ function extractExportedSymbols(filePath) {
  * - Strips any @use statements in src/components/library.scss whose target .scss file does not exist
  */
 function sanitizeComponentIndex() {
-  if (fs.existsSync(INDEX_FILE)) {
-    const original = fs.readFileSync(INDEX_FILE, 'utf8');
+  const indexFile = getIndexFile();
+  const componentsDir = getComponentsDir();
+  if (fs.existsSync(indexFile)) {
+    const original = fs.readFileSync(indexFile, 'utf8');
     let content = original;
     let removedCount = 0;
     let normalizedCount = 0;
@@ -684,7 +689,7 @@ function sanitizeComponentIndex() {
         removedCount++;
         return '';
       }
-      const compDir = path.join(COMPONENTS_DIR, folder);
+      const compDir = path.join(componentsDir, folder);
       if (!fs.existsSync(compDir) || !fs.statSync(compDir).isDirectory()) {
         removedCount++;
         return '';
@@ -743,30 +748,30 @@ function sanitizeComponentIndex() {
 
     content = content.replace(/\n{3,}/g, '\n\n').trimEnd() + '\n';
     if (content !== original) {
-      fs.writeFileSync(INDEX_FILE, content, 'utf8');
+      fs.writeFileSync(indexFile, content, 'utf8');
       console.log(`[IndexValidator] Sanitized src/components/index.ts (removed ${removedCount} missing export(s), normalized ${normalizedCount} path(s)/symbol(s))`);
     }
 
     // Ensure every existing component folder in src/components/ is exported in src/components/index.ts
-    if (fs.existsSync(COMPONENTS_DIR)) {
-      for (const entry of fs.readdirSync(COMPONENTS_DIR, { withFileTypes: true })) {
+    if (fs.existsSync(componentsDir)) {
+      for (const entry of fs.readdirSync(componentsDir, { withFileTypes: true })) {
         if (!entry.isDirectory() || entry.name === 'assets') continue;
         const folder = toKebabCase(entry.name);
-        const compDir = path.join(COMPONENTS_DIR, folder);
+        const compDir = path.join(componentsDir, folder);
         enforceFourFileStructure(compDir, folder);
         ensureExportInIndex(toPascalCase(folder), folder);
       }
     }
   }
 
-      const libScss = path.join(COMPONENTS_DIR, 'library.scss');
+  const libScss = path.join(componentsDir, 'library.scss');
   if (fs.existsSync(libScss)) {
     const originalLib = fs.readFileSync(libScss, 'utf8');
     const validLines = originalLib.split(/\r?\n/).filter((line) => {
       const m = line.match(/^\s*@use\s+['"]\.\/([^/'"]+)\/([^'"]+)['"]/);
       if (!m) return true;
       const folder = m[1];
-      const scssFile = path.join(COMPONENTS_DIR, folder, `${folder}.scss`);
+      const scssFile = path.join(componentsDir, folder, `${folder}.scss`);
       return fs.existsSync(scssFile);
     });
     const updatedLib = validLines.join('\n').trimEnd() + '\n';
@@ -804,10 +809,23 @@ function sanitizeComponentIndex() {
 }
 
 /**
+ * Ensure @use './<folder>/<folder>'; is present in src/components/library.scss
+ */
+function ensureInLibraryScss(folder) {
+  const libScss = path.join(getComponentsDir(), 'library.scss');
+  if (!fs.existsSync(libScss) || !folder || folder === 'assets') return;
+  const content = fs.readFileSync(libScss, 'utf8');
+  if (!content.includes(`./${folder}/${folder}`)) {
+    const updated = content.replace(/\s*$/, '') + `\n@use './${folder}/${folder}';\n`;
+    fs.writeFileSync(libScss, updated, 'utf8');
+  }
+}
+
+/**
  * Remove @use './<folder>/<folder>'; from src/components/library.scss if present
  */
 function removeFromLibraryScss(folder) {
-  const libScss = path.join(COMPONENTS_DIR, 'library.scss');
+  const libScss = path.join(getComponentsDir(), 'library.scss');
   if (!fs.existsSync(libScss)) return;
   const content = fs.readFileSync(libScss, 'utf8');
   const lines = content.split('\n').filter(line => !line.includes(`./${folder}/${folder}`));
@@ -825,7 +843,7 @@ function generateComponentFiles(figmaNode, options = {}) {
   const kebabName = toKebabCase(rawName);
   if (kebabName === 'assets') return null;
 
-  const componentDir = path.join(COMPONENTS_DIR, kebabName);
+  const componentDir = path.join(getComponentsDir(), kebabName);
   fs.mkdirSync(componentDir, { recursive: true });
 
   const meta = parseVariantsAndProps(figmaNode);
@@ -845,6 +863,7 @@ function generateComponentFiles(figmaNode, options = {}) {
     fs.writeFileSync(scssPath, generateScss(pascalName, kebabName, meta), 'utf8');
   }
   ensureExportInIndex(pascalName, kebabName);
+  ensureInLibraryScss(kebabName);
 
   fs.writeFileSync(flutterPath, generateFlutterWidget(pascalName, kebabName, meta), 'utf8');
   const docsResult = docsGenerator.writeComponentDocs(figmaNode).result;
@@ -853,13 +872,15 @@ function generateComponentFiles(figmaNode, options = {}) {
   }
 
   enforceFourFileStructure(componentDir, kebabName);
+  const pageName = appPageGenerator.ensureSingleComponentPage(kebabName) || `${pascalName}Page`;
   appPageGenerator.syncAppComponentPages();
 
-  console.log(`[CodeGenerator] Generated 4-file component (${kebabName}.tsx, .types.ts, .scss, .dart) in ${componentDir}`);
+  console.log(`[CodeGenerator] Generated 5-file component (${kebabName}.tsx, .types.ts, .scss, .dart, .md) in ${componentDir} & page src/app/pages/${pageName}`);
 
   return {
     componentName: pascalName,
     folder: kebabName,
+    pageName,
     files: {
       react: tsxPath,
       types: typesPath,
@@ -876,8 +897,8 @@ function generateComponentFiles(figmaNode, options = {}) {
 function deleteComponentFiles(rawName) {
   const kebabName = toKebabCase(rawName);
   const pascalName = toPascalCase(rawName);
-  const componentDir = path.join(COMPONENTS_DIR, kebabName);
-  const pageDirName = `${appPageGenerator.toPageName(kebabName)}Page`;
+  const componentDir = path.join(getComponentsDir(), kebabName);
+  const pageDirName = `${pascalName}Page`;
   const pageDir = path.join(process.cwd(), 'src', 'app', 'pages', pageDirName);
 
   let removedAnything = false;
@@ -913,12 +934,13 @@ function deleteComponentFiles(rawName) {
  */
 function normalizeSingleComponentFolder(rawFolderName) {
   if (!rawFolderName || rawFolderName === 'assets') return null;
-  const rawDirPath = path.join(COMPONENTS_DIR, rawFolderName);
+  const componentsDir = getComponentsDir();
+  const rawDirPath = path.join(componentsDir, rawFolderName);
   if (!fs.existsSync(rawDirPath) || !fs.statSync(rawDirPath).isDirectory()) return null;
 
   const folder = toKebabCase(rawFolderName);
   const pascalName = toPascalCase(folder);
-  const folderPath = path.join(COMPONENTS_DIR, folder);
+  const folderPath = path.join(componentsDir, folder);
 
   if (rawFolderName !== folder) {
     fs.mkdirSync(folderPath, { recursive: true });
@@ -994,7 +1016,9 @@ function normalizeSingleComponentFolder(rawFolderName) {
   }
 
   ensureExportInIndex(pascalName, folder);
+  ensureInLibraryScss(folder);
   enforceFourFileStructure(folderPath, folder);
+  appPageGenerator.ensureSingleComponentPage(folder);
   appPageGenerator.syncAppComponentPages();
   return folder;
 }
@@ -1003,9 +1027,10 @@ function normalizeSingleComponentFolder(rawFolderName) {
  * Ensure all existing components follow the strict 4-file lowercase-hyphen structure
  */
 function generateForExistingComponents() {
-  if (!fs.existsSync(COMPONENTS_DIR)) return;
+  const componentsDir = getComponentsDir();
+  if (!fs.existsSync(componentsDir)) return;
 
-  const entries = fs.readdirSync(COMPONENTS_DIR, { withFileTypes: true });
+  const entries = fs.readdirSync(componentsDir, { withFileTypes: true });
   for (const entry of entries) {
     if (!entry.isDirectory() || entry.name === 'assets') continue;
     const normalized = normalizeSingleComponentFolder(entry.name);
